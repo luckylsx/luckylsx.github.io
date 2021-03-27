@@ -1,0 +1,121 @@
+<!DOCTYPE html><html lang="en.yml"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="format-detection" content="telephone=no"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black"><link rel="icon" href="/images/icons/favicon-16x16.png?v=2.6.2" type="image/png" sizes="16x16"><link rel="icon" href="/images/icons/favicon-32x32.png?v=2.6.2" type="image/png" sizes="32x32"><meta name="description" content="问题思考       数据库索引的数据结构有很多种，比如：哈希索引、平衡二叉树索引、B树索引、B+树索引等等。 目前最流行的是B+树索引，那大家有没有想过为什么是B+树索引最流行，为什么其他索引应用不广泛                     哈希索引">
+<meta property="og:type" content="article">
+<meta property="og:title" content="索引为何使用B+树">
+<meta property="og:url" content="http://example.com/2020/10/12/%E7%B4%A2%E5%BC%95%E4%B8%BA%E4%BD%95%E4%BD%BF%E7%94%A8B+%E6%A0%91/index.html">
+<meta property="og:site_name" content="lucky&#39;s blog">
+<meta property="og:description" content="问题思考       数据库索引的数据结构有很多种，比如：哈希索引、平衡二叉树索引、B树索引、B+树索引等等。 目前最流行的是B+树索引，那大家有没有想过为什么是B+树索引最流行，为什么其他索引应用不广泛                     哈希索引">
+<meta property="og:locale">
+<meta property="og:image" content="https://luckylsx.github.io/images/mysql/mysql_avl_tree.png">
+<meta property="og:image" content="https://luckylsx.github.io/images/mysql/mysql_b_tree.png">
+<meta property="og:image" content="https://luckylsx.github.io/images/mysql/mysql_b_plus_tree.png">
+<meta property="article:published_time" content="2020-10-11T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-03-27T16:12:49.063Z">
+<meta property="article:author" content="lucky">
+<meta property="article:tag" content="mysql">
+<meta property="article:tag" content="B+树">
+<meta property="article:tag" content="hash">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://luckylsx.github.io/images/mysql/mysql_avl_tree.png"><title>索引为何使用B+树 | lucky's blog</title><link ref="canonical" href="http://example.com/2020/10/12/%E7%B4%A2%E5%BC%95%E4%B8%BA%E4%BD%95%E4%BD%BF%E7%94%A8B+%E6%A0%91/"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.12.1/css/all.min.css" type="text/css"><link rel="stylesheet" href="/css/index.css?v=2.6.2"><script>var Stun = window.Stun || {};
+var CONFIG = {
+  root: '/',
+  algolia: undefined,
+  assistSearch: undefined,
+  fontIcon: {"prompt":{"success":"fas fa-check-circle","info":"fas fa-arrow-circle-right","warning":"fas fa-exclamation-circle","error":"fas fa-times-circle"},"copyBtn":"fas fa-copy"},
+  sidebar: {"offsetTop":"20px","tocMaxDepth":6},
+  header: {"enable":true,"showOnPost":true,"scrollDownIcon":false},
+  postWidget: {"endText":true},
+  nightMode: {"enable":true},
+  back2top: {"enable":true},
+  codeblock: {"style":"default","highlight":"light","wordWrap":false},
+  reward: false,
+  fancybox: false,
+  zoomImage: {"gapAside":"20px"},
+  galleryWaterfall: undefined,
+  lazyload: false,
+  pjax: undefined,
+  externalLink: {"icon":{"enable":true,"name":"fas fa-external-link-alt"}},
+  shortcuts: undefined,
+  prompt: {"copyButton":"Copy","copySuccess":"Copy Success","copyError":"Copy Error"},
+  sourcePath: {"js":"js","css":"css","images":"images"},
+};
+
+window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 5.3.0"></head><body><div class="container" id="container"><header class="header" id="header"><div class="header-inner"><nav class="header-nav header-nav--fixed"><div class="header-nav-inner"><div class="header-nav-menubtn"><i class="fas fa-bars"></i></div><div class="header-nav-menu"><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/"><span class="header-nav-menu-item__icon"><i class="fas fa-home"></i></span><span class="header-nav-menu-item__text">Home</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/archives/"><span class="header-nav-menu-item__icon"><i class="fas fa-folder-open"></i></span><span class="header-nav-menu-item__text">Archives</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/categories/"><span class="header-nav-menu-item__icon"><i class="fas fa-layer-group"></i></span><span class="header-nav-menu-item__text">Categories</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/tags/"><span class="header-nav-menu-item__icon"><i class="fas fa-tags"></i></span><span class="header-nav-menu-item__text">Tags</span></a></div></div><div class="header-nav-mode"><div class="mode"><div class="mode-track"><span class="mode-track-moon"></span><span class="mode-track-sun"></span></div><div class="mode-thumb"></div></div></div></div></nav><div class="header-banner"><div class="header-banner-info"><div class="header-banner-info__title">lucky's blog</div><div class="header-banner-info__subtitle"></div></div></div></div></header><main class="main" id="main"><div class="main-inner"><div class="content-wrap" id="content-wrap"><div class="content" id="content"><!-- Just used to judge whether it is an article page--><div id="is-post"></div><div class="post"><header class="post-header"><h1 class="post-title">索引为何使用B+树</h1><div class="post-meta"><span class="post-meta-item post-meta-item--createtime"><span class="post-meta-item__icon"><i class="far fa-calendar-plus"></i></span><span class="post-meta-item__info">Created</span><span class="post-meta-item__value">2020-10-12</span></span><span class="post-meta-item post-meta-item--updatetime"><span class="post-meta-item__icon"><i class="far fa-calendar-check"></i></span><span class="post-meta-item__info">Updated</span><span class="post-meta-item__value">2021-03-28</span></span></div></header><div class="post-body">
+        <h2 id="问题思考"   >
+          <a href="#问题思考" class="heading-link"><i class="fas fa-link"></i></a><a href="#问题思考" class="headerlink" title="问题思考"></a>问题思考</h2>
+      <p>数据库索引的数据结构有很多种，比如：哈希索引、平衡二叉树索引、B树索引、B+树索引等等。</p>
+<p>目前最流行的是B+树索引，那大家有没有想过为什么是B+树索引最流行，为什么其他索引应用不广泛</p>
+
+        <h2 id="哈希索引"   >
+          <a href="#哈希索引" class="heading-link"><i class="fas fa-link"></i></a><a href="#哈希索引" class="headerlink" title="哈希索引"></a>哈希索引</h2>
+      <a id="more"></a>
+
+<p>hash大家应该非常的熟悉，就是我们老生常谈的HashMap里用到的技术。Hash索引其检索效率非常高，索引的检索可以一次定位。</p>
+<p>既然Hash索引的效率这么高，为什么都用Hash索引而还要使用B-Tree索引呢?</p>
+<p>这是因为虽然Hash索引效率高，但是Hash索引本身由于其特殊性也带来了很多限制和弊端，主要有以下这些：</p>
+
+        <h3 id="1-原因一："   >
+          <a href="#1-原因一：" class="heading-link"><i class="fas fa-link"></i></a><a href="#1-原因一：" class="headerlink" title="1. 原因一："></a>1. 原因一：</h3>
+      <p><strong>Hash索引不能使用范围查询</strong></p>
+<p>Hash索引仅仅能满足”=”,”IN”和”&lt;=&gt;”查询(注意&lt;&gt;和＜＝＞是不同的操作），不能使用范围查询，例如WHERE price &gt; 100。</p>
+<p>由于Hash索引比较的是进行Hash运算之后的Hash值，所以它只能用于等值的过滤，不能用于基于范围的过滤。</p>
+
+        <h3 id="2-原因二："   >
+          <a href="#2-原因二：" class="heading-link"><i class="fas fa-link"></i></a><a href="#2-原因二：" class="headerlink" title="2. 原因二："></a>2. 原因二：</h3>
+      <p><strong>Hash索引不能利用部分索引键查询。</strong></p>
+<p>对于复合索引，Hash索引在计算Hash值的时候，是组合索引键合并后再一起计算Hash值，而不是单独计算Hash值。</p>
+<p>所以通过复合索引的前面一个或几个索引键进行查询的时候，Hash索引也无法被利用。</p>
+
+        <h3 id="3-原因三："   >
+          <a href="#3-原因三：" class="heading-link"><i class="fas fa-link"></i></a><a href="#3-原因三：" class="headerlink" title="3. 原因三："></a>3. 原因三：</h3>
+      <p><strong>Hash索引在任何时候都不能避免表扫描。</strong></p>
+<p>Hash索引是将索引键通过Hash运算之后，将 Hash运算结果的Hash值和所对应的行指针信息存放于一个Hash表中。</p>
+<p>由于不同索引键存在相同Hash值，所以无法从Hash索引中直接完成查询，还是要通过访问表中的实际数据进行相应的比较，并得到相应的结果。</p>
+
+        <h2 id="平衡二叉树索引"   >
+          <a href="#平衡二叉树索引" class="heading-link"><i class="fas fa-link"></i></a><a href="#平衡二叉树索引" class="headerlink" title="平衡二叉树索引"></a>平衡二叉树索引</h2>
+      <p>平衡二叉树的结构特点：</p>
+<p><img src="https://luckylsx.github.io/images/mysql/mysql_avl_tree.png" alt="mysql_avl_tree"></p>
+<p>又称 AVL树。它除了具备二叉查找树的基本特征之外，还具有一个非常重要的特点：它的左子树和右子树都是平衡二叉树。</p>
+<p>且左子树和右子树的深度之差的绝对值（平衡因子 ）不超过1。也就是说AVL树每个节点的平衡因子只可能是-1、0和1（左子树高度减去右子树高度）。</p>
+
+        <h3 id="被淘汰的原因"   >
+          <a href="#被淘汰的原因" class="heading-link"><i class="fas fa-link"></i></a><a href="#被淘汰的原因" class="headerlink" title="被淘汰的原因:"></a>被淘汰的原因:</h3>
+      <ul>
+<li>树的高度过高，高度越高，查找速度越慢</li>
+<li>他支持范围查找，但是他需要在进行回旋查找</li>
+</ul>
+<p>比如我要找到大于5的数据</p>
+<p>第一步我先定位到5，然后在树上按照二叉树规则去回旋查找大于5其他数据6、7、8、9、10。。。</p>
+<p>如果大于5的数据很多，那速度是很慢的。</p>
+
+        <h2 id="B树索引"   >
+          <a href="#B树索引" class="heading-link"><i class="fas fa-link"></i></a><a href="#B树索引" class="headerlink" title="B树索引"></a>B树索引</h2>
+      <p><img src="https://luckylsx.github.io/images/mysql/mysql_b_tree.png" alt="mysql_b_tree"></p>
+<p>大家可以看到B树和二叉树最大的区别在于：它一个节点可以存储两个值，这就意味着它的树高度，比二叉树的高度更低，它的查询速度就更快。这是他的优点</p>
+<p>那为什么最终还是不用它呢，还是因为他在范围查找的时候，存在回旋查询的问题。同样order by排序的时候效率也很低，因为要把树上的数据手动排序一遍。</p>
+
+        <h2 id="终极大佬：B-树"   >
+          <a href="#终极大佬：B-树" class="heading-link"><i class="fas fa-link"></i></a><a href="#终极大佬：B-树" class="headerlink" title="终极大佬：B+树:"></a>终极大佬：B+树:</h2>
+      <p><img src="https://luckylsx.github.io/images/mysql/mysql_b_plus_tree.png" alt="mysql_b_plus_tree"></p>
+<p>它是B数的升级版，B+树相比B树，新增叶子节点与非叶子节点关系。</p>
+<p>叶子节点中包含了key和value，key存储的是1-10这些数字，value存储的是数据存储地址，非叶子节点中只是包含了key，不包含value。</p>
+<p>所有相邻的叶子节点包含非叶子节点，使用链表进行结合，有一定顺序排序，从而范围查询效率非常高</p>
+
+        <h3 id="比如我们要查找大于5的数据："   >
+          <a href="#比如我们要查找大于5的数据：" class="heading-link"><i class="fas fa-link"></i></a><a href="#比如我们要查找大于5的数据：" class="headerlink" title="比如我们要查找大于5的数据："></a>比如我们要查找大于5的数据：</h3>
+      <ul>
+<li>首先我们定位到5的位置</li>
+<li>然后直接将5后面的数据全部拿出来即可，因为这是有序链表，已经排好序了</li>
+</ul>
+<p>我们在order by排序的时候为什么要使用索引进行排序，原因就在这。</p>
+</div><footer class="post-footer"><div class="post-ending ending"><div class="ending__text">------ END ------</div></div><div class="post-tags"><span class="post-tags-item"><span class="post-tags-item__icon"><i class="fas fa-tag"></i></span><a class="post-tags-item__link" href="http://example.com/tags/mysql/">mysql</a></span><span class="post-tags-item"><span class="post-tags-item__icon"><i class="fas fa-tag"></i></span><a class="post-tags-item__link" href="http://example.com/tags/B-%E6%A0%91/">B+树</a></span><span class="post-tags-item"><span class="post-tags-item__icon"><i class="fas fa-tag"></i></span><a class="post-tags-item__link" href="http://example.com/tags/hash/">hash</a></span></div><nav class="post-paginator paginator"><div class="paginator-prev"><a class="paginator-prev__link" href="/2021/03/27/golang/"><span class="paginator-prev__icon"><i class="fas fa-angle-left"></i></span><span class="paginator-prev__text">golang-gmp</span></a></div></nav></footer></div></div></div><div class="sidebar-wrap" id="sidebar-wrap"><aside class="sidebar" id="sidebar"><div class="sidebar-nav"><span class="sidebar-nav-toc current">Catalog</span><span class="sidebar-nav-ov">Overview</span></div><section class="sidebar-toc"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E6%80%9D%E8%80%83"><span class="toc-number">1.</span> <span class="toc-text">
+          问题思考</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%93%88%E5%B8%8C%E7%B4%A2%E5%BC%95"><span class="toc-number">2.</span> <span class="toc-text">
+          哈希索引</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%8E%9F%E5%9B%A0%E4%B8%80%EF%BC%9A"><span class="toc-number">2.1.</span> <span class="toc-text">
+          1. 原因一：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%8E%9F%E5%9B%A0%E4%BA%8C%EF%BC%9A"><span class="toc-number">2.2.</span> <span class="toc-text">
+          2. 原因二：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%8E%9F%E5%9B%A0%E4%B8%89%EF%BC%9A"><span class="toc-number">2.3.</span> <span class="toc-text">
+          3. 原因三：</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B9%B3%E8%A1%A1%E4%BA%8C%E5%8F%89%E6%A0%91%E7%B4%A2%E5%BC%95"><span class="toc-number">3.</span> <span class="toc-text">
+          平衡二叉树索引</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A2%AB%E6%B7%98%E6%B1%B0%E7%9A%84%E5%8E%9F%E5%9B%A0"><span class="toc-number">3.1.</span> <span class="toc-text">
+          被淘汰的原因:</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#B%E6%A0%91%E7%B4%A2%E5%BC%95"><span class="toc-number">4.</span> <span class="toc-text">
+          B树索引</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BB%88%E6%9E%81%E5%A4%A7%E4%BD%AC%EF%BC%9AB-%E6%A0%91"><span class="toc-number">5.</span> <span class="toc-text">
+          终极大佬：B+树:</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%AF%94%E5%A6%82%E6%88%91%E4%BB%AC%E8%A6%81%E6%9F%A5%E6%89%BE%E5%A4%A7%E4%BA%8E5%E7%9A%84%E6%95%B0%E6%8D%AE%EF%BC%9A"><span class="toc-number">5.1.</span> <span class="toc-text">
+          比如我们要查找大于5的数据：</span></a></li></ol></li></ol></section><!-- ov = overview--><section class="sidebar-ov hide"><div class="sidebar-ov-author"><div class="sidebar-ov-author__avatar"><img class="sidebar-ov-author__avatar_img" src="/images/icons/stun-logo.svg" alt="avatar"></div><p class="sidebar-ov-author__text">hello world</p></div><div class="sidebar-ov-state"><a class="sidebar-ov-state-item sidebar-ov-state-item--posts" href="/archives/"><div class="sidebar-ov-state-item__count">4</div><div class="sidebar-ov-state-item__name">Archives</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--categories" href="/categories/"><div class="sidebar-ov-state-item__count">2</div><div class="sidebar-ov-state-item__name">Categories</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--tags" href="/tags/"><div class="sidebar-ov-state-item__count">3</div><div class="sidebar-ov-state-item__name">Tags</div></a></div></section><div class="sidebar-reading"><div class="sidebar-reading-info"><span class="sidebar-reading-info__text">You have read </span><span class="sidebar-reading-info__num">0</span><span class="sidebar-reading-info__perc">%</span></div><div class="sidebar-reading-line"></div></div></aside></div><div class="clearfix"></div></div></main><footer class="footer" id="footer"><div class="footer-inner"><div><span>Copyright © 2021</span><span class="footer__icon"><i class="fas fa-heart"></i></span><span>lucky</span></div></div></footer><div class="loading-bar" id="loading-bar"><div class="loading-bar__progress"></div></div><div class="back2top" id="back2top"><span class="back2top__icon"><i class="fas fa-rocket"></i></span></div></div><script src="https://cdn.jsdelivr.net/npm/jquery@v3.4.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.ui.min.js"></script><script src="/js/utils.js?v=2.6.2"></script><script src="/js/stun-boot.js?v=2.6.2"></script><script src="/js/scroll.js?v=2.6.2"></script><script src="/js/header.js?v=2.6.2"></script><script src="/js/sidebar.js?v=2.6.2"></script></body></html>
