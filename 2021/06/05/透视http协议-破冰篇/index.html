@@ -5,11 +5,18 @@
 <meta property="og:site_name" content="Study hard, Work Hard">
 <meta property="og:description" content="HTTP的前世今生       HTTP 协议是怎么来的？它最开始是什么样子的？又是如何一步一步发展到今天，几乎“统治”了整个互联网世界的呢？                     史前时期       20 世纪 60 年代，美国国防部高等研究计划署（ARPA）建立了 ARPA 网，它有四个分布在各地的节点，被认为是如今互联网的“始祖”。">
 <meta property="og:locale">
+<meta property="og:image" content="http://example.com/images/golang/http/tcp-layer.png">
+<meta property="og:image" content="http://example.com/images/golang/http/osi-layer.png">
+<meta property="og:image" content="http://example.com/images/golang/http/tcp-osi-map.png">
+<meta property="og:image" content="http://example.com/images/golang/http/dns.png">
+<meta property="og:image" content="http://example.com/images/golang/http/dns-now.png">
 <meta property="article:published_time" content="2021-06-04T16:00:00.000Z">
-<meta property="article:modified_time" content="2021-06-05T15:18:48.973Z">
+<meta property="article:modified_time" content="2021-06-06T05:38:43.814Z">
 <meta property="article:author" content="lucky">
 <meta property="article:tag" content="http">
-<meta name="twitter:card" content="summary"><title>透视http协议-破冰篇 | Study hard, Work Hard</title><link ref="canonical" href="http://example.com/2021/06/05/%E9%80%8F%E8%A7%86http%E5%8D%8F%E8%AE%AE-%E7%A0%B4%E5%86%B0%E7%AF%87/"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.12.1/css/all.min.css" type="text/css"><link rel="stylesheet" href="/css/index.css?v=2.6.2"><script>var Stun = window.Stun || {};
+<meta property="article:tag" content="tcp&#x2F;ip">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/golang/http/tcp-layer.png"><title>透视http协议-破冰篇 | Study hard, Work Hard</title><link ref="canonical" href="http://example.com/2021/06/05/%E9%80%8F%E8%A7%86http%E5%8D%8F%E8%AE%AE-%E7%A0%B4%E5%86%B0%E7%AF%87/"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.12.1/css/all.min.css" type="text/css"><link rel="stylesheet" href="/css/index.css?v=2.6.2"><script>var Stun = window.Stun || {};
 var CONFIG = {
   root: '/',
   algolia: undefined,
@@ -33,7 +40,7 @@ var CONFIG = {
   sourcePath: {"js":"js","css":"css","images":"images"},
 };
 
-window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 5.3.0"></head><body><div class="container" id="container"><header class="header" id="header"><div class="header-inner"><nav class="header-nav header-nav--fixed"><div class="header-nav-inner"><div class="header-nav-menubtn"><i class="fas fa-bars"></i></div><div class="header-nav-menu"><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/"><span class="header-nav-menu-item__icon"><i class="fas fa-home"></i></span><span class="header-nav-menu-item__text">Home</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/archives/"><span class="header-nav-menu-item__icon"><i class="fas fa-folder-open"></i></span><span class="header-nav-menu-item__text">Archives</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/categories/"><span class="header-nav-menu-item__icon"><i class="fas fa-layer-group"></i></span><span class="header-nav-menu-item__text">Categories</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/tags/"><span class="header-nav-menu-item__icon"><i class="fas fa-tags"></i></span><span class="header-nav-menu-item__text">Tags</span></a></div></div><div class="header-nav-search"><span class="header-nav-search__icon"><i class="fas fa-search"></i></span><span class="header-nav-search__text">Search</span></div><div class="header-nav-mode"><div class="mode"><div class="mode-track"><span class="mode-track-moon"></span><span class="mode-track-sun"></span></div><div class="mode-thumb"></div></div></div></div></nav><div class="header-banner"><div class="header-banner-info"><div class="header-banner-info__title">Study hard, Work Hard</div><div class="header-banner-info__subtitle">If you don't want to wasted life in the world, that is about to study for a lifetime.</div></div></div></div></header><main class="main" id="main"><div class="main-inner"><div class="content-wrap" id="content-wrap"><div class="content" id="content"><!-- Just used to judge whether it is an article page--><div id="is-post"></div><div class="post"><header class="post-header"><h1 class="post-title">透视http协议-破冰篇</h1><div class="post-meta"><span class="post-meta-item post-meta-item--createtime"><span class="post-meta-item__icon"><i class="far fa-calendar-plus"></i></span><span class="post-meta-item__info">Created</span><span class="post-meta-item__value">2021-06-05</span></span><span class="post-meta-item post-meta-item--updatetime"><span class="post-meta-item__icon"><i class="far fa-calendar-check"></i></span><span class="post-meta-item__info">Updated</span><span class="post-meta-item__value">2021-06-05</span></span><span class="post-meta-item post-meta-item--visitors"><span class="post-meta-item__icon"><i class="fas fa-eye"></i></span><span class="post-meta-item__info">Visited</span><span class="post-meta-item__value" id="busuanzi_value_page_pv"></span></span></div></header><div class="post-body">
+window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 5.3.0"></head><body><div class="container" id="container"><header class="header" id="header"><div class="header-inner"><nav class="header-nav header-nav--fixed"><div class="header-nav-inner"><div class="header-nav-menubtn"><i class="fas fa-bars"></i></div><div class="header-nav-menu"><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/"><span class="header-nav-menu-item__icon"><i class="fas fa-home"></i></span><span class="header-nav-menu-item__text">Home</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/archives/"><span class="header-nav-menu-item__icon"><i class="fas fa-folder-open"></i></span><span class="header-nav-menu-item__text">Archives</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/categories/"><span class="header-nav-menu-item__icon"><i class="fas fa-layer-group"></i></span><span class="header-nav-menu-item__text">Categories</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/tags/"><span class="header-nav-menu-item__icon"><i class="fas fa-tags"></i></span><span class="header-nav-menu-item__text">Tags</span></a></div></div><div class="header-nav-search"><span class="header-nav-search__icon"><i class="fas fa-search"></i></span><span class="header-nav-search__text">Search</span></div><div class="header-nav-mode"><div class="mode"><div class="mode-track"><span class="mode-track-moon"></span><span class="mode-track-sun"></span></div><div class="mode-thumb"></div></div></div></div></nav><div class="header-banner"><div class="header-banner-info"><div class="header-banner-info__title">Study hard, Work Hard</div><div class="header-banner-info__subtitle">If you don't want to wasted life in the world, that is about to study for a lifetime.</div></div></div></div></header><main class="main" id="main"><div class="main-inner"><div class="content-wrap" id="content-wrap"><div class="content" id="content"><!-- Just used to judge whether it is an article page--><div id="is-post"></div><div class="post"><header class="post-header"><h1 class="post-title">透视http协议-破冰篇</h1><div class="post-meta"><span class="post-meta-item post-meta-item--createtime"><span class="post-meta-item__icon"><i class="far fa-calendar-plus"></i></span><span class="post-meta-item__info">Created</span><span class="post-meta-item__value">2021-06-05</span></span><span class="post-meta-item post-meta-item--updatetime"><span class="post-meta-item__icon"><i class="far fa-calendar-check"></i></span><span class="post-meta-item__info">Updated</span><span class="post-meta-item__value">2021-06-06</span></span><span class="post-meta-item post-meta-item--visitors"><span class="post-meta-item__icon"><i class="fas fa-eye"></i></span><span class="post-meta-item__info">Visited</span><span class="post-meta-item__value" id="busuanzi_value_page_pv"></span></span></div></header><div class="post-body">
         <h2 id="HTTP的前世今生"   >
           <a href="#HTTP的前世今生" class="heading-link"><i class="fas fa-link"></i></a><a href="#HTTP的前世今生" class="headerlink" title="HTTP的前世今生"></a>HTTP的前世今生</h2>
       <p>HTTP 协议是怎么来的？它最开始是什么样子的？又是如何一步一步发展到今天，几乎“统治”了整个互联网世界的呢？</p>
@@ -266,7 +273,157 @@ window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 5.3.0"></he
 <li>2011年2月互联网组织ICANN 正式宣布IPV4 地址被”用尽”</li>
 <li>如果使用 UNIX/Linux 操作系统，HTTP可以运行在本机的 UNIX Domain Socket 上，它也是一种进程间通信机制，但也可以满足HTTP 对下层对可靠传输要求，所以就成了”HTTP over UNIX Domain Soocket”。</li>
 </ul>
-</div><footer class="post-footer"><div class="post-ending ending"><div class="ending__text">------ END ------</div></div><div class="post-tags"><span class="post-tags-item"><span class="post-tags-item__icon"><i class="fas fa-tag"></i></span><a class="post-tags-item__link" href="http://example.com/tags/http/">http</a></span></div><nav class="post-paginator paginator"><div class="paginator-next"><a class="paginator-next__link" href="/2021/06/02/rpc%E7%9A%84%E6%A0%B8%E5%BF%83%E5%8E%9F%E7%90%86-rpc%E7%9A%84%E9%80%9A%E4%BF%A1%E6%B5%81%E7%A8%8B/"><span class="paginator-prev__text">rpc的核心原理-rpc的通信流程</span><span class="paginator-next__icon"><i class="fas fa-angle-right"></i></span></a></div></nav></footer></div></div></div><div class="sidebar-wrap" id="sidebar-wrap"><aside class="sidebar" id="sidebar"><div class="sidebar-nav"><span class="sidebar-nav-toc current">Catalog</span><span class="sidebar-nav-ov">Overview</span></div><section class="sidebar-toc"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#HTTP%E7%9A%84%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F"><span class="toc-number">1.</span> <span class="toc-text">
+
+        <h2 id="常说的“四层”和“七层”到底是什么？"   >
+          <a href="#常说的“四层”和“七层”到底是什么？" class="heading-link"><i class="fas fa-link"></i></a><a href="#常说的“四层”和“七层”到底是什么？" class="headerlink" title="常说的“四层”和“七层”到底是什么？"></a>常说的“四层”和“七层”到底是什么？</h2>
+      <p>TCP/IP 协议，它是 HTTP 协议的下层协议，负责具体的数据传输工作。强调了 TCP/IP 协议是一个 <strong>“有层次的协议栈”</strong>。</p>
+
+        <h3 id="TCP-IP-网络分层模型"   >
+          <a href="#TCP-IP-网络分层模型" class="heading-link"><i class="fas fa-link"></i></a><a href="#TCP-IP-网络分层模型" class="headerlink" title="TCP/IP 网络分层模型"></a>TCP/IP 网络分层模型</h3>
+      <p>TCP/IP 创造性地提出了“分层”的概念，把复杂的网络通信划分出多个层次，再给每一个层次分配不同的职责，用“分而治之”的思想把一个“大麻烦”拆分成了数个“小麻烦”，从而解决了网络通信的难题。</p>
+<p>如图所示：</p>
+<p><img src="/images/golang/http/tcp-layer.png" alt="tcp_layer"></p>
+<p>TCP/IP 协议总共有四层，每一层需要下层的支撑，同时又支撑着上层，任何一层被抽掉都可能会导致整个协议栈坍塌。</p>
+<p>从下往上看：</p>
+<p>第一层叫“链接层”（link layer），负责在以太网、WiFi 这样的底层网络上发送原始数据包，工作在网卡这个层次，使用 MAC 地址来标记网络上的设备，所以有时候也叫 MAC 层。</p>
+<p>第二层叫“网际层”或者“网络互连层”（internet layer），IP 协议就处在这一层。因为 IP 协议定义了“IP 地址”的概念，所以就可以在“链接层”的基础上，用 IP 地址取代 MAC 地址，把许许多多的局域网、广域网连接成一个虚拟的巨大网络，在这个网络里找设备时只要把 IP 地址再“翻译”成 MAC 地址就可以了。</p>
+<p>第三层叫“传输层”（transport layer），这个层次协议的职责是保证数据在 IP 地址标记的两点之间“可靠”地传输，是 TCP 协议工作的层次，另外还有它的一个“小伙伴”UDP。</p>
+<p>TCP 是一个有状态的协议，需要先与对方建立连接然后才能发送数据，而且保证数据不丢失不重复。而 UDP 则比较简单，它无状态，不用事先建立连接就可以任意发送数据，但不保证数据一定会发到对方。两个协议的另一个重要区别在于数据的形式。TCP 的数据是连续的“字节流”，有先后顺序，而 UDP 则是分散的小数据包，是顺序发，乱序收。</p>
+<p>协议栈的第四层叫“应用层”（application layer），有各种面向具体应用的协议。例如 Telnet、SSH、FTP、SMTP 等等，当然还有 HTTP。</p>
+<p>MAC 层的传输单位是帧（frame），IP 层的传输单位是包（packet），TCP 层的传输单位是段（segment），HTTP 的传输单位则是消息或报文（message）。但这些名词并没有什么本质的区分，可以统称为数据包。</p>
+
+        <h3 id="OSI-网络分层模型"   >
+          <a href="#OSI-网络分层模型" class="heading-link"><i class="fas fa-link"></i></a><a href="#OSI-网络分层模型" class="headerlink" title="OSI 网络分层模型"></a>OSI 网络分层模型</h3>
+      <p>OSI，全称是“开放式系统互联通信参考模型”（Open System Interconnection Reference Model）。</p>
+<p>OSI 模型分成了七层，部分层次与 TCP/IP 很像，从下到上分别是：</p>
+<p><img src="/images/golang/http/osi-layer.png" alt="osi_layer"></p>
+<ol>
+<li>第一层：物理层，网络的物理形式，例如电缆、光纤、网卡、集线器等等；</li>
+<li>第二层：数据链路层，它基本相当于 TCP/IP 的链接层；</li>
+<li>第三层：网络层，相当于 TCP/IP 里的网际层；</li>
+<li>第四层：传输层，相当于 TCP/IP 里的传输层；</li>
+<li>第五层：会话层，维护网络中的连接状态，即保持会话和同步；</li>
+<li>第六层：表示层，把数据转换为合适、可理解的语法和语义；</li>
+<li>第七层：应用层，面向具体的应用传输数据。</li>
+</ol>
+
+        <h3 id="两个分层模型的映射关系"   >
+          <a href="#两个分层模型的映射关系" class="heading-link"><i class="fas fa-link"></i></a><a href="#两个分层模型的映射关系" class="headerlink" title="两个分层模型的映射关系"></a>两个分层模型的映射关系</h3>
+      <p><img src="/images/golang/http/tcp-osi-map.png" alt="osi_layer"></p>
+<ol>
+<li>第一层：物理层，TCP/IP 里无对应；</li>
+<li>第二层：数据链路层，对应 TCP/IP 的链接层；</li>
+<li>第三层：网络层，对应 TCP/IP 的网际层；</li>
+<li>第四层：传输层，对应 TCP/IP 的传输层；</li>
+<li>第五、六、七层：统一对应到 TCP/IP 的应用层。</li>
+</ol>
+<p>OSI 的分层模型在四层以上分的太细，而 TCP/IP 实际应用时的会话管理、编码转换、压缩等和具体应用经常联系的很紧密，很难分开。例如，HTTP 协议就同时包含了连接管理和数据格式定义</p>
+<p>“四层负载均衡”就是指工作在传输层上，基于 TCP/IP 协议的特性，例如 IP 地址、端口号等实现对后端服务器的负载均衡。</p>
+<p>“七层负载均衡”就是指工作在应用层上，看到的是 HTTP 协议，解析 HTTP 报文里的 URI、主机名、资源类型等数据，再用适当的策略转发给后端服务器。</p>
+
+        <h3 id="TCP-IP-协议栈的工作方式"   >
+          <a href="#TCP-IP-协议栈的工作方式" class="heading-link"><i class="fas fa-link"></i></a><a href="#TCP-IP-协议栈的工作方式" class="headerlink" title="TCP/IP 协议栈的工作方式"></a>TCP/IP 协议栈的工作方式</h3>
+      <p>发送数据的过程：</p>
+<ol>
+<li>在应用层，HTTP 协议为它加一个 HTTP 专用附加数据</li>
+<li>在 TCP 层给数据再次打包，加上了 TCP 头</li>
+<li>IP 层为TCP 数据包加上了 IP 头</li>
+<li>MAC 层对TCP 数据包加上MAC 头</li>
+<li>之后经过网络传输到达重点</li>
+<li>目标服务经过拆包 去掉 mac头 ip头和TCP头 获取到真正数据</li>
+</ol>
+<p>HTTP 协议的传输过程就是这样通过协议栈逐层向下，每一层都添加本层的专有数据，层层打包，然后通过下层发送出去。</p>
+<p>接收数据则是相反的操作，从下往上穿过协议栈，逐层拆包，每层去掉本层的专有头，上层就会拿到自己的数据。</p>
+
+        <h3 id="小结-3"   >
+          <a href="#小结-3" class="heading-link"><i class="fas fa-link"></i></a><a href="#小结-3" class="headerlink" title="小结"></a>小结</h3>
+      <ol>
+<li>TCP/IP 分为四层，核心是二层的 IP 和三层的 TCP，HTTP 在第四层；</li>
+<li>OSI 分为七层，基本对应 TCP/IP，TCP 在第四层，HTTP 在第七层；</li>
+<li>OSI 可以映射到 TCP/IP，但这期间一、五、六层消失了；</li>
+<li>日常交流的时候我们通常使用 OSI 模型，用四层、七层等术语；</li>
+<li>HTTP 利用 TCP/IP 协议栈逐层打包再拆包，实现了数据传输，但下面的细节并不可见。</li>
+</ol>
+<p>辨别四层和七层比较好的（但不是绝对的）小窍门，“两个凡是”：</p>
+<ul>
+<li>凡是由操作系统负责处理的就是四层或四层以下</li>
+<li>凡是需要由应用程序（也就是你自己写代码）负责处理的就是七层。</li>
+</ul>
+
+        <h3 id="小贴士-1"   >
+          <a href="#小贴士-1" class="heading-link"><i class="fas fa-link"></i></a><a href="#小贴士-1" class="headerlink" title="小贴士"></a>小贴士</h3>
+      <ol>
+<li>MAC地址（Media Access Control Address）也称为局域网地址，可以唯一的标识一个网卡，也就同时标识了此网卡的设备。</li>
+<li>在 TCP/IP 协议栈之外，还有一些协议位于OSI 五层和六层的，例如：UNIX 域套接字就可以认为是在五层。</li>
+</ol>
+
+        <h2 id="域名里有哪些门道？"   >
+          <a href="#域名里有哪些门道？" class="heading-link"><i class="fas fa-link"></i></a><a href="#域名里有哪些门道？" class="headerlink" title="域名里有哪些门道？"></a>域名里有哪些门道？</h2>
+      
+        <h3 id="域名的形式"   >
+          <a href="#域名的形式" class="heading-link"><i class="fas fa-link"></i></a><a href="#域名的形式" class="headerlink" title="域名的形式"></a>域名的形式</h3>
+      <p>域名是一个有层次的结构，是一串用“.”分隔的多个单词，最右边的被称为“顶级域名”，然后是“二级域名”，层级关系向左依次降低。</p>
+<p>最左边的是主机名，通常用来表明主机的用途，比如“www”表示提供万维网服务、“mail”表示提供邮件服务。</p>
+<p>如： time.geekbang.org 这里的“org”就是顶级域名，“geekbang”是二级域名，“time”则是主机名。</p>
+<p>域名不仅能够代替 IP 地址，还有许多其他的用途</p>
+<p>在 Apache、Nginx 这样的 Web 服务器里，域名可以用来标识虚拟主机，决定由哪个虚拟主机来对外提供服务，比如在 Nginx 里就会使用“server_name”指令：</p>
+<figure class="highlight plain"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">    listen 80;                       #监听80端口</span><br><span class="line">    server_name  time.geekbang.org;  #主机名是time.geekbang.org</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></div></figure>
+
+        <h3 id="域名的解析"   >
+          <a href="#域名的解析" class="heading-link"><i class="fas fa-link"></i></a><a href="#域名的解析" class="headerlink" title="域名的解析"></a>域名的解析</h3>
+      <p>就像 IP 地址必须转换成 MAC 地址才能访问主机一样，域名也必须要转换成 IP 地址，这个过程就是“域名解析”。</p>
+<p>DNS 的核心系统是一个三层的树状、分布式服务，基本对应域名的结构：</p>
+<ol>
+<li>根域名服务器（Root DNS Server）：管理顶级域名服务器，返回“com”“net”“cn”等顶级域名服务器的 IP 地址；</li>
+<li>顶级域名服务器（Top-level DNS Server）：管理各自域名下的权威域名服务器，比如 com 顶级域名服务器可以返回 apple.com 域名服务器的 IP 地址；</li>
+<li>权威域名服务器（Authoritative DNS Server）：管理自己域名下主机的 IP 地址，比如 apple.com 权威域名服务器可以返回 <span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="http://www.apple.com/" >www.apple.com</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span> 的 IP 地址。</li>
+</ol>
+<p><img src="/images/golang/http/dns.png" alt="DNS"></p>
+<p>目前全世界共有 13 组根域名服务器，又有数百台的镜像，保证一定能够被访问到。</p>
+<p>例如，你要访问“<a href="http://www.apple.com”，就要进行下面的三次查询：">www.apple.com”，就要进行下面的三次查询：</a></p>
+<ol>
+<li>访问根域名服务器，它会告诉你“com”顶级域名服务器的地址；</li>
+<li>访问“com”顶级域名服务器，它再告诉你“apple.com”域名服务器的地址；</li>
+<li>最后访问“apple.com”域名服务器，就得到了“<span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="http://www.apple.com”的地址./" >www.apple.com”的地址。</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span></li>
+</ol>
+<p>在核心 DNS 系统之外，还有两种手段用来减轻域名解析的压力，并且能够更快地获取结果，基本思路就是“缓存”。</p>
+<p>许多大公司、网络运行商都会建立自己的 DNS 服务器，作为用户 DNS 查询的代理，代替用户访问核心 DNS 系统。这些“野生”服务器被称为“非权威域名服务器”，可以缓存之前的查询结果，如果已经有了记录，就无需再向根服务器发起查询，直接返回对应的 IP 地址。</p>
+<p>这些 DNS 服务器的数量要比核心系统的服务器多很多，而且大多部署在离用户很近的地方。比较知名的 DNS 有 Google 的“8.8.8.8”，Microsoft 的“4.2.2.1”，还有 CloudFlare 的“1.1.1.1”等等。</p>
+<p>其次，操作系统里也会对 DNS 解析结果做缓存，如果你之前访问过“<span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="http://www.apple.com”,那么下一次在浏览器里再输入这个网址的时候就不会再跑到/" >www.apple.com”，那么下一次在浏览器里再输入这个网址的时候就不会再跑到</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span> DNS 那里去问了，直接在操作系统里就可以拿到 IP 地址。</p>
+<p>另外，操作系统里还有一个特殊的“主机映射”文件，通常是一个可编辑的文本，在 Linux 里是“/etc/hosts”，在 Windows 里是“C:\WINDOWS\system32\drivers\etc\hosts”，如果操作系统在缓存里找不到 DNS 记录，就会找这个文件。</p>
+<p>有了上面的“野生”DNS 服务器、操作系统缓存和 hosts 文件后，很多域名解析的工作直接在本地或本机就能解决，不仅方便了用户，也减轻了各级 DNS 服务器的压力。</p>
+<p>如图：完整地表示了现在的 DNS 架构。</p>
+<p><img src="/images/golang/http/dns-now.png" alt="DNS"></p>
+<p>在 Nginx 里有这么一条配置指令“resolver”，它就是用来配置 DNS 服务器的，如果没有它，那么 Nginx 就无法查询域名对应的 IP，也就无法反向代理到外部的网站。</p>
+<figure class="highlight plain"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">resolver 8.8.8.8 valid&#x3D;30s;  #指定Google的DNS，缓存30秒</span><br></pre></td></tr></table></div></figure>
+
+        <h3 id="域名的“新玩法”"   >
+          <a href="#域名的“新玩法”" class="heading-link"><i class="fas fa-link"></i></a><a href="#域名的“新玩法”" class="headerlink" title="域名的“新玩法”"></a>域名的“新玩法”</h3>
+      <p>第一种，也是最简单的，“重定向”。因为域名代替了 IP 地址，所以可以让对外服务的域名不变，而主机的 IP 地址任意变动。当主机有情况需要下线、迁移时，可以更改 DNS 记录，让域名指向其他的机器。</p>
+<p>第二种，因为域名是一个名字空间，所以可以使用 bind9 等开源软件搭建一个在内部使用的 DNS，作为名字服务器。这样我们开发的各种内部服务就都用域名来标记，比如数据库服务都用域名“mysql.inner.app”，商品服务都用“goods.inner.app”，发起网络通信时也就不必再使用写死的 IP 地址了，可以直接用域名。</p>
+<p>第三种“玩法”包含了前两种，也就是基于域名实现的负载均衡。</p>
+<p>这种“玩法”也有两种方式，两种方式可以混用。</p>
+<p>第一种方式，因为域名解析可以返回多个 IP 地址，所以一个域名可以对应多台主机，客户端收到多个 IP 地址后，就可以自己使用轮询算法依次向服务器发起请求，实现负载均衡。</p>
+<p>第二种方式，域名解析可以配置内部的策略，返回离客户端最近的主机，或者返回当前服务质量最好的主机，这样在 DNS 端把请求分发到不同的服务器，实现负载均衡。</p>
+<p><strong>恶意的“玩法”</strong></p>
+<ul>
+<li>“域名屏蔽”，对域名直接不解析，返回错误，让你无法拿到 IP 地址，也就无法访问网站；</li>
+<li>“域名劫持”，也叫“域名污染”，你要访问 A 网站，但 DNS 给了你 B 网站。</li>
+</ul>
+
+        <h3 id="小结-4"   >
+          <a href="#小结-4" class="heading-link"><i class="fas fa-link"></i></a><a href="#小结-4" class="headerlink" title="小结"></a>小结</h3>
+      <ol>
+<li>域名使用字符串来代替 IP 地址，方便用户记忆，本质上一个名字空间系统；</li>
+<li>DNS 就像是我们现实世界里的电话本、查号台，统管着互联网世界里的所有网站，是一个“超级大管家”；</li>
+<li>DNS 是一个树状的分布式查询系统，但为了提高查询效率，外围有多级的缓存；</li>
+<li>使用 DNS 可以实现基于域名的负载均衡，既可以在内网，也可以在外网。</li>
+</ol>
+
+        <h3 id="小贴士-2"   >
+          <a href="#小贴士-2" class="heading-link"><i class="fas fa-link"></i></a><a href="#小贴士-2" class="headerlink" title="小贴士"></a>小贴士</h3>
+      <p>域名的总长度限制在253个字符以内，而每一级域名长度不能超过63个字符。</p>
+</div><footer class="post-footer"><div class="post-ending ending"><div class="ending__text">------ END ------</div></div><div class="post-tags"><span class="post-tags-item"><span class="post-tags-item__icon"><i class="fas fa-tag"></i></span><a class="post-tags-item__link" href="http://example.com/tags/http/">http</a></span><span class="post-tags-item"><span class="post-tags-item__icon"><i class="fas fa-tag"></i></span><a class="post-tags-item__link" href="http://example.com/tags/tcp-ip/">tcp/ip</a></span></div><nav class="post-paginator paginator"><div class="paginator-next"><a class="paginator-next__link" href="/2021/06/02/rpc%E7%9A%84%E6%A0%B8%E5%BF%83%E5%8E%9F%E7%90%86-rpc%E7%9A%84%E9%80%9A%E4%BF%A1%E6%B5%81%E7%A8%8B/"><span class="paginator-prev__text">rpc的核心原理-rpc的通信流程</span><span class="paginator-next__icon"><i class="fas fa-angle-right"></i></span></a></div></nav></footer></div></div></div><div class="sidebar-wrap" id="sidebar-wrap"><aside class="sidebar" id="sidebar"><div class="sidebar-nav"><span class="sidebar-nav-toc current">Catalog</span><span class="sidebar-nav-ov">Overview</span></div><section class="sidebar-toc"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#HTTP%E7%9A%84%E5%89%8D%E4%B8%96%E4%BB%8A%E7%94%9F"><span class="toc-number">1.</span> <span class="toc-text">
           HTTP的前世今生</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%B2%E5%89%8D%E6%97%B6%E6%9C%9F"><span class="toc-number">1.1.</span> <span class="toc-text">
           史前时期</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%9B%E4%B8%96%E7%BA%AA"><span class="toc-number">1.2.</span> <span class="toc-text">
           创世纪</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#HTTP-0-9"><span class="toc-number">1.3.</span> <span class="toc-text">
@@ -293,7 +450,20 @@ window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 5.3.0"></he
           HTTPS</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%A3%E7%90%86"><span class="toc-number">4.5.</span> <span class="toc-text">
           代理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93-2"><span class="toc-number">4.6.</span> <span class="toc-text">
           小结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E8%B4%B4%E5%A3%AB"><span class="toc-number">4.7.</span> <span class="toc-text">
-          小贴士</span></a></li></ol></li></ol></section><!-- ov = overview--><section class="sidebar-ov hide"><div class="sidebar-ov-author"><div class="sidebar-ov-author__avatar"><img class="sidebar-ov-author__avatar_img" src="/images/icons/stun-logo.svg" alt="avatar"></div><p class="sidebar-ov-author__text">hello world</p></div><div class="sidebar-ov-state"><a class="sidebar-ov-state-item sidebar-ov-state-item--posts" href="/archives/"><div class="sidebar-ov-state-item__count">12</div><div class="sidebar-ov-state-item__name">Archives</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--categories" href="/categories/"><div class="sidebar-ov-state-item__count">6</div><div class="sidebar-ov-state-item__name">Categories</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--tags" href="/tags/"><div class="sidebar-ov-state-item__count">11</div><div class="sidebar-ov-state-item__name">Tags</div></a></div></section><div class="sidebar-reading"><div class="sidebar-reading-info"><span class="sidebar-reading-info__text">You have read </span><span class="sidebar-reading-info__num">0</span><span class="sidebar-reading-info__perc">%</span></div><div class="sidebar-reading-line"></div></div></aside></div><div class="clearfix"></div></div></main><footer class="footer" id="footer"><div class="footer-inner"><div><span>Copyright © 2021</span><span class="footer__icon"><i class="fas fa-heart"></i></span><span>lucky</span></div><div class="busuanzi"><span class="busuanzi-siteuv"><span class="busuanzi-siteuv__icon"><i class="fas fa-user"></i></span><span class="busuanzi-siteuv__info">Visitors</span><span class="busuanzi-siteuv__value" id="busuanzi_value_site_uv"></span></span><span class="busuanzi-sitepv"><span class="busuanzi-siteuv__icon"><i class="fas fa-eye"></i></span><span class="busuanzi-siteuv__info">Views</span><span class="busuanzi-siteuv__value" id="busuanzi_value_site_pv"></span></span></div></div></footer><div class="loading-bar" id="loading-bar"><div class="loading-bar__progress"></div></div><div class="back2top" id="back2top"><span class="back2top__icon"><i class="fas fa-rocket"></i></span></div></div><div class="search-mask"></div><div class="search-popup"><span class="search-close"></span><div class="search-input"><input placeholder="Search for Posts (Support multiple keywords)"><div class="search-btns">Search by:<span class="search-btns-item search-btns-item--google"><i class="fab fa-google"></i>Google</span><span class="search-btns-item search-btns-item--bing"><i></i>Bing</span><span class="search-btns-item search-btns-item--baidu"><i></i>Baidu</span></div></div><div class="search-results"></div></div><script src="https://cdn.jsdelivr.net/npm/jquery@v3.4.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.ui.min.js"></script><script>function initSearch() {
+          小贴士</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B8%B8%E8%AF%B4%E7%9A%84%E2%80%9C%E5%9B%9B%E5%B1%82%E2%80%9D%E5%92%8C%E2%80%9C%E4%B8%83%E5%B1%82%E2%80%9D%E5%88%B0%E5%BA%95%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="toc-number">5.</span> <span class="toc-text">
+          常说的“四层”和“七层”到底是什么？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#TCP-IP-%E7%BD%91%E7%BB%9C%E5%88%86%E5%B1%82%E6%A8%A1%E5%9E%8B"><span class="toc-number">5.1.</span> <span class="toc-text">
+          TCP&#x2F;IP 网络分层模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#OSI-%E7%BD%91%E7%BB%9C%E5%88%86%E5%B1%82%E6%A8%A1%E5%9E%8B"><span class="toc-number">5.2.</span> <span class="toc-text">
+          OSI 网络分层模型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%A4%E4%B8%AA%E5%88%86%E5%B1%82%E6%A8%A1%E5%9E%8B%E7%9A%84%E6%98%A0%E5%B0%84%E5%85%B3%E7%B3%BB"><span class="toc-number">5.3.</span> <span class="toc-text">
+          两个分层模型的映射关系</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#TCP-IP-%E5%8D%8F%E8%AE%AE%E6%A0%88%E7%9A%84%E5%B7%A5%E4%BD%9C%E6%96%B9%E5%BC%8F"><span class="toc-number">5.4.</span> <span class="toc-text">
+          TCP&#x2F;IP 协议栈的工作方式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93-3"><span class="toc-number">5.5.</span> <span class="toc-text">
+          小结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E8%B4%B4%E5%A3%AB-1"><span class="toc-number">5.6.</span> <span class="toc-text">
+          小贴士</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%9F%E5%90%8D%E9%87%8C%E6%9C%89%E5%93%AA%E4%BA%9B%E9%97%A8%E9%81%93%EF%BC%9F"><span class="toc-number">6.</span> <span class="toc-text">
+          域名里有哪些门道？</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%9F%E5%90%8D%E7%9A%84%E5%BD%A2%E5%BC%8F"><span class="toc-number">6.1.</span> <span class="toc-text">
+          域名的形式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%9F%E5%90%8D%E7%9A%84%E8%A7%A3%E6%9E%90"><span class="toc-number">6.2.</span> <span class="toc-text">
+          域名的解析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%9F%E5%90%8D%E7%9A%84%E2%80%9C%E6%96%B0%E7%8E%A9%E6%B3%95%E2%80%9D"><span class="toc-number">6.3.</span> <span class="toc-text">
+          域名的“新玩法”</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93-4"><span class="toc-number">6.4.</span> <span class="toc-text">
+          小结</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B0%8F%E8%B4%B4%E5%A3%AB-2"><span class="toc-number">6.5.</span> <span class="toc-text">
+          小贴士</span></a></li></ol></li></ol></section><!-- ov = overview--><section class="sidebar-ov hide"><div class="sidebar-ov-author"><div class="sidebar-ov-author__avatar"><img class="sidebar-ov-author__avatar_img" src="/images/icons/stun-logo.svg" alt="avatar"></div><p class="sidebar-ov-author__text">hello world</p></div><div class="sidebar-ov-state"><a class="sidebar-ov-state-item sidebar-ov-state-item--posts" href="/archives/"><div class="sidebar-ov-state-item__count">12</div><div class="sidebar-ov-state-item__name">Archives</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--categories" href="/categories/"><div class="sidebar-ov-state-item__count">6</div><div class="sidebar-ov-state-item__name">Categories</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--tags" href="/tags/"><div class="sidebar-ov-state-item__count">12</div><div class="sidebar-ov-state-item__name">Tags</div></a></div></section><div class="sidebar-reading"><div class="sidebar-reading-info"><span class="sidebar-reading-info__text">You have read </span><span class="sidebar-reading-info__num">0</span><span class="sidebar-reading-info__perc">%</span></div><div class="sidebar-reading-line"></div></div></aside></div><div class="clearfix"></div></div></main><footer class="footer" id="footer"><div class="footer-inner"><div><span>Copyright © 2021</span><span class="footer__icon"><i class="fas fa-heart"></i></span><span>lucky</span></div><div class="busuanzi"><span class="busuanzi-siteuv"><span class="busuanzi-siteuv__icon"><i class="fas fa-user"></i></span><span class="busuanzi-siteuv__info">Visitors</span><span class="busuanzi-siteuv__value" id="busuanzi_value_site_uv"></span></span><span class="busuanzi-sitepv"><span class="busuanzi-siteuv__icon"><i class="fas fa-eye"></i></span><span class="busuanzi-siteuv__info">Views</span><span class="busuanzi-siteuv__value" id="busuanzi_value_site_pv"></span></span></div></div></footer><div class="loading-bar" id="loading-bar"><div class="loading-bar__progress"></div></div><div class="back2top" id="back2top"><span class="back2top__icon"><i class="fas fa-rocket"></i></span></div></div><div class="search-mask"></div><div class="search-popup"><span class="search-close"></span><div class="search-input"><input placeholder="Search for Posts (Support multiple keywords)"><div class="search-btns">Search by:<span class="search-btns-item search-btns-item--google"><i class="fab fa-google"></i>Google</span><span class="search-btns-item search-btns-item--bing"><i></i>Bing</span><span class="search-btns-item search-btns-item--baidu"><i></i>Baidu</span></div></div><div class="search-results"></div></div><script src="https://cdn.jsdelivr.net/npm/jquery@v3.4.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.ui.min.js"></script><script>function initSearch() {
   var isXML = true;
   var search_path = 'search.json';
 
