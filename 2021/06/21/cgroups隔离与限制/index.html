@@ -11,7 +11,7 @@
 <meta property="og:image" content="http://example.com/images/Istio/cgroups/shell-cgroups.png">
 <meta property="og:image" content="http://example.com/images/Istio/cgroups/cgroups-limit.png">
 <meta property="article:published_time" content="2021-06-20T16:00:00.000Z">
-<meta property="article:modified_time" content="2021-06-21T14:57:43.605Z">
+<meta property="article:modified_time" content="2021-06-21T15:04:26.037Z">
 <meta property="article:author" content="lucky">
 <meta property="article:tag" content="linux">
 <meta property="article:tag" content="container">
@@ -68,18 +68,18 @@ window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 5.3.0"></he
         <h3 id="cgroups-层级结构（Hierarchy）"   >
           <a href="#cgroups-层级结构（Hierarchy）" class="heading-link"><i class="fas fa-link"></i></a><a href="#cgroups-层级结构（Hierarchy）" class="headerlink" title="cgroups 层级结构（Hierarchy）"></a>cgroups 层级结构（Hierarchy）</h3>
       <p>内核使用 cgroup 结构体来表示一个 control group 对某一个或者某几个 cgroups 子系统的资源限制。cgroup 结构体可以组织成一颗树的形式，每一棵cgroup 结构体组成的树称之为一个 cgroups 层级结构。cgroups层级结构可以 attach 一个或者几个 cgroups 子系统，当前层级结构可以对其 attach 的 cgroups 子系统进行资源的限制。每一个 cgroups 子系统只能被 attach 到一个 cpu 层级结构中。</p>
-<img src="/images/Istio/cgroups/cgroups.png" art="cgroups" width="400px">
+<img src="/images/Istio/cgroups/cgroups.png" art="cgroups" width="500px">
 
 <p>比如上图表示两个cgroups层级结构，每一个层级结构中是一颗树形结构，树的每一个节点是一个 cgroup 结构体（比如cpu_cgrp, memory_cgrp)。第一个 cgroups 层级结构 attach 了 cpu 子系统和 cpuacct 子系统， 当前 cgroups 层级结构中的 cgroup 结构体就可以对 cpu 的资源进行限制，并且对进程的 cpu 使用情况进行统计。 第二个 cgroups 层级结构 attach 了 memory 子系统，当前 cgroups 层级结构中的 cgroup 结构体就可以对 memory 的资源进行限制。</p>
 <p>在每一个 cgroups 层级结构中，每一个节点（cgroup 结构体）可以设置对资源不同的限制权重。比如上图中 cgrp1 组中的进程可以使用60%的 cpu 时间片，而 cgrp2 组中的进程可以使用20%的 cpu 时间片。</p>
 
         <h3 id="未使用cgroup限制后果"   >
           <a href="#未使用cgroup限制后果" class="heading-link"><i class="fas fa-link"></i></a><a href="#未使用cgroup限制后果" class="headerlink" title="未使用cgroup限制后果"></a>未使用cgroup限制后果</h3>
-      <p><strong>一下所有操作都是在虚拟机 centos8里面进行操作实验</strong></p>
-<p>我们在终端运行一下死循环命令，并top查看。</p>
+      <p><strong>以下所有操作都是在虚拟机 centos8里面进行操作实验</strong></p>
+<p>我们在终端运行一下死循环，并top查看。</p>
 <figure class="highlight plain"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost ~]# while : ; do : ;done</span><br><span class="line">[1] 10179</span><br></pre></td></tr></table></div></figure>
 <p>牢记该进程id，下面进行进程隔离是需要用到。也可通过ps查看。</p>
-<img src="/images/Istio/cgroups/cgroups-unlimit.png" art="cgroups" width="400px">
+<img src="/images/Istio/cgroups/cgroups-unlimit.png" art="cgroups" width="500px">
 
 <p>此时cpu爆满，严重影响其他进程。</p>
 <p>我们如何将该进程进行有效的资源限制来保护我们系统上的其他资源呢？请看下面操作</p>
@@ -88,10 +88,10 @@ window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 5.3.0"></he
           <a href="#linux-进程隔离" class="heading-link"><i class="fas fa-link"></i></a><a href="#linux-进程隔离" class="headerlink" title="linux 进程隔离"></a>linux 进程隔离</h3>
       <figure class="highlight plain"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost ~]# cd &#x2F;sys&#x2F;fs&#x2F;cgroups&#x2F;cpu</span><br><span class="line">[root@localhost cpu]# mkdir my-app</span><br></pre></td></tr></table></div></figure>
 <p>如图：</p>
-<img src="/images/Istio/cgroups/shell-loop.png" art="cgroups" width="400px">
+<img src="/images/Istio/cgroups/shell-loop.png" art="cgroups" width="500px">
 
 <p>查看我们新建的my-app 控制组限制：</p>
-<figure class="highlight plain"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost cpu]# cat &#x2F;sys&#x2F;fs&#x2F;cgroup&#x2F;cpu&#x2F;container&#x2F;cpu.cfs_quota_us -1</span><br><span class="line">[root@localhost cpu]# cat &#x2F;sys&#x2F;fs&#x2F;cgroup&#x2F;cpu&#x2F;container&#x2F;cpu.cfs_period_us 100000</span><br></pre></td></tr></table></div></figure>
+<figure class="highlight plain"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost cpu]# cat &#x2F;sys&#x2F;fs&#x2F;cgroup&#x2F;cpu&#x2F;container&#x2F;cpu.cfs_quota_us </span><br><span class="line">-1</span><br><span class="line">[root@localhost cpu]# cat &#x2F;sys&#x2F;fs&#x2F;cgroup&#x2F;cpu&#x2F;container&#x2F;cpu.cfs_period_us </span><br><span class="line">100000</span><br></pre></td></tr></table></div></figure>
 <p>my-app 控制组里的 CPU quota 还没有任何限制（即：-1），CPU period 则是默认的 100 ms（100000 us）。</p>
 <p>接下来，我们可以通过修改这些文件的内容来设置限制。比如，向 my-app 组里的 cfs_quota 文件写入 20 ms（20000 us）：</p>
 <figure class="highlight plain"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost cpu]# echo 20000 &gt; &#x2F;sys&#x2F;fs&#x2F;cgroup&#x2F;cpu&#x2F;my-app&#x2F;cpu.cfs_quota_us</span><br></pre></td></tr></table></div></figure>
@@ -99,11 +99,11 @@ window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 5.3.0"></he
 <p>接下来，我们把被限制的进程的 PID 写入 my-app 组里的 tasks 文件，上面的设置就会对该进程生效了：</p>
 <figure class="highlight plain"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost cpu]# echo 10179 &gt; &#x2F;sys&#x2F;fs&#x2F;cgroup&#x2F;cpu&#x2F;my-app&#x2F;tasks </span><br></pre></td></tr></table></div></figure>
 <p>此时我们在通过top 指令查看资源消耗：</p>
-<img src="/images/Istio/cgroups/shell-cgroups.png" art="cgroups" width="400px">
+<img src="/images/Istio/cgroups/shell-cgroups.png" art="cgroups" width="500px">
 
 
-        <h3 id="docker-中的隔离使用"   >
-          <a href="#docker-中的隔离使用" class="heading-link"><i class="fas fa-link"></i></a><a href="#docker-中的隔离使用" class="headerlink" title="docker 中的隔离使用"></a>docker 中的隔离使用</h3>
+        <h3 id="docker-容器中的隔离使用"   >
+          <a href="#docker-容器中的隔离使用" class="heading-link"><i class="fas fa-link"></i></a><a href="#docker-容器中的隔离使用" class="headerlink" title="docker 容器中的隔离使用"></a>docker 容器中的隔离使用</h3>
       <figure class="highlight plain"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -it --cpu-period&#x3D;100000 --cpu-quota&#x3D;20000 ubuntu bin&#x2F;bash</span><br></pre></td></tr></table></div></figure>
 <ul>
 <li>–cpu-period cpu运行时间</li>
@@ -113,7 +113,7 @@ window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 5.3.0"></he
 <p>运行容器之后，在交互洁面输入下面代码测试：</p>
 <figure class="highlight plain"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[root@localhost ~]# while : ; do : ;done</span><br></pre></td></tr></table></div></figure>
 <p>此时查看top命令，cpu 只占到了 20%,达到了有效的限制。</p>
-<img src="/images/Istio/cgroups/cgroups-limit.png" art="cgroups" width="400px">
+<img src="/images/Istio/cgroups/cgroups-limit.png" art="cgroups" width="500px">
 
 
 
@@ -136,8 +136,8 @@ window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 5.3.0"></he
           cgroups子系统</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#cgroups-%E5%B1%82%E7%BA%A7%E7%BB%93%E6%9E%84%EF%BC%88Hierarchy%EF%BC%89"><span class="toc-number">3.</span> <span class="toc-text">
           cgroups 层级结构（Hierarchy）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%AA%E4%BD%BF%E7%94%A8cgroup%E9%99%90%E5%88%B6%E5%90%8E%E6%9E%9C"><span class="toc-number">4.</span> <span class="toc-text">
           未使用cgroup限制后果</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#linux-%E8%BF%9B%E7%A8%8B%E9%9A%94%E7%A6%BB"><span class="toc-number">5.</span> <span class="toc-text">
-          linux 进程隔离</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#docker-%E4%B8%AD%E7%9A%84%E9%9A%94%E7%A6%BB%E4%BD%BF%E7%94%A8"><span class="toc-number">6.</span> <span class="toc-text">
-          docker 中的隔离使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A0%E9%99%A4%E9%99%90%E5%88%B6%E7%BB%84"><span class="toc-number">7.</span> <span class="toc-text">
+          linux 进程隔离</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#docker-%E5%AE%B9%E5%99%A8%E4%B8%AD%E7%9A%84%E9%9A%94%E7%A6%BB%E4%BD%BF%E7%94%A8"><span class="toc-number">6.</span> <span class="toc-text">
+          docker 容器中的隔离使用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%A0%E9%99%A4%E9%99%90%E5%88%B6%E7%BB%84"><span class="toc-number">7.</span> <span class="toc-text">
           删除限制组</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%AA%E5%AE%8C%E5%BE%85%E7%BB%AD"><span class="toc-number">8.</span> <span class="toc-text">
           未完待续</span></a></li></ol></section><!-- ov = overview--><section class="sidebar-ov hide"><div class="sidebar-ov-author"><div class="sidebar-ov-author__avatar"><img class="sidebar-ov-author__avatar_img" src="/images/icons/stun-logo.svg" alt="avatar"></div><p class="sidebar-ov-author__text">hello world</p></div><div class="sidebar-ov-state"><a class="sidebar-ov-state-item sidebar-ov-state-item--posts" href="/archives/"><div class="sidebar-ov-state-item__count">16</div><div class="sidebar-ov-state-item__name">Archives</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--categories" href="/categories/"><div class="sidebar-ov-state-item__count">7</div><div class="sidebar-ov-state-item__name">Categories</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--tags" href="/tags/"><div class="sidebar-ov-state-item__count">19</div><div class="sidebar-ov-state-item__name">Tags</div></a></div></section><div class="sidebar-reading"><div class="sidebar-reading-info"><span class="sidebar-reading-info__text">You have read </span><span class="sidebar-reading-info__num">0</span><span class="sidebar-reading-info__perc">%</span></div><div class="sidebar-reading-line"></div></div></aside></div><div class="clearfix"></div></div></main><footer class="footer" id="footer"><div class="footer-inner"><div><span>Copyright © 2021</span><span class="footer__icon"><i class="fas fa-heart"></i></span><span>lucky</span></div><div class="busuanzi"><span class="busuanzi-siteuv"><span class="busuanzi-siteuv__icon"><i class="fas fa-user"></i></span><span class="busuanzi-siteuv__info">Visitors</span><span class="busuanzi-siteuv__value" id="busuanzi_value_site_uv"></span></span><span class="busuanzi-sitepv"><span class="busuanzi-siteuv__icon"><i class="fas fa-eye"></i></span><span class="busuanzi-siteuv__info">Views</span><span class="busuanzi-siteuv__value" id="busuanzi_value_site_pv"></span></span></div><div><a href="https://github.com/luckylsx/" rel="noopener" target="_blank">Github Pages</a></div></div></footer><div class="loading-bar" id="loading-bar"><div class="loading-bar__progress"></div></div><div class="back2top" id="back2top"><span class="back2top__icon"><i class="fas fa-rocket"></i></span></div></div><div class="search-mask"></div><div class="search-popup"><span class="search-close"></span><div class="search-input"><input placeholder="Search for Posts (Support multiple keywords)"><div class="search-btns">Search by:<span class="search-btns-item search-btns-item--google"><i class="fab fa-google"></i>Google</span><span class="search-btns-item search-btns-item--bing"><i></i>Bing</span><span class="search-btns-item search-btns-item--baidu"><i></i>Baidu</span></div></div><div class="search-results"></div></div><script src="https://cdn.jsdelivr.net/npm/jquery@v3.4.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.ui.min.js"></script><script>function initSearch() {
   var isXML = true;
