@@ -1,0 +1,484 @@
+<!DOCTYPE html><html lang="en.yml"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="format-detection" content="telephone=no"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black"><link rel="icon" href="/images/icons/favicon-16x16.png?v=2.6.2" type="image/png" sizes="16x16"><link rel="icon" href="/images/icons/favicon-32x32.png?v=2.6.2" type="image/png" sizes="32x32"><meta name="description" content="Steve Gury 的“预测性负载平衡：不公平但更快、更健壮”                     客户端负载均衡方法        许多可用的服务器，选择哪一个                      随机选择">
+<meta property="og:type" content="article">
+<meta property="og:title" content="预测性负载平衡">
+<meta property="og:url" content="http://example.com/2020/07/03/%E9%A2%84%E6%B5%8B%E6%80%A7%E8%B4%9F%E8%BD%BD%E5%B9%B3%E8%A1%A1/index.html">
+<meta property="og:site_name" content="Study hard, Work Hard">
+<meta property="og:description" content="Steve Gury 的“预测性负载平衡：不公平但更快、更健壮”                     客户端负载均衡方法        许多可用的服务器，选择哪一个                      随机选择">
+<meta property="og:locale">
+<meta property="og:image" content="http://example.com/images/linux/slb/predictive_load_balancing_matrix.png">
+<meta property="og:image" content="http://example.com/images/linux/slb/predictive_load_balancing_median_latency.png">
+<meta property="og:image" content="http://example.com/images/linux/slb/predictive_load_balancing_react_quickly.png">
+<meta property="article:published_time" content="2020-07-02T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-07-03T10:07:31.499Z">
+<meta property="article:author" content="lucky">
+<meta property="article:tag" content="slb">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/linux/slb/predictive_load_balancing_matrix.png"><title>预测性负载平衡 | Study hard, Work Hard</title><link ref="canonical" href="http://example.com/2020/07/03/%E9%A2%84%E6%B5%8B%E6%80%A7%E8%B4%9F%E8%BD%BD%E5%B9%B3%E8%A1%A1/"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.12.1/css/all.min.css" type="text/css"><link rel="stylesheet" href="/css/index.css?v=2.6.2"><script>var Stun = window.Stun || {};
+var CONFIG = {
+  root: '/',
+  algolia: undefined,
+  assistSearch: ["google","bing","baidu"],
+  fontIcon: {"prompt":{"success":"fas fa-check-circle","info":"fas fa-arrow-circle-right","warning":"fas fa-exclamation-circle","error":"fas fa-times-circle"},"copyBtn":"fas fa-copy"},
+  sidebar: {"offsetTop":"20px","tocMaxDepth":6},
+  header: {"enable":true,"showOnPost":true,"scrollDownIcon":false},
+  postWidget: {"endText":true},
+  nightMode: {"enable":true},
+  back2top: {"enable":true},
+  codeblock: {"style":"default","highlight":"light","wordWrap":false},
+  reward: false,
+  fancybox: false,
+  zoomImage: {"gapAside":"20px"},
+  galleryWaterfall: undefined,
+  lazyload: false,
+  pjax: undefined,
+  externalLink: {"icon":{"enable":true,"name":"fas fa-external-link-alt"}},
+  shortcuts: undefined,
+  prompt: {"copyButton":"Copy","copySuccess":"Copy Success","copyError":"Copy Error"},
+  sourcePath: {"js":"js","css":"css","images":"images"},
+};
+
+window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 5.3.0"></head><body><div class="container" id="container"><header class="header" id="header"><div class="header-inner"><nav class="header-nav header-nav--fixed"><div class="header-nav-inner"><div class="header-nav-menubtn"><i class="fas fa-bars"></i></div><div class="header-nav-menu"><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/"><span class="header-nav-menu-item__icon"><i class="fas fa-home"></i></span><span class="header-nav-menu-item__text">Home</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/archives/"><span class="header-nav-menu-item__icon"><i class="fas fa-folder-open"></i></span><span class="header-nav-menu-item__text">Archives</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/categories/"><span class="header-nav-menu-item__icon"><i class="fas fa-layer-group"></i></span><span class="header-nav-menu-item__text">Categories</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/tags/"><span class="header-nav-menu-item__icon"><i class="fas fa-tags"></i></span><span class="header-nav-menu-item__text">Tags</span></a></div></div><div class="header-nav-search"><span class="header-nav-search__icon"><i class="fas fa-search"></i></span><span class="header-nav-search__text">Search</span></div><div class="header-nav-mode"><div class="mode"><div class="mode-track"><span class="mode-track-moon"></span><span class="mode-track-sun"></span></div><div class="mode-thumb"></div></div></div></div></nav><div class="header-banner"><div class="header-banner-info"><div class="header-banner-info__title">Study hard, Work Hard</div><div class="header-banner-info__subtitle">If you don't want to wasted life in the world, that is about to study for a lifetime.</div></div></div></div></header><main class="main" id="main"><div class="main-inner"><div class="content-wrap" id="content-wrap"><div class="content" id="content"><!-- Just used to judge whether it is an article page--><div id="is-post"></div><div class="post"><header class="post-header"><h1 class="post-title">预测性负载平衡</h1><div class="post-meta"><span class="post-meta-item post-meta-item--createtime"><span class="post-meta-item__icon"><i class="far fa-calendar-plus"></i></span><span class="post-meta-item__info">Created</span><span class="post-meta-item__value">2020-07-03</span></span><span class="post-meta-item post-meta-item--updatetime"><span class="post-meta-item__icon"><i class="far fa-calendar-check"></i></span><span class="post-meta-item__info">Updated</span><span class="post-meta-item__value">2021-07-03</span></span><span class="post-meta-item post-meta-item--visitors"><span class="post-meta-item__icon"><i class="fas fa-eye"></i></span><span class="post-meta-item__info">Visited</span><span class="post-meta-item__value" id="busuanzi_value_page_pv"></span></span></div></header><div class="post-body"><p>Steve Gury 的“预测性负载平衡：不公平但更快、更健壮”</p>
+
+        <h2 id="客户端负载均衡方法"   >
+          <a href="#客户端负载均衡方法" class="heading-link"><i class="fas fa-link"></i></a><a href="#客户端负载均衡方法" class="headerlink" title="客户端负载均衡方法"></a>客户端负载均衡方法</h2>
+      <ul>
+<li>许多可用的服务器，选择哪一个</li>
+</ul>
+
+        <h3 id="随机选择"   >
+          <a href="#随机选择" class="heading-link"><i class="fas fa-link"></i></a><a href="#随机选择" class="headerlink" title="随机选择"></a>随机选择</h3>
+      <a id="more"></a>
+<ul>
+<li>随机选择服务器</li>
+<li>随着（永远）时间的推移，所有服务器收到相同数量的请求</li>
+<li>在短期内，真的可以给出不平衡的选择</li>
+</ul>
+
+        <h3 id="轮询调度"   >
+          <a href="#轮询调度" class="heading-link"><i class="fas fa-link"></i></a><a href="#轮询调度" class="headerlink" title="轮询调度"></a>轮询调度</h3>
+      <ul>
+<li>客户端记住前一个服务器</li>
+<li>选择列表中的下一个</li>
+</ul>
+
+        <h3 id="最小负载"   >
+          <a href="#最小负载" class="heading-link"><i class="fas fa-link"></i></a><a href="#最小负载" class="headerlink" title="最小负载"></a>最小负载</h3>
+      <ul>
+<li>客户端跟踪每个服务器上的未完成请求</li>
+<li>选择未完成请求数量最少的服务器</li>
+<li>[这听起来像是本地负载最少，客户端不知道服务器上的全局负载]</li>
+</ul>
+
+        <h2 id="负载均衡问题"   >
+          <a href="#负载均衡问题" class="heading-link"><i class="fas fa-link"></i></a><a href="#负载均衡问题" class="headerlink" title="负载均衡问题"></a>负载均衡问题</h2>
+      
+        <h3 id="服务器并不完全相同"   >
+          <a href="#服务器并不完全相同" class="heading-link"><i class="fas fa-link"></i></a><a href="#服务器并不完全相同" class="headerlink" title="服务器并不完全相同"></a>服务器并不完全相同</h3>
+      <ul>
+<li>有些服务器可能更隐蔽</li>
+<li>轮训调度将请求到这些服务器上，使许多请求非常慢</li>
+<li>主负载需求将更少</li>
+</ul>
+
+        <h3 id="惊群效应"   >
+          <a href="#惊群效应" class="heading-link"><i class="fas fa-link"></i></a><a href="#惊群效应" class="headerlink" title="惊群效应"></a>惊群效应</h3>
+      <ul>
+<li>新的可用资源被请求轰炸</li>
+<li>新可用的资源可能还没有准备好</li>
+<li>[似乎与 Wikipedia 对 <span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Thundering_herd_problem" >Thudnering Herd Problem</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span> 的定义不太一样]</li>
+<li>轮询和随机不会轰炸新可用的资源</li>
+<li>主负载会被轰击</li>
+</ul>
+
+        <h3 id="异常值"   >
+          <a href="#异常值" class="heading-link"><i class="fas fa-link"></i></a><a href="#异常值" class="headerlink" title="异常值"></a>异常值</h3>
+      <ul>
+<li>服务器可能会遇到问题<ul>
+<li>例如 GC 暂停，CPU 峰值阻止处理</li>
+</ul>
+</li>
+<li>轮询将继续打击这些暂时缓慢的服务器</li>
+<li>最小负载可能会好一点</li>
+</ul>
+
+        <h3 id="具有独立状态的多个客户端"   >
+          <a href="#具有独立状态的多个客户端" class="heading-link"><i class="fas fa-link"></i></a><a href="#具有独立状态的多个客户端" class="headerlink" title="具有独立状态的多个客户端"></a>具有独立状态的多个客户端</h3>
+      <ul>
+<li>假设没有协调的全局状态</li>
+<li>每个客户端都有服务器负载的视图</li>
+<li>最小负载和轮询可能会选择全局加载最少的服务器</li>
+</ul>
+
+        <h2 id="所有这些方法都有问题"   >
+          <a href="#所有这些方法都有问题" class="heading-link"><i class="fas fa-link"></i></a><a href="#所有这些方法都有问题" class="headerlink" title="所有这些方法都有问题"></a>所有这些方法都有问题</h2>
+      <p><img src="/images/linux/slb/predictive_load_balancing_matrix.png" alt="predictive_load_balancing_matrix"></p>
+<ul>
+<li>[我认为不是针对最少负载提出的最佳观点]</li>
+</ul>
+
+        <h3 id="基于延迟的负载平衡"   >
+          <a href="#基于延迟的负载平衡" class="heading-link"><i class="fas fa-link"></i></a><a href="#基于延迟的负载平衡" class="headerlink" title="基于延迟的负载平衡"></a>基于延迟的负载平衡</h3>
+      
+        <h4 id="使用观察到的延迟作为负载的度量"   >
+          <a href="#使用观察到的延迟作为负载的度量" class="heading-link"><i class="fas fa-link"></i></a><a href="#使用观察到的延迟作为负载的度量" class="headerlink" title="使用观察到的延迟作为负载的度量"></a>使用观察到的延迟作为负载的度量</h4>
+      <p>*<em>负载 = Predicted_Latency * (#requests + 1)*</em></p>
+<ul>
+<li>每个服务器都有一个归因于它的延迟</li>
+<li>现在决定服务器取决于响应的预计到达时间</li>
+</ul>
+
+        <h4 id="预测延迟"   >
+          <a href="#预测延迟" class="heading-link"><i class="fas fa-link"></i></a><a href="#预测延迟" class="headerlink" title="预测延迟"></a>预测延迟</h4>
+      <ul>
+<li><p>响应延迟直方图的中位数（不是平均值）<br><img src="/images/linux/slb/predictive_load_balancing_median_latency.png" alt="predictive_load_balancing_median_latency"></p>
+</li>
+<li><p>比平均水平更稳定</p>
+</li>
+<li><p>滑动窗口上的直方图以说明最近的服务器更改</p>
+</li>
+<li><p>当历史数据陈旧时，延迟会衰减（自行下降）</p>
+<ul>
+<li>鼓励访问很久没见过的服务器，以防万一发生了变化</li>
+<li>如果服务器仍然很慢，它会重新提高延迟（一段时间后会再次衰减）</li>
+</ul>
+</li>
+</ul>
+
+        <h4 id="问题和解决方案"   >
+          <a href="#问题和解决方案" class="heading-link"><i class="fas fa-link"></i></a><a href="#问题和解决方案" class="headerlink" title="问题和解决方案"></a>问题和解决方案</h4>
+      <ul>
+<li>如何估计新服务器（无历史数据）<ul>
+<li>解决方案：试用期预热服务器，建立历史</li>
+</ul>
+</li>
+<li>如果服务器返回错误但响应时间很快怎么办<ul>
+<li>解决方案：忽略错误延迟</li>
+<li>解决方案：使用失败响应来处置延迟</li>
+</ul>
+</li>
+</ul>
+
+        <h4 id="快速响应延迟"   >
+          <a href="#快速响应延迟" class="heading-link"><i class="fas fa-link"></i></a><a href="#快速响应延迟" class="headerlink" title="快速响应延迟"></a>快速响应延迟</h4>
+      <ul>
+<li><p>跟踪尚未收到响应的请求</p>
+</li>
+<li><p>如果响应尚未到达预测的时间，我们可以立即调整开始调整预测负载并继续调整它</p>
+</li>
+<li><p>如果需要调度其他请求，可以使用调整后的预测负载做出决定（在响应返回之前，或者发生大超时之前）<br><img src="/images/linux/slb/predictive_load_balancing_react_quickly.png" alt="predictive_load_balancing_react_quickly"></p>
+</li>
+<li><p>处理突发事件（GC 暂停、网络分区）时效果很好</p>
+</li>
+<li><p>需要平均一个中位延迟来检测死机/无响应的服务器</p>
+</li>
+</ul>
+
+        <h4 id="不完美"   >
+          <a href="#不完美" class="heading-link"><i class="fas fa-link"></i></a><a href="#不完美" class="headerlink" title="不完美"></a>不完美</h4>
+      <ul>
+<li>延迟并不总是一个完美的信号</li>
+<li>冷服务器的缓慢预热<ul>
+<li>由于衰变，冷服务器会不时被访问</li>
+<li>尽管如此，他们在一段时间内的流量会相对较少</li>
+</ul>
+</li>
+<li>伪装成成功的错误混淆了系统</li>
+<li>请求分布可能暂时不均匀</li>
+</ul>
+
+        <h2 id="原文地址"   >
+          <a href="#原文地址" class="heading-link"><i class="fas fa-link"></i></a><a href="#原文地址" class="headerlink" title="原文地址"></a>原文地址</h2>
+      <ul>
+<li><span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="http://alex-ii.github.io/notes/2019/02/13/predictive_load_balancing.html" >http://alex-ii.github.io/notes/2019/02/13/predictive_load_balancing.html</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span></li>
+</ul>
+</div><footer class="post-footer"><div class="post-ending ending"><div class="ending__text">------ END ------</div></div><div class="post-tags"><span class="post-tags-item"><span class="post-tags-item__icon"><i class="fas fa-tag"></i></span><a class="post-tags-item__link" href="http://example.com/tags/slb/">slb</a></span></div><nav class="post-paginator paginator"><div class="paginator-prev"><a class="paginator-prev__link" href="/2020/10/12/%E7%B4%A2%E5%BC%95%E4%B8%BA%E4%BD%95%E4%BD%BF%E7%94%A8B+%E6%A0%91/"><span class="paginator-prev__icon"><i class="fas fa-angle-left"></i></span><span class="paginator-prev__text">索引为何使用B+树</span></a></div><div class="paginator-next"><a class="paginator-next__link" href="/2020/04/13/the-Mysql-Standards-Recommendation/"><span class="paginator-prev__text">MySQL数据库设计规范</span><span class="paginator-next__icon"><i class="fas fa-angle-right"></i></span></a></div></nav></footer></div></div></div><div class="sidebar-wrap" id="sidebar-wrap"><aside class="sidebar" id="sidebar"><div class="sidebar-nav"><span class="sidebar-nav-toc current">Catalog</span><span class="sidebar-nav-ov">Overview</span></div><section class="sidebar-toc"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E6%96%B9%E6%B3%95"><span class="toc-number">1.</span> <span class="toc-text">
+          客户端负载均衡方法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%9A%8F%E6%9C%BA%E9%80%89%E6%8B%A9"><span class="toc-number">1.1.</span> <span class="toc-text">
+          随机选择</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BD%AE%E8%AF%A2%E8%B0%83%E5%BA%A6"><span class="toc-number">1.2.</span> <span class="toc-text">
+          轮询调度</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%80%E5%B0%8F%E8%B4%9F%E8%BD%BD"><span class="toc-number">1.3.</span> <span class="toc-text">
+          最小负载</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1%E9%97%AE%E9%A2%98"><span class="toc-number">2.</span> <span class="toc-text">
+          负载均衡问题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%B9%B6%E4%B8%8D%E5%AE%8C%E5%85%A8%E7%9B%B8%E5%90%8C"><span class="toc-number">2.1.</span> <span class="toc-text">
+          服务器并不完全相同</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%83%8A%E7%BE%A4%E6%95%88%E5%BA%94"><span class="toc-number">2.2.</span> <span class="toc-text">
+          惊群效应</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%BC%82%E5%B8%B8%E5%80%BC"><span class="toc-number">2.3.</span> <span class="toc-text">
+          异常值</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%B7%E6%9C%89%E7%8B%AC%E7%AB%8B%E7%8A%B6%E6%80%81%E7%9A%84%E5%A4%9A%E4%B8%AA%E5%AE%A2%E6%88%B7%E7%AB%AF"><span class="toc-number">2.4.</span> <span class="toc-text">
+          具有独立状态的多个客户端</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%89%80%E6%9C%89%E8%BF%99%E4%BA%9B%E6%96%B9%E6%B3%95%E9%83%BD%E6%9C%89%E9%97%AE%E9%A2%98"><span class="toc-number">3.</span> <span class="toc-text">
+          所有这些方法都有问题</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E4%BA%8E%E5%BB%B6%E8%BF%9F%E7%9A%84%E8%B4%9F%E8%BD%BD%E5%B9%B3%E8%A1%A1"><span class="toc-number">3.1.</span> <span class="toc-text">
+          基于延迟的负载平衡</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E8%A7%82%E5%AF%9F%E5%88%B0%E7%9A%84%E5%BB%B6%E8%BF%9F%E4%BD%9C%E4%B8%BA%E8%B4%9F%E8%BD%BD%E7%9A%84%E5%BA%A6%E9%87%8F"><span class="toc-number">3.1.1.</span> <span class="toc-text">
+          使用观察到的延迟作为负载的度量</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%A2%84%E6%B5%8B%E5%BB%B6%E8%BF%9F"><span class="toc-number">3.1.2.</span> <span class="toc-text">
+          预测延迟</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%97%AE%E9%A2%98%E5%92%8C%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="toc-number">3.1.3.</span> <span class="toc-text">
+          问题和解决方案</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%BF%AB%E9%80%9F%E5%93%8D%E5%BA%94%E5%BB%B6%E8%BF%9F"><span class="toc-number">3.1.4.</span> <span class="toc-text">
+          快速响应延迟</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%8D%E5%AE%8C%E7%BE%8E"><span class="toc-number">3.1.5.</span> <span class="toc-text">
+          不完美</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8E%9F%E6%96%87%E5%9C%B0%E5%9D%80"><span class="toc-number">4.</span> <span class="toc-text">
+          原文地址</span></a></li></ol></section><!-- ov = overview--><section class="sidebar-ov hide"><div class="sidebar-ov-author"><div class="sidebar-ov-author__avatar"><img class="sidebar-ov-author__avatar_img" src="/images/icons/stun-logo.svg" alt="avatar"></div><p class="sidebar-ov-author__text">hello world</p></div><div class="sidebar-ov-state"><a class="sidebar-ov-state-item sidebar-ov-state-item--posts" href="/archives/"><div class="sidebar-ov-state-item__count">19</div><div class="sidebar-ov-state-item__name">Archives</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--categories" href="/categories/"><div class="sidebar-ov-state-item__count">10</div><div class="sidebar-ov-state-item__name">Categories</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--tags" href="/tags/"><div class="sidebar-ov-state-item__count">21</div><div class="sidebar-ov-state-item__name">Tags</div></a></div></section><div class="sidebar-reading"><div class="sidebar-reading-info"><span class="sidebar-reading-info__text">You have read </span><span class="sidebar-reading-info__num">0</span><span class="sidebar-reading-info__perc">%</span></div><div class="sidebar-reading-line"></div></div></aside></div><div class="clearfix"></div></div></main><footer class="footer" id="footer"><div class="footer-inner"><div><span>Copyright © 2021</span><span class="footer__icon"><i class="fas fa-heart"></i></span><span>lucky</span></div><div class="busuanzi"><span class="busuanzi-siteuv"><span class="busuanzi-siteuv__icon"><i class="fas fa-user"></i></span><span class="busuanzi-siteuv__info">Visitors</span><span class="busuanzi-siteuv__value" id="busuanzi_value_site_uv"></span></span><span class="busuanzi-sitepv"><span class="busuanzi-siteuv__icon"><i class="fas fa-eye"></i></span><span class="busuanzi-siteuv__info">Views</span><span class="busuanzi-siteuv__value" id="busuanzi_value_site_pv"></span></span></div><div><a href="https://github.com/luckylsx/" rel="noopener" target="_blank">Github Pages</a></div></div></footer><div class="loading-bar" id="loading-bar"><div class="loading-bar__progress"></div></div><div class="back2top" id="back2top"><span class="back2top__icon"><i class="fas fa-rocket"></i></span></div></div><div class="search-mask"></div><div class="search-popup"><span class="search-close"></span><div class="search-input"><input placeholder="Search for Posts (Support multiple keywords)"><div class="search-btns">Search by:<span class="search-btns-item search-btns-item--google"><i class="fab fa-google"></i>Google</span><span class="search-btns-item search-btns-item--bing"><i></i>Bing</span><span class="search-btns-item search-btns-item--baidu"><i></i>Baidu</span></div></div><div class="search-results"></div></div><script src="https://cdn.jsdelivr.net/npm/jquery@v3.4.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.ui.min.js"></script><script>function initSearch() {
+  var isXML = true;
+  var search_path = 'search.json';
+
+  if (!search_path) {
+    search_path = 'search.xml';
+  } else if (/json$/i.test(search_path)) {
+    isXML = false;
+  }
+
+  var path = '/' + search_path;
+  $.ajax({
+    url: path,
+    dataType: isXML ? 'xml' : 'json',
+    async: true,
+    success: function (res) {
+      var datas = isXML ? $('entry', res).map(function () {
+        // 将 XML 转为 JSON
+        return {
+          title: $('title', this).text(),
+          content: $('content', this).text(),
+          url: $('url', this).text()
+        };
+      }).get() : res;
+      var $input = $('.search-input input');
+      var $result = $('.search-results');
+      // 搜索对象（标题、内容）的权重，影响显示顺序
+      var WEIGHT = { title: 100, content: 1 };
+      var searchPost = function () {
+        var searchText = $input.val().toLowerCase().trim();
+        // 根据空白字符分隔关键字
+        var keywords = searchText.split(/[\s]+/);
+        // 搜索结果
+        var matchPosts = [];
+
+        // 有多个关键字时，将原文字整个保存下来
+        if (keywords.length > 1) {
+          keywords.push(searchText);
+        }
+        // 防止未输入字符时搜索
+        if (searchText.length > 0) {
+          datas.forEach(function (data) {
+            var isMatch  = false;
+            // 没有标题的文章使用预设的 i18n 变量代替
+            var title = (data.title && data.title.trim()) || '[ Untitled ]';
+            var titleLower = title && title.toLowerCase();
+            // 删除 HTML 标签 和 所有空白字符
+            var content = data.content && data.content.replace(/<[^>]+>/g, '');
+            var contentLower = content && content.toLowerCase();
+            // 删除重复的 /
+            var postURL = data.url && decodeURI(data.url).replace(/\/{2,}/g, '/');
+            // 标题中匹配到的关键词
+            var titleHitSlice = [];
+            // 内容中匹配到的关键词
+            var contentHitSlice = [];
+
+            keywords.forEach(function (keyword) {
+              /**
+              * 获取匹配的关键词的索引
+              * @param {String} keyword 要匹配的关键字
+              * @param {String} text 原文字
+              * @param {Boolean} caseSensitive 是否区分大小写
+              * @param {Number} weight 匹配对象的权重。权重大的优先显示
+              * @return {Array}
+              */
+              function getIndexByword (word, text, caseSensitive, weight) {
+                if (!word || !text) {
+                  return [];
+                };
+
+                var startIndex = 0; // 每次匹配的开始索引
+                var index = -1;     // 匹配到的索引值
+                var result = [];    // 匹配结果
+
+                if (!caseSensitive) {
+                  word = word.toLowerCase();
+                  text = text.toLowerCase();
+                }
+
+                while((index = text.indexOf(word, startIndex)) !== -1) {
+                  var hasMatch = false;
+                  // 索引位置相同的关键词，保留长度较长的
+                  titleHitSlice.forEach(function (hit) {
+                    if (hit.index === index && hit.word.length < word.length) {
+                      hit.word = word;
+                      hasMatch = true;
+                    }
+                  });
+                  startIndex = index + word.length;
+                  !hasMatch && result.push({ index: index, word: word, weight: weight });
+                }
+                return result;
+              }
+              titleHitSlice = titleHitSlice.concat(getIndexByword(keyword, titleLower, false, WEIGHT.title));
+              contentHitSlice = contentHitSlice.concat(getIndexByword(keyword, contentLower, false, WEIGHT.content));
+            });
+
+            var hitTitle = titleHitSlice.length;
+            var hitContent = contentHitSlice.length;
+
+            if (hitTitle > 0 || hitContent > 0) {
+              isMatch = true;
+            }
+            if (isMatch) {
+              ;[titleHitSlice, contentHitSlice].forEach(function (hit) {
+                // 按照匹配文字的索引的递增顺序排序
+                hit.sort(function (left, right) {
+                  return left.index - right.index;
+                });
+              });
+              /**
+              * 给文本中匹配到的关键词添加标记，从而进行高亮显示
+              * @param {String} text 原文本
+              * @param {Array} hitSlice 匹配项的索引信息
+              * @param {Number} start 开始索引
+              * @param {Number} end 结束索引
+              * @return {String}
+              */
+              function highlightKeyword (text, hitSlice, start, end) {
+                if (!text || !hitSlice || !hitSlice.length) {
+                  return;
+                }
+
+                var result = '';
+                var startIndex = start;
+                var endIndex = end;
+                hitSlice.forEach(function (hit) {
+                  if (hit.index < startIndex) {
+                    return;
+                  }
+
+                  var hitWordEnd = hit.index + hit.word.length;
+                  result += text.slice(startIndex, hit.index);
+                  result += '<b>' + text.slice(hit.index, hitWordEnd) + '</b>';
+                  startIndex = hitWordEnd;
+                });
+                result += text.slice(startIndex, endIndex);
+                return result;
+              }
+
+              var postData = {};
+              // 文章总的搜索权重
+              var postWeight = titleHitSlice.length * WEIGHT.title + contentHitSlice.length * WEIGHT.content;
+              // 标记匹配关键词后的标题
+              var postTitle = highlightKeyword(title, titleHitSlice, 0, title.length) || title;
+              // 标记匹配关键词后的内容
+              var postContent;
+              // 显示内容的长度
+              var SHOW_WORD_LENGTH = 200;
+              // 命中关键词前的字符显示长度
+              var SHOW_WORD_FRONT_LENGTH = 20;
+              var SHOW_WORD_END_LENGTH = SHOW_WORD_LENGTH - SHOW_WORD_FRONT_LENGTH;
+
+              // 截取匹配的第一个字符，前后共 200 个字符来显示
+              if (contentHitSlice.length > 0) {
+                var firstIndex = contentHitSlice[0].index;
+                var start = firstIndex > SHOW_WORD_FRONT_LENGTH ? firstIndex - SHOW_WORD_FRONT_LENGTH : 0;
+                var end = firstIndex + SHOW_WORD_END_LENGTH;
+                postContent = highlightKeyword(content, contentHitSlice, start, end);
+              } else { // 未匹配到内容，直接截取前 200 个字符来显示
+                postContent = content.slice(0, SHOW_WORD_LENGTH);
+              }
+              postData.title = postTitle;
+              postData.content = postContent;
+              postData.url = postURL;
+              postData.weight = postWeight;
+              matchPosts.push(postData);
+            }
+          });
+        }
+
+        var resultInnerHtml = '';
+        if (matchPosts.length) {
+          // 按权重递增的顺序排序，使权重大的优先显示
+          matchPosts.sort(function (left, right) {
+            return right.weight - left.weight;
+          });
+          resultInnerHtml += '<ul>';
+          matchPosts.forEach(function (post) {
+            resultInnerHtml += '<li><a class="search-results-title" href="' + post.url + '">';
+            resultInnerHtml += post.title;
+            resultInnerHtml += '</a><div class="search-results-content">';
+            resultInnerHtml += post.content;
+            resultInnerHtml += '</div></li>';
+          });
+          resultInnerHtml += '</ul>';
+        } else {
+          resultInnerHtml += '<div class="search-results-none"><i class="far fa-meh"></i></div>';
+        }
+        $result.html(resultInnerHtml);
+      };
+      $input.on('input', searchPost);
+      $input.on('keyup', function (e) {
+        if (e.keyCode === Stun.utils.codeToKeyCode('Enter')) {
+          searchPost();
+        }
+      });
+    }
+  });
+}
+
+function closeSearch () {
+  $('body').css({ overflow: 'auto' });
+  $('.search-popup').css({ display: 'none' });
+  $('.search-mask').css({ display: 'none' });
+}
+
+window.addEventListener('DOMContentLoaded', function () {
+  Stun.utils.pjaxReloadLocalSearch = function () {
+    $('.header-nav-search').on('click', function (e) {
+      e.stopPropagation();
+      $('body').css('overflow', 'hidden');
+      $('.search-popup')
+        .velocity('stop')
+        .velocity('transition.expandIn', {
+          duration: 300,
+          complete: function () {
+            $('.search-popup input').focus();
+          }
+        });
+      $('.search-mask')
+        .velocity('stop')
+        .velocity('transition.fadeIn', {
+          duration: 300
+        });
+
+      initSearch();
+    });
+    $('.search-mask, .search-close').on('click', function () {
+      closeSearch();
+    });
+    $(document).on('keydown', function (e) {
+      // Escape <=> 27
+      if (e.keyCode === Stun.utils.codeToKeyCode('Escape')) {
+        closeSearch();
+      }
+    });
+  };
+
+  Stun.utils.pjaxReloadLocalSearch();
+}, false);
+
+function safeOpenUrl(url) {
+  var newTab = window.open();
+  newTab.opener = null;
+  newTab.location = url;
+}
+
+function extSearch(engine) {
+  var engines = {
+    google: 'https://www.google.com/search?q=',
+    bing: 'https://cn.bing.com/search?q=',
+    baidu: 'https://www.baidu.com/s?ie=UTF-8&wd=',
+  };
+  var host = window.location.host;
+  var query = $('.search-input input').val().toLowerCase().trim();
+  var uri = engines[engine] + query + ' site:' + host;
+
+  if (query) {
+    safeOpenUrl(uri);
+  } else {
+    Stun.utils.popAlert('warning', 'Please enter characters');
+  }
+}
+
+var assistSearchList = window.CONFIG.assistSearch;
+
+if (Array.isArray(assistSearchList)) {
+  assistSearchList.forEach(function (name) {
+    document.querySelector('.search-btns-item--' + name).addEventListener('click', function () {
+      extSearch(name);
+    }, false);
+  });
+}</script><script src="https://cdn.jsdelivr.net/gh/sukkaw/busuanzi@latest/bsz.pure.mini.js" async></script><script src="/js/utils.js?v=2.6.2"></script><script src="/js/stun-boot.js?v=2.6.2"></script><script src="/js/scroll.js?v=2.6.2"></script><script src="/js/header.js?v=2.6.2"></script><script src="/js/sidebar.js?v=2.6.2"></script><script type="application/json" src="/search.json"></script></body></html>
