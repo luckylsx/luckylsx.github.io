@@ -1,0 +1,417 @@
+<!DOCTYPE html><html lang="en.yml"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="format-detection" content="telephone=no"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black"><link rel="icon" href="/images/icons/favicon-16x16.png?v=2.6.2" type="image/png" sizes="16x16"><link rel="icon" href="/images/icons/favicon-32x32.png?v=2.6.2" type="image/png" sizes="32x32"><meta name="description" content="在使用消息中间间的过程中，经常面对的问题就是消息丢失和重复消费，本文主要记录kafka消息丢失和重复消费的解决思想，不做具体实现。                     生产者                           消息丢失                           丢失场景        配置文件里面,ack设置为0,也就是生产者发送之后，producer将消息存到缓存">
+<meta property="og:type" content="article">
+<meta property="og:title" content="kafka数据丢失和重复消费解决方案">
+<meta property="og:url" content="http://example.com/2021/07/08/kafka%E6%95%B0%E6%8D%AE%E4%B8%A2%E5%A4%B1%E5%92%8C%E9%87%8D%E5%A4%8D%E6%B6%88%E8%B4%B9%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/index.html">
+<meta property="og:site_name" content="Study hard, Work Hard">
+<meta property="og:description" content="在使用消息中间间的过程中，经常面对的问题就是消息丢失和重复消费，本文主要记录kafka消息丢失和重复消费的解决思想，不做具体实现。                     生产者                           消息丢失                           丢失场景        配置文件里面,ack设置为0,也就是生产者发送之后，producer将消息存到缓存">
+<meta property="og:locale">
+<meta property="article:published_time" content="2021-07-07T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-07-08T14:05:58.677Z">
+<meta property="article:author" content="lucky">
+<meta property="article:tag" content="kafka">
+<meta name="twitter:card" content="summary"><title>kafka数据丢失和重复消费解决方案 | Study hard, Work Hard</title><link ref="canonical" href="http://example.com/2021/07/08/kafka%E6%95%B0%E6%8D%AE%E4%B8%A2%E5%A4%B1%E5%92%8C%E9%87%8D%E5%A4%8D%E6%B6%88%E8%B4%B9%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.12.1/css/all.min.css" type="text/css"><link rel="stylesheet" href="/css/index.css?v=2.6.2"><script>var Stun = window.Stun || {};
+var CONFIG = {
+  root: '/',
+  algolia: undefined,
+  assistSearch: ["google","bing","baidu"],
+  fontIcon: {"prompt":{"success":"fas fa-check-circle","info":"fas fa-arrow-circle-right","warning":"fas fa-exclamation-circle","error":"fas fa-times-circle"},"copyBtn":"fas fa-copy"},
+  sidebar: {"offsetTop":"20px","tocMaxDepth":6},
+  header: {"enable":true,"showOnPost":true,"scrollDownIcon":false},
+  postWidget: {"endText":true},
+  nightMode: {"enable":true},
+  back2top: {"enable":true},
+  codeblock: {"style":"default","highlight":"light","wordWrap":false},
+  reward: false,
+  fancybox: false,
+  zoomImage: {"gapAside":"20px"},
+  galleryWaterfall: undefined,
+  lazyload: false,
+  pjax: undefined,
+  externalLink: {"icon":{"enable":true,"name":"fas fa-external-link-alt"}},
+  shortcuts: undefined,
+  prompt: {"copyButton":"Copy","copySuccess":"Copy Success","copyError":"Copy Error"},
+  sourcePath: {"js":"js","css":"css","images":"images"},
+};
+
+window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 5.3.0"></head><body><div class="container" id="container"><header class="header" id="header"><div class="header-inner"><nav class="header-nav header-nav--fixed"><div class="header-nav-inner"><div class="header-nav-menubtn"><i class="fas fa-bars"></i></div><div class="header-nav-menu"><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/"><span class="header-nav-menu-item__icon"><i class="fas fa-home"></i></span><span class="header-nav-menu-item__text">Home</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/archives/"><span class="header-nav-menu-item__icon"><i class="fas fa-folder-open"></i></span><span class="header-nav-menu-item__text">Archives</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/categories/"><span class="header-nav-menu-item__icon"><i class="fas fa-layer-group"></i></span><span class="header-nav-menu-item__text">Categories</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/tags/"><span class="header-nav-menu-item__icon"><i class="fas fa-tags"></i></span><span class="header-nav-menu-item__text">Tags</span></a></div></div><div class="header-nav-search"><span class="header-nav-search__icon"><i class="fas fa-search"></i></span><span class="header-nav-search__text">Search</span></div><div class="header-nav-mode"><div class="mode"><div class="mode-track"><span class="mode-track-moon"></span><span class="mode-track-sun"></span></div><div class="mode-thumb"></div></div></div></div></nav><div class="header-banner"><div class="header-banner-info"><div class="header-banner-info__title">Study hard, Work Hard</div><div class="header-banner-info__subtitle">If you don't want to wasted life in the world, that is about to study for a lifetime.</div></div></div></div></header><main class="main" id="main"><div class="main-inner"><div class="content-wrap" id="content-wrap"><div class="content" id="content"><!-- Just used to judge whether it is an article page--><div id="is-post"></div><div class="post"><header class="post-header"><h1 class="post-title">kafka数据丢失和重复消费解决方案</h1><div class="post-meta"><span class="post-meta-item post-meta-item--createtime"><span class="post-meta-item__icon"><i class="far fa-calendar-plus"></i></span><span class="post-meta-item__info">Created</span><span class="post-meta-item__value">2021-07-08</span></span><span class="post-meta-item post-meta-item--updatetime"><span class="post-meta-item__icon"><i class="far fa-calendar-check"></i></span><span class="post-meta-item__info">Updated</span><span class="post-meta-item__value">2021-07-08</span></span><span class="post-meta-item post-meta-item--visitors"><span class="post-meta-item__icon"><i class="fas fa-eye"></i></span><span class="post-meta-item__info">Visited</span><span class="post-meta-item__value" id="busuanzi_value_page_pv"></span></span></div></header><div class="post-body"><p>在使用消息中间间的过程中，经常面对的问题就是消息丢失和重复消费，本文主要记录kafka消息丢失和重复消费的解决思想，不做具体实现。</p>
+
+        <h2 id="生产者"   >
+          <a href="#生产者" class="heading-link"><i class="fas fa-link"></i></a><a href="#生产者" class="headerlink" title="生产者"></a>生产者</h2>
+      
+        <h3 id="消息丢失"   >
+          <a href="#消息丢失" class="heading-link"><i class="fas fa-link"></i></a><a href="#消息丢失" class="headerlink" title="消息丢失"></a>消息丢失</h3>
+      
+        <h4 id="丢失场景"   >
+          <a href="#丢失场景" class="heading-link"><i class="fas fa-link"></i></a><a href="#丢失场景" class="headerlink" title="丢失场景"></a>丢失场景</h4>
+      <ul>
+<li>配置文件里面,ack设置为0,也就是生产者发送之后，producer将消息存到缓存buffer之后，就会返回成功,此时分区副本(leader和follower)并不能保证落盘成功,</li>
+</ul>
+<p>此时如果出现网络抖动等问题就会导致数据丢失。</p>
+<ul>
+<li>ack设置为1,也就是生产者发送之后,只要leader接收到了,就会返回成功,follower没来及同步的时候leader挂掉,也会导致消息丢失。</li>
+</ul>
+
+        <h4 id="解决方案"   >
+          <a href="#解决方案" class="heading-link"><i class="fas fa-link"></i></a><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h4>
+      <p>设置ack=all / -1,保证leader和follower分区都收到之后,再返回给生产者成功。如果其中有一个步骤异常,都会触发kafka的重试机制。</p>
+
+        <h3 id="重复消费"   >
+          <a href="#重复消费" class="heading-link"><i class="fas fa-link"></i></a><a href="#重复消费" class="headerlink" title="重复消费"></a>重复消费</h3>
+      
+        <h4 id="重复场景"   >
+          <a href="#重复场景" class="heading-link"><i class="fas fa-link"></i></a><a href="#重复场景" class="headerlink" title="重复场景"></a>重复场景</h4>
+      <p>生产发送的消息没有收到正确的broke响应，导致producer重试。producer发出一条消息，broke落盘以后因为网络等种种原因，发送端得到一个发送失败的响应或者网络中断，然后producer收到一个可恢复的Exception重试消息导致消息重复。</p>
+
+        <h4 id="解决办法"   >
+          <a href="#解决办法" class="heading-link"><i class="fas fa-link"></i></a><a href="#解决办法" class="headerlink" title="解决办法"></a>解决办法</h4>
+      <p>启动kafka的幂等性</p>
+<p>enable.idempotence=true 同时要求 ack=all 且 retries&gt;1。</p>
+<p><strong>幂等原理：</strong></p>
+<p>每个生产者producer都有一个唯一id,producer每发送一条数据,都会带上一个sequence,当消息落盘,sequence就会递增1。那么只需要判断当前消息的sequence是否大于当前最大sequence,大于就代表此条数据没有落盘过,可以正常消费。不大于就代表落盘过,这个时候重发的消息会被服务端拒掉从而避免消息重复。</p>
+
+        <h2 id="broker"   >
+          <a href="#broker" class="heading-link"><i class="fas fa-link"></i></a><a href="#broker" class="headerlink" title="broker"></a>broker</h2>
+      
+        <h3 id="丢失场景-1"   >
+          <a href="#丢失场景-1" class="heading-link"><i class="fas fa-link"></i></a><a href="#丢失场景-1" class="headerlink" title="丢失场景"></a>丢失场景</h3>
+      <ul>
+<li>ack=1,follower没来及同步的时候leader挂掉,当follower被选举为新的leader时,这部分没同步的数据就丢失了。</li>
+<li>分区副本数小于2个,导致没有足够数量的副本参与新leader选举,无法保证数据的高可用,当原leader挂了之后,没有follower被选举为leader。</li>
+</ul>
+
+        <h3 id="解决办法-1"   >
+          <a href="#解决办法-1" class="heading-link"><i class="fas fa-link"></i></a><a href="#解决办法-1" class="headerlink" title="解决办法:"></a>解决办法:</h3>
+      <ul>
+<li>ack=-1，保证leader和follower分区的数据可以落盘。</li>
+<li>保证分区副本数大于2,保证数据的高可用性</li>
+<li>设置重试次数等。</li>
+</ul>
+
+        <h2 id="消费者"   >
+          <a href="#消费者" class="heading-link"><i class="fas fa-link"></i></a><a href="#消费者" class="headerlink" title="消费者"></a>消费者</h2>
+      
+        <h3 id="消息丢失-1"   >
+          <a href="#消息丢失-1" class="heading-link"><i class="fas fa-link"></i></a><a href="#消息丢失-1" class="headerlink" title="消息丢失"></a>消息丢失</h3>
+      
+        <h4 id="丢失场景-2"   >
+          <a href="#丢失场景-2" class="heading-link"><i class="fas fa-link"></i></a><a href="#丢失场景-2" class="headerlink" title="丢失场景"></a>丢失场景</h4>
+      <p>设置的自动提交offset,当消费者已经消费到了消息,也记录了新的偏移量offset,但是后面的业务失败了或者没来得及处理就挂了。这时候因为offset已经更新了,这条消息也再消费不到了。</p>
+
+        <h4 id="解决办法-2"   >
+          <a href="#解决办法-2" class="heading-link"><i class="fas fa-link"></i></a><a href="#解决办法-2" class="headerlink" title="解决办法"></a>解决办法</h4>
+      <p>设置为手动提交成功,当业务代码都执行完成之后,再进行手动提交,确保消息被真正处理到。</p>
+
+        <h3 id="消息重复"   >
+          <a href="#消息重复" class="heading-link"><i class="fas fa-link"></i></a><a href="#消息重复" class="headerlink" title="消息重复"></a>消息重复</h3>
+      
+        <h4 id="重复场景-1"   >
+          <a href="#重复场景-1" class="heading-link"><i class="fas fa-link"></i></a><a href="#重复场景-1" class="headerlink" title="重复场景"></a>重复场景</h4>
+      <p>数据消费完没有及时提交offset到broke。消息消费端在消费过程中挂掉没有及时提交offset到broke，另一个消费端启动拿之前记录的offset开始消费，由于offset的滞后性可能会导致新启动的客户端有少量重复消费。</p>
+
+        <h4 id="解决办法-3"   >
+          <a href="#解决办法-3" class="heading-link"><i class="fas fa-link"></i></a><a href="#解决办法-3" class="headerlink" title="解决办法"></a>解决办法</h4>
+      <ul>
+<li>设置为手动提交成功</li>
+<li>在下游程序里面做幂等</li>
+</ul>
+<p><strong>幂等的两种方法:</strong></p>
+<ol>
+<li>将唯一键存入第三方介质,要操作数据的时候先判断第三方介质(数据库或者缓存)有没有这个唯一键。</li>
+<li>将版本号(offset)存入到数据里面,然后再要操作数据的时候用这个版本号做乐观锁,当版本号大于原先的才能操作。</li>
+</ol>
+
+        <h2 id="参考链接"   >
+          <a href="#参考链接" class="heading-link"><i class="fas fa-link"></i></a><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h2>
+      <p><span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://blog.csdn.net/qq_39188150/article/details/111415881" >https://blog.csdn.net/qq_39188150/article/details/111415881</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span></p>
+</div><footer class="post-footer"><div class="post-ending ending"><div class="ending__text">------ END ------</div></div><div class="post-tags"><span class="post-tags-item"><span class="post-tags-item__icon"><i class="fas fa-tag"></i></span><a class="post-tags-item__link" href="http://example.com/tags/kafka/">kafka</a></span></div><nav class="post-paginator paginator"><div class="paginator-next"><a class="paginator-next__link" href="/2021/07/04/%E9%80%8F%E8%A7%86http%E5%8D%8F%E8%AE%AE%20(%E4%BA%8C)/"><span class="paginator-prev__text">透视http协议 (二)</span><span class="paginator-next__icon"><i class="fas fa-angle-right"></i></span></a></div></nav></footer></div></div></div><div class="sidebar-wrap" id="sidebar-wrap"><aside class="sidebar" id="sidebar"><div class="sidebar-nav"><span class="sidebar-nav-toc current">Catalog</span><span class="sidebar-nav-ov">Overview</span></div><section class="sidebar-toc"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%94%9F%E4%BA%A7%E8%80%85"><span class="toc-number">1.</span> <span class="toc-text">
+          生产者</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B6%88%E6%81%AF%E4%B8%A2%E5%A4%B1"><span class="toc-number">1.1.</span> <span class="toc-text">
+          消息丢失</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%A2%E5%A4%B1%E5%9C%BA%E6%99%AF"><span class="toc-number">1.1.1.</span> <span class="toc-text">
+          丢失场景</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="toc-number">1.1.2.</span> <span class="toc-text">
+          解决方案</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%87%8D%E5%A4%8D%E6%B6%88%E8%B4%B9"><span class="toc-number">1.2.</span> <span class="toc-text">
+          重复消费</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%87%8D%E5%A4%8D%E5%9C%BA%E6%99%AF"><span class="toc-number">1.2.1.</span> <span class="toc-text">
+          重复场景</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95"><span class="toc-number">1.2.2.</span> <span class="toc-text">
+          解决办法</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#broker"><span class="toc-number">2.</span> <span class="toc-text">
+          broker</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%A2%E5%A4%B1%E5%9C%BA%E6%99%AF-1"><span class="toc-number">2.1.</span> <span class="toc-text">
+          丢失场景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95-1"><span class="toc-number">2.2.</span> <span class="toc-text">
+          解决办法:</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B6%88%E8%B4%B9%E8%80%85"><span class="toc-number">3.</span> <span class="toc-text">
+          消费者</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B6%88%E6%81%AF%E4%B8%A2%E5%A4%B1-1"><span class="toc-number">3.1.</span> <span class="toc-text">
+          消息丢失</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%B8%A2%E5%A4%B1%E5%9C%BA%E6%99%AF-2"><span class="toc-number">3.1.1.</span> <span class="toc-text">
+          丢失场景</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95-2"><span class="toc-number">3.1.2.</span> <span class="toc-text">
+          解决办法</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B6%88%E6%81%AF%E9%87%8D%E5%A4%8D"><span class="toc-number">3.2.</span> <span class="toc-text">
+          消息重复</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%87%8D%E5%A4%8D%E5%9C%BA%E6%99%AF-1"><span class="toc-number">3.2.1.</span> <span class="toc-text">
+          重复场景</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3%E5%8A%9E%E6%B3%95-3"><span class="toc-number">3.2.2.</span> <span class="toc-text">
+          解决办法</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5"><span class="toc-number">4.</span> <span class="toc-text">
+          参考链接</span></a></li></ol></section><!-- ov = overview--><section class="sidebar-ov hide"><div class="sidebar-ov-author"><div class="sidebar-ov-author__avatar"><img class="sidebar-ov-author__avatar_img" src="/images/icons/stun-logo.svg" alt="avatar"></div><p class="sidebar-ov-author__text">hello world</p></div><div class="sidebar-ov-state"><a class="sidebar-ov-state-item sidebar-ov-state-item--posts" href="/archives/"><div class="sidebar-ov-state-item__count">21</div><div class="sidebar-ov-state-item__name">Archives</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--categories" href="/categories/"><div class="sidebar-ov-state-item__count">11</div><div class="sidebar-ov-state-item__name">Categories</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--tags" href="/tags/"><div class="sidebar-ov-state-item__count">21</div><div class="sidebar-ov-state-item__name">Tags</div></a></div></section><div class="sidebar-reading"><div class="sidebar-reading-info"><span class="sidebar-reading-info__text">You have read </span><span class="sidebar-reading-info__num">0</span><span class="sidebar-reading-info__perc">%</span></div><div class="sidebar-reading-line"></div></div></aside></div><div class="clearfix"></div></div></main><footer class="footer" id="footer"><div class="footer-inner"><div><span>Copyright © 2021</span><span class="footer__icon"><i class="fas fa-heart"></i></span><span>lucky</span></div><div class="busuanzi"><span class="busuanzi-siteuv"><span class="busuanzi-siteuv__icon"><i class="fas fa-user"></i></span><span class="busuanzi-siteuv__info">Visitors</span><span class="busuanzi-siteuv__value" id="busuanzi_value_site_uv"></span></span><span class="busuanzi-sitepv"><span class="busuanzi-siteuv__icon"><i class="fas fa-eye"></i></span><span class="busuanzi-siteuv__info">Views</span><span class="busuanzi-siteuv__value" id="busuanzi_value_site_pv"></span></span></div><div><a href="https://github.com/luckylsx/" rel="noopener" target="_blank">Github Pages</a></div></div></footer><div class="loading-bar" id="loading-bar"><div class="loading-bar__progress"></div></div><div class="back2top" id="back2top"><span class="back2top__icon"><i class="fas fa-rocket"></i></span></div></div><div class="search-mask"></div><div class="search-popup"><span class="search-close"></span><div class="search-input"><input placeholder="Search for Posts (Support multiple keywords)"><div class="search-btns">Search by:<span class="search-btns-item search-btns-item--google"><i class="fab fa-google"></i>Google</span><span class="search-btns-item search-btns-item--bing"><i></i>Bing</span><span class="search-btns-item search-btns-item--baidu"><i></i>Baidu</span></div></div><div class="search-results"></div></div><script src="https://cdn.jsdelivr.net/npm/jquery@v3.4.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.ui.min.js"></script><script>function initSearch() {
+  var isXML = true;
+  var search_path = 'search.json';
+
+  if (!search_path) {
+    search_path = 'search.xml';
+  } else if (/json$/i.test(search_path)) {
+    isXML = false;
+  }
+
+  var path = '/' + search_path;
+  $.ajax({
+    url: path,
+    dataType: isXML ? 'xml' : 'json',
+    async: true,
+    success: function (res) {
+      var datas = isXML ? $('entry', res).map(function () {
+        // 将 XML 转为 JSON
+        return {
+          title: $('title', this).text(),
+          content: $('content', this).text(),
+          url: $('url', this).text()
+        };
+      }).get() : res;
+      var $input = $('.search-input input');
+      var $result = $('.search-results');
+      // 搜索对象（标题、内容）的权重，影响显示顺序
+      var WEIGHT = { title: 100, content: 1 };
+      var searchPost = function () {
+        var searchText = $input.val().toLowerCase().trim();
+        // 根据空白字符分隔关键字
+        var keywords = searchText.split(/[\s]+/);
+        // 搜索结果
+        var matchPosts = [];
+
+        // 有多个关键字时，将原文字整个保存下来
+        if (keywords.length > 1) {
+          keywords.push(searchText);
+        }
+        // 防止未输入字符时搜索
+        if (searchText.length > 0) {
+          datas.forEach(function (data) {
+            var isMatch  = false;
+            // 没有标题的文章使用预设的 i18n 变量代替
+            var title = (data.title && data.title.trim()) || '[ Untitled ]';
+            var titleLower = title && title.toLowerCase();
+            // 删除 HTML 标签 和 所有空白字符
+            var content = data.content && data.content.replace(/<[^>]+>/g, '');
+            var contentLower = content && content.toLowerCase();
+            // 删除重复的 /
+            var postURL = data.url && decodeURI(data.url).replace(/\/{2,}/g, '/');
+            // 标题中匹配到的关键词
+            var titleHitSlice = [];
+            // 内容中匹配到的关键词
+            var contentHitSlice = [];
+
+            keywords.forEach(function (keyword) {
+              /**
+              * 获取匹配的关键词的索引
+              * @param {String} keyword 要匹配的关键字
+              * @param {String} text 原文字
+              * @param {Boolean} caseSensitive 是否区分大小写
+              * @param {Number} weight 匹配对象的权重。权重大的优先显示
+              * @return {Array}
+              */
+              function getIndexByword (word, text, caseSensitive, weight) {
+                if (!word || !text) {
+                  return [];
+                };
+
+                var startIndex = 0; // 每次匹配的开始索引
+                var index = -1;     // 匹配到的索引值
+                var result = [];    // 匹配结果
+
+                if (!caseSensitive) {
+                  word = word.toLowerCase();
+                  text = text.toLowerCase();
+                }
+
+                while((index = text.indexOf(word, startIndex)) !== -1) {
+                  var hasMatch = false;
+                  // 索引位置相同的关键词，保留长度较长的
+                  titleHitSlice.forEach(function (hit) {
+                    if (hit.index === index && hit.word.length < word.length) {
+                      hit.word = word;
+                      hasMatch = true;
+                    }
+                  });
+                  startIndex = index + word.length;
+                  !hasMatch && result.push({ index: index, word: word, weight: weight });
+                }
+                return result;
+              }
+              titleHitSlice = titleHitSlice.concat(getIndexByword(keyword, titleLower, false, WEIGHT.title));
+              contentHitSlice = contentHitSlice.concat(getIndexByword(keyword, contentLower, false, WEIGHT.content));
+            });
+
+            var hitTitle = titleHitSlice.length;
+            var hitContent = contentHitSlice.length;
+
+            if (hitTitle > 0 || hitContent > 0) {
+              isMatch = true;
+            }
+            if (isMatch) {
+              ;[titleHitSlice, contentHitSlice].forEach(function (hit) {
+                // 按照匹配文字的索引的递增顺序排序
+                hit.sort(function (left, right) {
+                  return left.index - right.index;
+                });
+              });
+              /**
+              * 给文本中匹配到的关键词添加标记，从而进行高亮显示
+              * @param {String} text 原文本
+              * @param {Array} hitSlice 匹配项的索引信息
+              * @param {Number} start 开始索引
+              * @param {Number} end 结束索引
+              * @return {String}
+              */
+              function highlightKeyword (text, hitSlice, start, end) {
+                if (!text || !hitSlice || !hitSlice.length) {
+                  return;
+                }
+
+                var result = '';
+                var startIndex = start;
+                var endIndex = end;
+                hitSlice.forEach(function (hit) {
+                  if (hit.index < startIndex) {
+                    return;
+                  }
+
+                  var hitWordEnd = hit.index + hit.word.length;
+                  result += text.slice(startIndex, hit.index);
+                  result += '<b>' + text.slice(hit.index, hitWordEnd) + '</b>';
+                  startIndex = hitWordEnd;
+                });
+                result += text.slice(startIndex, endIndex);
+                return result;
+              }
+
+              var postData = {};
+              // 文章总的搜索权重
+              var postWeight = titleHitSlice.length * WEIGHT.title + contentHitSlice.length * WEIGHT.content;
+              // 标记匹配关键词后的标题
+              var postTitle = highlightKeyword(title, titleHitSlice, 0, title.length) || title;
+              // 标记匹配关键词后的内容
+              var postContent;
+              // 显示内容的长度
+              var SHOW_WORD_LENGTH = 200;
+              // 命中关键词前的字符显示长度
+              var SHOW_WORD_FRONT_LENGTH = 20;
+              var SHOW_WORD_END_LENGTH = SHOW_WORD_LENGTH - SHOW_WORD_FRONT_LENGTH;
+
+              // 截取匹配的第一个字符，前后共 200 个字符来显示
+              if (contentHitSlice.length > 0) {
+                var firstIndex = contentHitSlice[0].index;
+                var start = firstIndex > SHOW_WORD_FRONT_LENGTH ? firstIndex - SHOW_WORD_FRONT_LENGTH : 0;
+                var end = firstIndex + SHOW_WORD_END_LENGTH;
+                postContent = highlightKeyword(content, contentHitSlice, start, end);
+              } else { // 未匹配到内容，直接截取前 200 个字符来显示
+                postContent = content.slice(0, SHOW_WORD_LENGTH);
+              }
+              postData.title = postTitle;
+              postData.content = postContent;
+              postData.url = postURL;
+              postData.weight = postWeight;
+              matchPosts.push(postData);
+            }
+          });
+        }
+
+        var resultInnerHtml = '';
+        if (matchPosts.length) {
+          // 按权重递增的顺序排序，使权重大的优先显示
+          matchPosts.sort(function (left, right) {
+            return right.weight - left.weight;
+          });
+          resultInnerHtml += '<ul>';
+          matchPosts.forEach(function (post) {
+            resultInnerHtml += '<li><a class="search-results-title" href="' + post.url + '">';
+            resultInnerHtml += post.title;
+            resultInnerHtml += '</a><div class="search-results-content">';
+            resultInnerHtml += post.content;
+            resultInnerHtml += '</div></li>';
+          });
+          resultInnerHtml += '</ul>';
+        } else {
+          resultInnerHtml += '<div class="search-results-none"><i class="far fa-meh"></i></div>';
+        }
+        $result.html(resultInnerHtml);
+      };
+      $input.on('input', searchPost);
+      $input.on('keyup', function (e) {
+        if (e.keyCode === Stun.utils.codeToKeyCode('Enter')) {
+          searchPost();
+        }
+      });
+    }
+  });
+}
+
+function closeSearch () {
+  $('body').css({ overflow: 'auto' });
+  $('.search-popup').css({ display: 'none' });
+  $('.search-mask').css({ display: 'none' });
+}
+
+window.addEventListener('DOMContentLoaded', function () {
+  Stun.utils.pjaxReloadLocalSearch = function () {
+    $('.header-nav-search').on('click', function (e) {
+      e.stopPropagation();
+      $('body').css('overflow', 'hidden');
+      $('.search-popup')
+        .velocity('stop')
+        .velocity('transition.expandIn', {
+          duration: 300,
+          complete: function () {
+            $('.search-popup input').focus();
+          }
+        });
+      $('.search-mask')
+        .velocity('stop')
+        .velocity('transition.fadeIn', {
+          duration: 300
+        });
+
+      initSearch();
+    });
+    $('.search-mask, .search-close').on('click', function () {
+      closeSearch();
+    });
+    $(document).on('keydown', function (e) {
+      // Escape <=> 27
+      if (e.keyCode === Stun.utils.codeToKeyCode('Escape')) {
+        closeSearch();
+      }
+    });
+  };
+
+  Stun.utils.pjaxReloadLocalSearch();
+}, false);
+
+function safeOpenUrl(url) {
+  var newTab = window.open();
+  newTab.opener = null;
+  newTab.location = url;
+}
+
+function extSearch(engine) {
+  var engines = {
+    google: 'https://www.google.com/search?q=',
+    bing: 'https://cn.bing.com/search?q=',
+    baidu: 'https://www.baidu.com/s?ie=UTF-8&wd=',
+  };
+  var host = window.location.host;
+  var query = $('.search-input input').val().toLowerCase().trim();
+  var uri = engines[engine] + query + ' site:' + host;
+
+  if (query) {
+    safeOpenUrl(uri);
+  } else {
+    Stun.utils.popAlert('warning', 'Please enter characters');
+  }
+}
+
+var assistSearchList = window.CONFIG.assistSearch;
+
+if (Array.isArray(assistSearchList)) {
+  assistSearchList.forEach(function (name) {
+    document.querySelector('.search-btns-item--' + name).addEventListener('click', function () {
+      extSearch(name);
+    }, false);
+  });
+}</script><script src="https://cdn.jsdelivr.net/gh/sukkaw/busuanzi@latest/bsz.pure.mini.js" async></script><script src="/js/utils.js?v=2.6.2"></script><script src="/js/stun-boot.js?v=2.6.2"></script><script src="/js/scroll.js?v=2.6.2"></script><script src="/js/header.js?v=2.6.2"></script><script src="/js/sidebar.js?v=2.6.2"></script><script type="application/json" src="/search.json"></script></body></html>
