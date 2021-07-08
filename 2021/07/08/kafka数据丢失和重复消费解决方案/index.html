@@ -6,7 +6,7 @@
 <meta property="og:description" content="在使用消息中间间的过程中，经常面对的问题就是消息丢失和重复消费，本文主要记录kafka消息丢失和重复消费的解决思想，不做具体实现。                     生产者                           消息丢失                           丢失场景">
 <meta property="og:locale">
 <meta property="article:published_time" content="2021-07-07T16:00:00.000Z">
-<meta property="article:modified_time" content="2021-07-08T14:11:25.614Z">
+<meta property="article:modified_time" content="2021-07-08T14:12:10.588Z">
 <meta property="article:author" content="lucky">
 <meta property="article:tag" content="kafka">
 <meta name="twitter:card" content="summary"><title>kafka数据丢失和重复消费解决方案 | Study hard, Work Hard</title><link ref="canonical" href="http://example.com/2021/07/08/kafka%E6%95%B0%E6%8D%AE%E4%B8%A2%E5%A4%B1%E5%92%8C%E9%87%8D%E5%A4%8D%E6%B6%88%E8%B4%B9%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.12.1/css/all.min.css" type="text/css"><link rel="stylesheet" href="/css/index.css?v=2.6.2"><script>var Stun = window.Stun || {};
@@ -54,7 +54,7 @@ window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 5.3.0"></he
 
         <h4 id="解决方案"   >
           <a href="#解决方案" class="heading-link"><i class="fas fa-link"></i></a><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h4>
-      <p>设置ack=all / -1,保证leader和follower分区都收到之后,再返回给生产者成功。如果其中有一个步骤异常,都会触发kafka的重试机制。</p>
+      <p>设置ack=all/-1,保证leader和follower分区都收到之后,再返回给生产者成功。如果其中有一个步骤异常,都会触发kafka的重试机制。</p>
 
         <h3 id="重复消费"   >
           <a href="#重复消费" class="heading-link"><i class="fas fa-link"></i></a><a href="#重复消费" class="headerlink" title="重复消费"></a>重复消费</h3>
