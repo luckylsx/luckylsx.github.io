@@ -1,12 +1,12 @@
-<!DOCTYPE html><html lang="en.yml"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="format-detection" content="telephone=no"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black"><link rel="icon" href="/images/icons/favicon-16x16.png?v=2.6.2" type="image/png" sizes="16x16"><link rel="icon" href="/images/icons/favicon-32x32.png?v=2.6.2" type="image/png" sizes="32x32"><meta name="description" content="在使用消息中间间的过程中，经常面对的问题就是消息丢失和重复消费，本文主要记录kafka消息丢失和重复消费的解决思想，不做具体实现。                     生产者                           消息丢失                           丢失场景        配置文件里面,ack设置为0,也就是生产者发送之后，producer将消息存到缓存">
+<!DOCTYPE html><html lang="en.yml"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="format-detection" content="telephone=no"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black"><link rel="icon" href="/images/icons/favicon-16x16.png?v=2.6.2" type="image/png" sizes="16x16"><link rel="icon" href="/images/icons/favicon-32x32.png?v=2.6.2" type="image/png" sizes="32x32"><meta name="description" content="在使用消息中间间的过程中，经常面对的问题就是消息丢失和重复消费，本文主要记录kafka消息丢失和重复消费的解决思想，不做具体实现。                     生产者                           消息丢失                           丢失场景">
 <meta property="og:type" content="article">
 <meta property="og:title" content="kafka数据丢失和重复消费解决方案">
 <meta property="og:url" content="http://example.com/2021/07/08/kafka%E6%95%B0%E6%8D%AE%E4%B8%A2%E5%A4%B1%E5%92%8C%E9%87%8D%E5%A4%8D%E6%B6%88%E8%B4%B9%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/index.html">
 <meta property="og:site_name" content="Study hard, Work Hard">
-<meta property="og:description" content="在使用消息中间间的过程中，经常面对的问题就是消息丢失和重复消费，本文主要记录kafka消息丢失和重复消费的解决思想，不做具体实现。                     生产者                           消息丢失                           丢失场景        配置文件里面,ack设置为0,也就是生产者发送之后，producer将消息存到缓存">
+<meta property="og:description" content="在使用消息中间间的过程中，经常面对的问题就是消息丢失和重复消费，本文主要记录kafka消息丢失和重复消费的解决思想，不做具体实现。                     生产者                           消息丢失                           丢失场景">
 <meta property="og:locale">
 <meta property="article:published_time" content="2021-07-07T16:00:00.000Z">
-<meta property="article:modified_time" content="2021-07-08T14:05:58.677Z">
+<meta property="article:modified_time" content="2021-07-08T14:11:25.614Z">
 <meta property="article:author" content="lucky">
 <meta property="article:tag" content="kafka">
 <meta name="twitter:card" content="summary"><title>kafka数据丢失和重复消费解决方案 | Study hard, Work Hard</title><link ref="canonical" href="http://example.com/2021/07/08/kafka%E6%95%B0%E6%8D%AE%E4%B8%A2%E5%A4%B1%E5%92%8C%E9%87%8D%E5%A4%8D%E6%B6%88%E8%B4%B9%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88/"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.12.1/css/all.min.css" type="text/css"><link rel="stylesheet" href="/css/index.css?v=2.6.2"><script>var Stun = window.Stun || {};
@@ -43,7 +43,8 @@ window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 5.3.0"></he
       
         <h4 id="丢失场景"   >
           <a href="#丢失场景" class="heading-link"><i class="fas fa-link"></i></a><a href="#丢失场景" class="headerlink" title="丢失场景"></a>丢失场景</h4>
-      <ul>
+      <a id="more"></a>
+<ul>
 <li>配置文件里面,ack设置为0,也就是生产者发送之后，producer将消息存到缓存buffer之后，就会返回成功,此时分区副本(leader和follower)并不能保证落盘成功,</li>
 </ul>
 <p>此时如果出现网络抖动等问题就会导致数据丢失。</p>
