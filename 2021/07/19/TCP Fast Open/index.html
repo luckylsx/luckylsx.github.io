@@ -8,7 +8,7 @@
 <meta property="og:image" content="http://example.com/images/http/tcp/tcp-handshake-md@2x.webp">
 <meta property="og:image" content="http://example.com/images/http/tcp/tcp-fast-open.png">
 <meta property="article:published_time" content="2021-07-18T16:00:00.000Z">
-<meta property="article:modified_time" content="2021-07-19T14:56:05.392Z">
+<meta property="article:modified_time" content="2021-07-19T14:59:48.944Z">
 <meta property="article:author" content="lucky">
 <meta property="article:tag" content="http">
 <meta property="article:tag" content="TCP&#x2F;IP">
@@ -55,7 +55,7 @@ window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 5.3.0"></he
         <h2 id="TCP-Fast-Open定义"   >
           <a href="#TCP-Fast-Open定义" class="heading-link"><i class="fas fa-link"></i></a><a href="#TCP-Fast-Open定义" class="headerlink" title="TCP Fast Open定义"></a>TCP Fast Open定义</h2>
       <p>TCP Fast Open（TFO）是传输控制协议 (TCP) 的扩展，它通过在发送方的初始 TCP SYN 期间交换数据来帮助减少网络延迟。是用来加速连续TCP连接的数据交互的TCP协议扩展，原理如下：在TCP三次握手的过程中，当用户首次访问Server时，发送SYN包，Server根据用户IP生成Cookie（已加密），并与SYN-ACK一同发回Client；当Client随后重连时，在SYN包携带TCP Cookie；如果Server校验合法，则在用户回复ACK前就可以直接发送数据；否则按照正常三次握手进行。</p>
-<p>TCP Fast Open 是一种简化 TCP 三次握手的方案，如图：可查看出原始tcp三次握手与开启tcp fast open 三次握手的区别：</p>
+<p>TCP Fast Open 是一种简化 TCP 三次握手的方案，如图：可看出传统tcp三次握手与开启tcp fast open 握手的区别：</p>
 <img src="/images/http/tcp/tcp-fast-open.png" art="http-header" width="500px">
 
 
