@@ -1,0 +1,414 @@
+<!DOCTYPE html><html lang="en.yml"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="format-detection" content="telephone=no"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black"><link rel="icon" href="/images/icons/favicon-16x16.png?v=2.6.2" type="image/png" sizes="16x16"><link rel="icon" href="/images/icons/favicon-32x32.png?v=2.6.2" type="image/png" sizes="32x32"><meta name="description" content="map 示例：       先来看一个demo, 打印maps的指针地址： 1234567891011121314151617181920package mainimport &quot;fmt&quot;var maps &#x3D; map[string]string&amp;#123;	&quot;name&quot;: &quot;golang&quot;,&amp;#125;func ini">
+<meta property="og:type" content="article">
+<meta property="og:title" content="map的底层实现">
+<meta property="og:url" content="http://example.com/2021/08/01/map%E7%9A%84%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0/index.html">
+<meta property="og:site_name" content="Study hard, Work Hard">
+<meta property="og:description" content="map 示例：       先来看一个demo, 打印maps的指针地址： 1234567891011121314151617181920package mainimport &quot;fmt&quot;var maps &#x3D; map[string]string&amp;#123;	&quot;name&quot;: &quot;golang&quot;,&amp;#125;func ini">
+<meta property="og:locale">
+<meta property="og:image" content="http://example.com/images/golang/maps/bucket.png">
+<meta property="og:image" content="http://example.com/images/golang/maps/hmap.png">
+<meta property="og:image" content="http://example.com/images/golang/maps/hmap-bucket.png">
+<meta property="og:image" content="http://example.com/images/golang/maps/key-hash.png">
+<meta property="og:image" content="http://example.com/images/golang/maps/map-key-value.png">
+<meta property="og:image" content="http://example.com/images/golang/maps/map-whole.png">
+<meta property="article:published_time" content="2021-07-31T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-08-01T12:49:29.186Z">
+<meta property="article:author" content="lucky">
+<meta property="article:tag" content="golang">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/golang/maps/bucket.png"><title>map的底层实现 | Study hard, Work Hard</title><link ref="canonical" href="http://example.com/2021/08/01/map%E7%9A%84%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0/"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.12.1/css/all.min.css" type="text/css"><link rel="stylesheet" href="/css/index.css?v=2.6.2"><script>var Stun = window.Stun || {};
+var CONFIG = {
+  root: '/',
+  algolia: undefined,
+  assistSearch: ["google","bing","baidu"],
+  fontIcon: {"prompt":{"success":"fas fa-check-circle","info":"fas fa-arrow-circle-right","warning":"fas fa-exclamation-circle","error":"fas fa-times-circle"},"copyBtn":"fas fa-copy"},
+  sidebar: {"offsetTop":"20px","tocMaxDepth":6},
+  header: {"enable":true,"showOnPost":true,"scrollDownIcon":false},
+  postWidget: {"endText":true},
+  nightMode: {"enable":true},
+  back2top: {"enable":true},
+  codeblock: {"style":"default","highlight":"light","wordWrap":false},
+  reward: false,
+  fancybox: false,
+  zoomImage: {"gapAside":"20px"},
+  galleryWaterfall: undefined,
+  lazyload: false,
+  pjax: undefined,
+  externalLink: {"icon":{"enable":true,"name":"fas fa-external-link-alt"}},
+  shortcuts: undefined,
+  prompt: {"copyButton":"Copy","copySuccess":"Copy Success","copyError":"Copy Error"},
+  sourcePath: {"js":"js","css":"css","images":"images"},
+};
+
+window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 5.3.0"></head><body><div class="container" id="container"><header class="header" id="header"><div class="header-inner"><nav class="header-nav header-nav--fixed"><div class="header-nav-inner"><div class="header-nav-menubtn"><i class="fas fa-bars"></i></div><div class="header-nav-menu"><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/"><span class="header-nav-menu-item__icon"><i class="fas fa-home"></i></span><span class="header-nav-menu-item__text">Home</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/archives/"><span class="header-nav-menu-item__icon"><i class="fas fa-folder-open"></i></span><span class="header-nav-menu-item__text">Archives</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/categories/"><span class="header-nav-menu-item__icon"><i class="fas fa-layer-group"></i></span><span class="header-nav-menu-item__text">Categories</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/tags/"><span class="header-nav-menu-item__icon"><i class="fas fa-tags"></i></span><span class="header-nav-menu-item__text">Tags</span></a></div></div><div class="header-nav-search"><span class="header-nav-search__icon"><i class="fas fa-search"></i></span><span class="header-nav-search__text">Search</span></div><div class="header-nav-mode"><div class="mode"><div class="mode-track"><span class="mode-track-moon"></span><span class="mode-track-sun"></span></div><div class="mode-thumb"></div></div></div></div></nav><div class="header-banner"><div class="header-banner-info"><div class="header-banner-info__title">Study hard, Work Hard</div><div class="header-banner-info__subtitle">If you don't want to wasted life in the world, that is about to study for a lifetime.</div></div></div></div></header><main class="main" id="main"><div class="main-inner"><div class="content-wrap" id="content-wrap"><div class="content" id="content"><!-- Just used to judge whether it is an article page--><div id="is-post"></div><div class="post"><header class="post-header"><h1 class="post-title">map的底层实现</h1><div class="post-meta"><span class="post-meta-item post-meta-item--createtime"><span class="post-meta-item__icon"><i class="far fa-calendar-plus"></i></span><span class="post-meta-item__info">Created</span><span class="post-meta-item__value">2021-08-01</span></span><span class="post-meta-item post-meta-item--updatetime"><span class="post-meta-item__icon"><i class="far fa-calendar-check"></i></span><span class="post-meta-item__info">Updated</span><span class="post-meta-item__value">2021-08-01</span></span><span class="post-meta-item post-meta-item--visitors"><span class="post-meta-item__icon"><i class="fas fa-eye"></i></span><span class="post-meta-item__info">Visited</span><span class="post-meta-item__value" id="busuanzi_value_page_pv"></span></span></div></header><div class="post-body">
+        <h2 id="map-示例："   >
+          <a href="#map-示例：" class="heading-link"><i class="fas fa-link"></i></a><a href="#map-示例：" class="headerlink" title="map 示例："></a>map 示例：</h2>
+      <p>先来看一个demo, 打印maps的指针地址：</p>
+<figure class="highlight golang"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;fmt&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> maps = <span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">string</span>&#123;</span><br><span class="line">	<span class="string">&quot;name&quot;</span>: <span class="string">&quot;golang&quot;</span>,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">init</span><span class="params">()</span></span> &#123;</span><br><span class="line">	fmt.Printf(<span class="string">&quot;maps init p(%p)\n&quot;</span>, &amp;maps)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span>  &#123;</span><br><span class="line">	fmt.Printf(<span class="string">&quot;maps main p(%p)\n&quot;</span>, &amp;maps)</span><br><span class="line">	printMaps(maps)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">printMaps</span><span class="params">(maps <span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">string</span>)</span></span>  &#123;</span><br><span class="line">	fmt.Printf(<span class="string">&quot;maps printMaps p(%p)\n&quot;</span>, &amp;maps)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></div></figure>
+<a id="more"></a>
+
+<p><strong>打印结果为：</strong></p>
+<figure class="highlight plain"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">maps init p(0x1160948)</span><br><span class="line">maps main p(0x1160948)</span><br><span class="line">maps printMaps p(0xc0000b0020)</span><br></pre></td></tr></table></div></figure>
+<p>由此可见，传入函数内部的map指针发生了变化，所以map的传参方式为值传递。我们修改为以下demo，并修改maps中name的值，看是否为影响原始maps。</p>
+<figure class="highlight golang"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;fmt&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> maps = <span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">string</span>&#123;</span><br><span class="line">	<span class="string">&quot;name&quot;</span>: <span class="string">&quot;golang&quot;</span>,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">init</span><span class="params">()</span></span> &#123;</span><br><span class="line">	fmt.Printf(<span class="string">&quot;maps init p(%p)\n&quot;</span>, &amp;maps)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span>  &#123;</span><br><span class="line">	fmt.Printf(<span class="string">&quot;maps main p(%p)\n&quot;</span>, &amp;maps)</span><br><span class="line">	printMaps(maps)</span><br><span class="line">	fmt.Printf(<span class="string">&quot;original maps = %+v\n&quot;</span>, maps)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">printMaps</span><span class="params">(maps <span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">string</span>)</span></span>  &#123;</span><br><span class="line">	fmt.Printf(<span class="string">&quot;maps printMaps p(%p)\n&quot;</span>, &amp;maps)</span><br><span class="line">	maps[<span class="string">&quot;name&quot;</span>] = <span class="string">&quot;java&quot;</span></span><br><span class="line">	fmt.Printf(<span class="string">&quot;printMaps maps = %+v\n&quot;</span>, maps)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></div></figure>
+<p><strong>打印结果为：</strong></p>
+<figure class="highlight plain"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">maps init p(0x1160948)</span><br><span class="line">maps main p(0x1160948)</span><br><span class="line">maps printMaps p(0xc0000b0020)</span><br><span class="line">printMaps maps &#x3D; map[name:java]</span><br><span class="line">original maps &#x3D; map[name:java]</span><br></pre></td></tr></table></div></figure>
+<p>可见传参之后，在函数内的修改影响到了外部全局变量的maps。</p>
+
+        <h2 id="golang源码解析"   >
+          <a href="#golang源码解析" class="heading-link"><i class="fas fa-link"></i></a><a href="#golang源码解析" class="headerlink" title="golang源码解析"></a>golang源码解析</h2>
+      <p>Golang中map的底层实现是一个散列表，在这个散列表中，主要有两个结构体，一个叫hmap(a header for a go map)，一个叫bucket(bmap)。</p>
+
+        <h3 id="hmap-结构"   >
+          <a href="#hmap-结构" class="heading-link"><i class="fas fa-link"></i></a><a href="#hmap-结构" class="headerlink" title="hmap 结构"></a>hmap 结构</h3>
+      <figure class="highlight golang"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// A header for a Go map.</span></span><br><span class="line"><span class="keyword">type</span> hmap <span class="keyword">struct</span> &#123;</span><br><span class="line">	count     <span class="keyword">int</span>  <span class="comment">// map的长度大小，通过内置len获取</span></span><br><span class="line">	flags     <span class="keyword">uint8</span></span><br><span class="line">	B         <span class="keyword">uint8</span>  <span class="comment">// 桶数的 log_2（最多可容纳 loadFactor * 2^B 个item）</span></span><br><span class="line">	noverflow <span class="keyword">uint16</span> <span class="comment">// 溢出桶的bucket数量</span></span><br><span class="line">	hash0     <span class="keyword">uint32</span> <span class="comment">// 哈希种子 计算 key 的哈希的时候会传入哈希函数</span></span><br><span class="line"></span><br><span class="line">	buckets    unsafe.Pointer <span class="comment">// buckets 数组指针 buckets 为bucket数组，真正存放key/value的地方</span></span><br><span class="line">	oldbuckets unsafe.Pointer <span class="comment">// 旧 buckets 数组指针</span></span><br><span class="line">	nevacuate  <span class="keyword">uintptr</span>        <span class="comment">// 搬迁进度</span></span><br><span class="line"></span><br><span class="line">	extra *mapextra <span class="comment">// 可选字段 用于扩展的指针</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></div></figure>
+<p>Golang的map中用于存储的key/value结构是bucket数组。而bucket(即bmap)的结构如下：</p>
+<figure class="highlight golang"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// A bucket for a Go map.</span></span><br><span class="line"><span class="keyword">type</span> bmap <span class="keyword">struct</span> &#123;</span><br><span class="line">	<span class="comment">// tophash generally contains the top byte of the hash value</span></span><br><span class="line">	<span class="comment">// for each key in this bucket. If tophash[0] &lt; minTopHash,</span></span><br><span class="line">	<span class="comment">// tophash[0] is a bucket evacuation state instead.</span></span><br><span class="line">    <span class="comment">// 翻译：tophash 通常包含此bucket中每个键的哈希值的高八位。 如果 tophash[0] &lt; minTopHash，则 </span></span><br><span class="line">    <span class="comment">// tophash[0] 是一个bucket疏散状态。</span></span><br><span class="line">	tophash [bucketCnt]<span class="keyword">uint8</span></span><br><span class="line">    <span class="comment">// Followed by bucketCnt keys and then bucketCnt elems.</span></span><br><span class="line">	<span class="comment">// <span class="doctag">NOTE:</span> packing all the keys together and then all the elems together makes the</span></span><br><span class="line">	<span class="comment">// code a bit more complicated than alternating key/elem/key/elem/... but it allows</span></span><br><span class="line">	<span class="comment">// us to eliminate padding which would be needed for, e.g., map[int64]int8.</span></span><br><span class="line">	<span class="comment">// Followed by an overflow pointer.</span></span><br><span class="line">	<span class="comment">// 接着是bucketCnt键，然后是bucketCnt元素。</span></span><br><span class="line">    <span class="comment">// 注意：将所有键打包在一起，然后将所有 elems 打包在一起会使代码比交替 key/elem/key/elem/... 稍微复杂一些，但它允许我们消除填充，例如 map[ int64]int8.后跟溢出指针。</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></div></figure>
+<p>bmap就是我们所说的桶bucket，实际上就是每个bucket固定包含8个key和value(可以查看源码bucketCnt=8).实现上面是一个固定的大小连续内存块，分成四部分：</p>
+<ol>
+<li>每个条目的状态</li>
+<li>8个key值</li>
+<li>8个value值</li>
+<li>指向下个bucket的指针</li>
+</ol>
+<p>桶里面会最多装 8 个key，这些key之所以会落入同一个桶，是因为它们经过哈希计算后，哈希结果是“一类”的。在桶内，又会根据 key 计算出来的 hash 值的高 8 位来决定 key 到底落入桶内的哪个位置（一个桶内最多有8个位置）。</p>
+<p>如果超过 8key-value对，将继续额外的bucket，并通过overflow指针连接。当哈希表增大到一定长度时，会分配一个新数组,桶的两倍大。 桶是递增的,从旧桶数组复制到新桶数组。</p>
+<p>具体结构如下：</p>
+<img src="/images/golang/maps/bucket.png">
+
+<p>通过hmap的定义可知道，一个map会有多个bucket，而hmap通过buckets指针指向真正buckets结构，如下图所示：</p>
+<img src="/images/golang/maps/hmap.png" width="500px">
+
+<p>而bucket又通过一个扩展字段组成了一个链表结构，所以，整体的结构如下：</p>
+<img src="/images/golang/maps/hmap-bucket.png" width="500px">
+
+<p>哈希表的特点是会有一个哈希函数，对传来的key进行哈希运算，得到唯一的值，一般情况下都是一个数值。Golang的map中也有这么一个哈希函数，也会算出唯一的值。</p>
+<p>Golang把求得的值按照用途一分为二：高位和低位。</p>
+<img src="/images/golang/maps/key-hash.png" width="400px">
+
+<p>如图所示，蓝色为高位，红色为低位。<br>然后低位用于寻找当前key属于hmap中的哪个bucket，而高位用于寻找bucket中的哪个key。上文中提到：bucket中有个属性字段是“高位哈希值”数组，这里存的就是蓝色的高位值，用来声明当前bucket中有哪些“key”，便于搜索查找。<br>需要特别指出的一点是：我们map中的key/value值都是存到同一个数组中的。数组中的顺序是这样的:</p>
+<img src="/images/golang/maps/map-key-value.png">
+
+<p>并不是key0/value0/key1/value1的形式，这样做的好处是：在key和value的长度不同的时候，可以消除padding带来的空间浪费。</p>
+<p>至此map对整个结构图如下所示：</p>
+<img src="/images/golang/maps/map-whole.png">
+
+
+        <h3 id="tophash分析"   >
+          <a href="#tophash分析" class="heading-link"><i class="fas fa-link"></i></a><a href="#tophash分析" class="headerlink" title="tophash分析"></a>tophash分析</h3>
+      <p>tophash是一个长度为8的数组，它不仅仅用来存放key的哈希高8位，在不同场景下它还可以标记迁移状态，bucket是否为空等。</p>
+
+        <h4 id="tophash值含义"   >
+          <a href="#tophash值含义" class="heading-link"><i class="fas fa-link"></i></a><a href="#tophash值含义" class="headerlink" title="tophash值含义"></a>tophash值含义</h4>
+      <p>当tophash对应的K/V被使用时，存的是key的哈希值的高8位；当tophash对应的K/V未被使用时，存的是K/V对应位置的状态。</p>
+<figure class="highlight plain"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">emptyRest      &#x3D; 0 </span><br><span class="line">emptyOne       &#x3D; 1 </span><br><span class="line">evacuatedX     &#x3D; 2 </span><br><span class="line">evacuatedY     &#x3D; 3</span><br><span class="line">evacuatedEmpty &#x3D; 4</span><br><span class="line">minTopHash     &#x3D; 5 </span><br></pre></td></tr></table></div></figure>
+<p>当tophash[i] &lt; 5时，表示存的是状态；<br>当tophash[i] &gt;= 5时，表示存的是哈希值；</p>
+
+        <h5 id="emptyRest"   >
+          <a href="#emptyRest" class="heading-link"><i class="fas fa-link"></i></a><a href="#emptyRest" class="headerlink" title="emptyRest"></a>emptyRest</h5>
+      <p>这个值有两层意思：一是表示该tophash对应的K/V位置是可用的；二是表示该位置后面的K/V位置都是可用的。</p>
+<p>赋值：</p>
+<ul>
+<li>初始化的时，tophash会被置为emptyRest。</li>
+<li>删除map元素时，会判断是否需要把删除key对应的tophash置为emptyRest。</li>
+</ul>
+
+        <h5 id="emptyOne"   >
+          <a href="#emptyOne" class="heading-link"><i class="fas fa-link"></i></a><a href="#emptyOne" class="headerlink" title="emptyOne"></a>emptyOne</h5>
+      <p>仅表示该tophash对应的K/V位置是可用的，其后面的是否可用不知道。</p>
+<p>赋值：</p>
+<p>删除map元素时，会把key对应的tophash先置为emptyOne，再继续判断是否需要置为emptyRest。</p>
+
+        <h2 id="demo问题"   >
+          <a href="#demo问题" class="heading-link"><i class="fas fa-link"></i></a><a href="#demo问题" class="headerlink" title="demo问题"></a>demo问题</h2>
+      <p>通过map源码分析可知，虽然map参数传递时为值传递，但底层通过一个buckets指针指向了一个真正的buckets结构，即使map拷贝了一份，但buckets指针指向但仍然是同一个底层结构，所以，改变map中的key时，会影响到全局的map。</p>
+
+        <h2 id="参考"   >
+          <a href="#参考" class="heading-link"><i class="fas fa-link"></i></a><a href="#参考" class="headerlink" title="参考"></a>参考</h2>
+      <ul>
+<li><span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://juejin.cn/post/6844903685823135757" >https://juejin.cn/post/6844903685823135757</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span></li>
+<li><span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://blog.csdn.net/chenxun_2010/article/details/103768011" >https://blog.csdn.net/chenxun_2010/article/details/103768011</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span></li>
+</ul>
+</div><footer class="post-footer"><div class="post-ending ending"><div class="ending__text">------ END ------</div></div><div class="post-tags"><span class="post-tags-item"><span class="post-tags-item__icon"><i class="fas fa-tag"></i></span><a class="post-tags-item__link" href="http://example.com/tags/golang/">golang</a></span></div><nav class="post-paginator paginator"><div class="paginator-next"><a class="paginator-next__link" href="/2021/07/25/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8Fgolang%E5%AE%9E%E7%8E%B0/"><span class="paginator-prev__text">设计模式-单例模式golang实现</span><span class="paginator-next__icon"><i class="fas fa-angle-right"></i></span></a></div></nav></footer></div></div></div><div class="sidebar-wrap" id="sidebar-wrap"><aside class="sidebar" id="sidebar"><div class="sidebar-nav"><span class="sidebar-nav-toc current">Catalog</span><span class="sidebar-nav-ov">Overview</span></div><section class="sidebar-toc"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#map-%E7%A4%BA%E4%BE%8B%EF%BC%9A"><span class="toc-number">1.</span> <span class="toc-text">
+          map 示例：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#golang%E6%BA%90%E7%A0%81%E8%A7%A3%E6%9E%90"><span class="toc-number">2.</span> <span class="toc-text">
+          golang源码解析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#hmap-%E7%BB%93%E6%9E%84"><span class="toc-number">2.1.</span> <span class="toc-text">
+          hmap 结构</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#tophash%E5%88%86%E6%9E%90"><span class="toc-number">2.2.</span> <span class="toc-text">
+          tophash分析</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#tophash%E5%80%BC%E5%90%AB%E4%B9%89"><span class="toc-number">2.2.1.</span> <span class="toc-text">
+          tophash值含义</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#emptyRest"><span class="toc-number">2.2.1.1.</span> <span class="toc-text">
+          emptyRest</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#emptyOne"><span class="toc-number">2.2.1.2.</span> <span class="toc-text">
+          emptyOne</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#demo%E9%97%AE%E9%A2%98"><span class="toc-number">3.</span> <span class="toc-text">
+          demo问题</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83"><span class="toc-number">4.</span> <span class="toc-text">
+          参考</span></a></li></ol></section><!-- ov = overview--><section class="sidebar-ov hide"><div class="sidebar-ov-author"><div class="sidebar-ov-author__avatar"><img class="sidebar-ov-author__avatar_img" src="/images/icons/stun-logo.svg" alt="avatar"></div><p class="sidebar-ov-author__text">hello world</p></div><div class="sidebar-ov-state"><a class="sidebar-ov-state-item sidebar-ov-state-item--posts" href="/archives/"><div class="sidebar-ov-state-item__count">26</div><div class="sidebar-ov-state-item__name">Archives</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--categories" href="/categories/"><div class="sidebar-ov-state-item__count">12</div><div class="sidebar-ov-state-item__name">Categories</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--tags" href="/tags/"><div class="sidebar-ov-state-item__count">22</div><div class="sidebar-ov-state-item__name">Tags</div></a></div></section><div class="sidebar-reading"><div class="sidebar-reading-info"><span class="sidebar-reading-info__text">You have read </span><span class="sidebar-reading-info__num">0</span><span class="sidebar-reading-info__perc">%</span></div><div class="sidebar-reading-line"></div></div></aside></div><div class="clearfix"></div></div></main><footer class="footer" id="footer"><div class="footer-inner"><div><span>Copyright © 2021</span><span class="footer__icon"><i class="fas fa-heart"></i></span><span>lucky</span></div><div class="busuanzi"><span class="busuanzi-siteuv"><span class="busuanzi-siteuv__icon"><i class="fas fa-user"></i></span><span class="busuanzi-siteuv__info">Visitors</span><span class="busuanzi-siteuv__value" id="busuanzi_value_site_uv"></span></span><span class="busuanzi-sitepv"><span class="busuanzi-siteuv__icon"><i class="fas fa-eye"></i></span><span class="busuanzi-siteuv__info">Views</span><span class="busuanzi-siteuv__value" id="busuanzi_value_site_pv"></span></span></div><div><a href="https://github.com/luckylsx/" rel="noopener" target="_blank">Github Pages</a></div></div></footer><div class="loading-bar" id="loading-bar"><div class="loading-bar__progress"></div></div><div class="back2top" id="back2top"><span class="back2top__icon"><i class="fas fa-rocket"></i></span></div></div><div class="search-mask"></div><div class="search-popup"><span class="search-close"></span><div class="search-input"><input placeholder="Search for Posts (Support multiple keywords)"><div class="search-btns">Search by:<span class="search-btns-item search-btns-item--google"><i class="fab fa-google"></i>Google</span><span class="search-btns-item search-btns-item--bing"><i></i>Bing</span><span class="search-btns-item search-btns-item--baidu"><i></i>Baidu</span></div></div><div class="search-results"></div></div><script src="https://cdn.jsdelivr.net/npm/jquery@v3.4.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.ui.min.js"></script><script>function initSearch() {
+  var isXML = true;
+  var search_path = 'search.json';
+
+  if (!search_path) {
+    search_path = 'search.xml';
+  } else if (/json$/i.test(search_path)) {
+    isXML = false;
+  }
+
+  var path = '/' + search_path;
+  $.ajax({
+    url: path,
+    dataType: isXML ? 'xml' : 'json',
+    async: true,
+    success: function (res) {
+      var datas = isXML ? $('entry', res).map(function () {
+        // 将 XML 转为 JSON
+        return {
+          title: $('title', this).text(),
+          content: $('content', this).text(),
+          url: $('url', this).text()
+        };
+      }).get() : res;
+      var $input = $('.search-input input');
+      var $result = $('.search-results');
+      // 搜索对象（标题、内容）的权重，影响显示顺序
+      var WEIGHT = { title: 100, content: 1 };
+      var searchPost = function () {
+        var searchText = $input.val().toLowerCase().trim();
+        // 根据空白字符分隔关键字
+        var keywords = searchText.split(/[\s]+/);
+        // 搜索结果
+        var matchPosts = [];
+
+        // 有多个关键字时，将原文字整个保存下来
+        if (keywords.length > 1) {
+          keywords.push(searchText);
+        }
+        // 防止未输入字符时搜索
+        if (searchText.length > 0) {
+          datas.forEach(function (data) {
+            var isMatch  = false;
+            // 没有标题的文章使用预设的 i18n 变量代替
+            var title = (data.title && data.title.trim()) || '[ Untitled ]';
+            var titleLower = title && title.toLowerCase();
+            // 删除 HTML 标签 和 所有空白字符
+            var content = data.content && data.content.replace(/<[^>]+>/g, '');
+            var contentLower = content && content.toLowerCase();
+            // 删除重复的 /
+            var postURL = data.url && decodeURI(data.url).replace(/\/{2,}/g, '/');
+            // 标题中匹配到的关键词
+            var titleHitSlice = [];
+            // 内容中匹配到的关键词
+            var contentHitSlice = [];
+
+            keywords.forEach(function (keyword) {
+              /**
+              * 获取匹配的关键词的索引
+              * @param {String} keyword 要匹配的关键字
+              * @param {String} text 原文字
+              * @param {Boolean} caseSensitive 是否区分大小写
+              * @param {Number} weight 匹配对象的权重。权重大的优先显示
+              * @return {Array}
+              */
+              function getIndexByword (word, text, caseSensitive, weight) {
+                if (!word || !text) {
+                  return [];
+                };
+
+                var startIndex = 0; // 每次匹配的开始索引
+                var index = -1;     // 匹配到的索引值
+                var result = [];    // 匹配结果
+
+                if (!caseSensitive) {
+                  word = word.toLowerCase();
+                  text = text.toLowerCase();
+                }
+
+                while((index = text.indexOf(word, startIndex)) !== -1) {
+                  var hasMatch = false;
+                  // 索引位置相同的关键词，保留长度较长的
+                  titleHitSlice.forEach(function (hit) {
+                    if (hit.index === index && hit.word.length < word.length) {
+                      hit.word = word;
+                      hasMatch = true;
+                    }
+                  });
+                  startIndex = index + word.length;
+                  !hasMatch && result.push({ index: index, word: word, weight: weight });
+                }
+                return result;
+              }
+              titleHitSlice = titleHitSlice.concat(getIndexByword(keyword, titleLower, false, WEIGHT.title));
+              contentHitSlice = contentHitSlice.concat(getIndexByword(keyword, contentLower, false, WEIGHT.content));
+            });
+
+            var hitTitle = titleHitSlice.length;
+            var hitContent = contentHitSlice.length;
+
+            if (hitTitle > 0 || hitContent > 0) {
+              isMatch = true;
+            }
+            if (isMatch) {
+              ;[titleHitSlice, contentHitSlice].forEach(function (hit) {
+                // 按照匹配文字的索引的递增顺序排序
+                hit.sort(function (left, right) {
+                  return left.index - right.index;
+                });
+              });
+              /**
+              * 给文本中匹配到的关键词添加标记，从而进行高亮显示
+              * @param {String} text 原文本
+              * @param {Array} hitSlice 匹配项的索引信息
+              * @param {Number} start 开始索引
+              * @param {Number} end 结束索引
+              * @return {String}
+              */
+              function highlightKeyword (text, hitSlice, start, end) {
+                if (!text || !hitSlice || !hitSlice.length) {
+                  return;
+                }
+
+                var result = '';
+                var startIndex = start;
+                var endIndex = end;
+                hitSlice.forEach(function (hit) {
+                  if (hit.index < startIndex) {
+                    return;
+                  }
+
+                  var hitWordEnd = hit.index + hit.word.length;
+                  result += text.slice(startIndex, hit.index);
+                  result += '<b>' + text.slice(hit.index, hitWordEnd) + '</b>';
+                  startIndex = hitWordEnd;
+                });
+                result += text.slice(startIndex, endIndex);
+                return result;
+              }
+
+              var postData = {};
+              // 文章总的搜索权重
+              var postWeight = titleHitSlice.length * WEIGHT.title + contentHitSlice.length * WEIGHT.content;
+              // 标记匹配关键词后的标题
+              var postTitle = highlightKeyword(title, titleHitSlice, 0, title.length) || title;
+              // 标记匹配关键词后的内容
+              var postContent;
+              // 显示内容的长度
+              var SHOW_WORD_LENGTH = 200;
+              // 命中关键词前的字符显示长度
+              var SHOW_WORD_FRONT_LENGTH = 20;
+              var SHOW_WORD_END_LENGTH = SHOW_WORD_LENGTH - SHOW_WORD_FRONT_LENGTH;
+
+              // 截取匹配的第一个字符，前后共 200 个字符来显示
+              if (contentHitSlice.length > 0) {
+                var firstIndex = contentHitSlice[0].index;
+                var start = firstIndex > SHOW_WORD_FRONT_LENGTH ? firstIndex - SHOW_WORD_FRONT_LENGTH : 0;
+                var end = firstIndex + SHOW_WORD_END_LENGTH;
+                postContent = highlightKeyword(content, contentHitSlice, start, end);
+              } else { // 未匹配到内容，直接截取前 200 个字符来显示
+                postContent = content.slice(0, SHOW_WORD_LENGTH);
+              }
+              postData.title = postTitle;
+              postData.content = postContent;
+              postData.url = postURL;
+              postData.weight = postWeight;
+              matchPosts.push(postData);
+            }
+          });
+        }
+
+        var resultInnerHtml = '';
+        if (matchPosts.length) {
+          // 按权重递增的顺序排序，使权重大的优先显示
+          matchPosts.sort(function (left, right) {
+            return right.weight - left.weight;
+          });
+          resultInnerHtml += '<ul>';
+          matchPosts.forEach(function (post) {
+            resultInnerHtml += '<li><a class="search-results-title" href="' + post.url + '">';
+            resultInnerHtml += post.title;
+            resultInnerHtml += '</a><div class="search-results-content">';
+            resultInnerHtml += post.content;
+            resultInnerHtml += '</div></li>';
+          });
+          resultInnerHtml += '</ul>';
+        } else {
+          resultInnerHtml += '<div class="search-results-none"><i class="far fa-meh"></i></div>';
+        }
+        $result.html(resultInnerHtml);
+      };
+      $input.on('input', searchPost);
+      $input.on('keyup', function (e) {
+        if (e.keyCode === Stun.utils.codeToKeyCode('Enter')) {
+          searchPost();
+        }
+      });
+    }
+  });
+}
+
+function closeSearch () {
+  $('body').css({ overflow: 'auto' });
+  $('.search-popup').css({ display: 'none' });
+  $('.search-mask').css({ display: 'none' });
+}
+
+window.addEventListener('DOMContentLoaded', function () {
+  Stun.utils.pjaxReloadLocalSearch = function () {
+    $('.header-nav-search').on('click', function (e) {
+      e.stopPropagation();
+      $('body').css('overflow', 'hidden');
+      $('.search-popup')
+        .velocity('stop')
+        .velocity('transition.expandIn', {
+          duration: 300,
+          complete: function () {
+            $('.search-popup input').focus();
+          }
+        });
+      $('.search-mask')
+        .velocity('stop')
+        .velocity('transition.fadeIn', {
+          duration: 300
+        });
+
+      initSearch();
+    });
+    $('.search-mask, .search-close').on('click', function () {
+      closeSearch();
+    });
+    $(document).on('keydown', function (e) {
+      // Escape <=> 27
+      if (e.keyCode === Stun.utils.codeToKeyCode('Escape')) {
+        closeSearch();
+      }
+    });
+  };
+
+  Stun.utils.pjaxReloadLocalSearch();
+}, false);
+
+function safeOpenUrl(url) {
+  var newTab = window.open();
+  newTab.opener = null;
+  newTab.location = url;
+}
+
+function extSearch(engine) {
+  var engines = {
+    google: 'https://www.google.com/search?q=',
+    bing: 'https://cn.bing.com/search?q=',
+    baidu: 'https://www.baidu.com/s?ie=UTF-8&wd=',
+  };
+  var host = window.location.host;
+  var query = $('.search-input input').val().toLowerCase().trim();
+  var uri = engines[engine] + query + ' site:' + host;
+
+  if (query) {
+    safeOpenUrl(uri);
+  } else {
+    Stun.utils.popAlert('warning', 'Please enter characters');
+  }
+}
+
+var assistSearchList = window.CONFIG.assistSearch;
+
+if (Array.isArray(assistSearchList)) {
+  assistSearchList.forEach(function (name) {
+    document.querySelector('.search-btns-item--' + name).addEventListener('click', function () {
+      extSearch(name);
+    }, false);
+  });
+}</script><script src="https://cdn.jsdelivr.net/gh/sukkaw/busuanzi@latest/bsz.pure.mini.js" async></script><script src="/js/utils.js?v=2.6.2"></script><script src="/js/stun-boot.js?v=2.6.2"></script><script src="/js/scroll.js?v=2.6.2"></script><script src="/js/header.js?v=2.6.2"></script><script src="/js/sidebar.js?v=2.6.2"></script><script type="application/json" src="/search.json"></script></body></html>
