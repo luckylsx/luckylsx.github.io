@@ -1,0 +1,440 @@
+<!DOCTYPE html><html lang="en.yml"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="format-detection" content="telephone=no"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black"><link rel="icon" href="/images/icons/favicon-16x16.png?v=2.6.2" type="image/png" sizes="16x16"><link rel="icon" href="/images/icons/favicon-32x32.png?v=2.6.2" type="image/png" sizes="32x32"><meta name="description" content="代码整洁之道之函数编码规范。                     短小       函数的第一规则是要短小。第二条规则是还要更短小。                     代码块和锁进       if语句，else语句，while语句等，其中的代码应该只有一行。该行大抵是一个函数调用。这样不仅能保持函数短小，而且因为块内调用的函数拥有较具说明性的名称，从而增加了文档上的价值。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="代码整洁之道之变量">
+<meta property="og:url" content="http://example.com/2021/08/22/%E4%BB%A3%E7%A0%81%E6%95%B4%E6%B4%81%E4%B9%8B%E9%81%93%E4%B9%8B%E5%87%BD%E6%95%B0/index.html">
+<meta property="og:site_name" content="Study hard, Work Hard">
+<meta property="og:description" content="代码整洁之道之函数编码规范。                     短小       函数的第一规则是要短小。第二条规则是还要更短小。                     代码块和锁进       if语句，else语句，while语句等，其中的代码应该只有一行。该行大抵是一个函数调用。这样不仅能保持函数短小，而且因为块内调用的函数拥有较具说明性的名称，从而增加了文档上的价值。">
+<meta property="og:locale">
+<meta property="article:published_time" content="2021-08-21T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-08-22T13:36:35.079Z">
+<meta property="article:author" content="lucky">
+<meta property="article:tag" content="clean code">
+<meta name="twitter:card" content="summary"><title>代码整洁之道之变量 | Study hard, Work Hard</title><link ref="canonical" href="http://example.com/2021/08/22/%E4%BB%A3%E7%A0%81%E6%95%B4%E6%B4%81%E4%B9%8B%E9%81%93%E4%B9%8B%E5%87%BD%E6%95%B0/"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.12.1/css/all.min.css" type="text/css"><link rel="stylesheet" href="/css/index.css?v=2.6.2"><script>var Stun = window.Stun || {};
+var CONFIG = {
+  root: '/',
+  algolia: undefined,
+  assistSearch: ["google","bing","baidu"],
+  fontIcon: {"prompt":{"success":"fas fa-check-circle","info":"fas fa-arrow-circle-right","warning":"fas fa-exclamation-circle","error":"fas fa-times-circle"},"copyBtn":"fas fa-copy"},
+  sidebar: {"offsetTop":"20px","tocMaxDepth":6},
+  header: {"enable":true,"showOnPost":true,"scrollDownIcon":false},
+  postWidget: {"endText":true},
+  nightMode: {"enable":true},
+  back2top: {"enable":true},
+  codeblock: {"style":"default","highlight":"light","wordWrap":false},
+  reward: false,
+  fancybox: false,
+  zoomImage: {"gapAside":"20px"},
+  galleryWaterfall: undefined,
+  lazyload: false,
+  pjax: undefined,
+  externalLink: {"icon":{"enable":true,"name":"fas fa-external-link-alt"}},
+  shortcuts: undefined,
+  prompt: {"copyButton":"Copy","copySuccess":"Copy Success","copyError":"Copy Error"},
+  sourcePath: {"js":"js","css":"css","images":"images"},
+};
+
+window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 5.3.0"></head><body><div class="container" id="container"><header class="header" id="header"><div class="header-inner"><nav class="header-nav header-nav--fixed"><div class="header-nav-inner"><div class="header-nav-menubtn"><i class="fas fa-bars"></i></div><div class="header-nav-menu"><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/"><span class="header-nav-menu-item__icon"><i class="fas fa-home"></i></span><span class="header-nav-menu-item__text">Home</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/archives/"><span class="header-nav-menu-item__icon"><i class="fas fa-folder-open"></i></span><span class="header-nav-menu-item__text">Archives</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/categories/"><span class="header-nav-menu-item__icon"><i class="fas fa-layer-group"></i></span><span class="header-nav-menu-item__text">Categories</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/tags/"><span class="header-nav-menu-item__icon"><i class="fas fa-tags"></i></span><span class="header-nav-menu-item__text">Tags</span></a></div></div><div class="header-nav-search"><span class="header-nav-search__icon"><i class="fas fa-search"></i></span><span class="header-nav-search__text">Search</span></div><div class="header-nav-mode"><div class="mode"><div class="mode-track"><span class="mode-track-moon"></span><span class="mode-track-sun"></span></div><div class="mode-thumb"></div></div></div></div></nav><div class="header-banner"><div class="header-banner-info"><div class="header-banner-info__title">Study hard, Work Hard</div><div class="header-banner-info__subtitle">If you don't want to wasted life in the world, that is about to study for a lifetime.</div></div></div></div></header><main class="main" id="main"><div class="main-inner"><div class="content-wrap" id="content-wrap"><div class="content" id="content"><!-- Just used to judge whether it is an article page--><div id="is-post"></div><div class="post"><header class="post-header"><h1 class="post-title">代码整洁之道之变量</h1><div class="post-meta"><span class="post-meta-item post-meta-item--createtime"><span class="post-meta-item__icon"><i class="far fa-calendar-plus"></i></span><span class="post-meta-item__info">Created</span><span class="post-meta-item__value">2021-08-22</span></span><span class="post-meta-item post-meta-item--updatetime"><span class="post-meta-item__icon"><i class="far fa-calendar-check"></i></span><span class="post-meta-item__info">Updated</span><span class="post-meta-item__value">2021-08-22</span></span><span class="post-meta-item post-meta-item--visitors"><span class="post-meta-item__icon"><i class="fas fa-eye"></i></span><span class="post-meta-item__info">Visited</span><span class="post-meta-item__value" id="busuanzi_value_page_pv"></span></span></div></header><div class="post-body"><p>代码整洁之道之函数编码规范。</p>
+
+        <h2 id="短小"   >
+          <a href="#短小" class="heading-link"><i class="fas fa-link"></i></a><a href="#短小" class="headerlink" title="短小"></a>短小</h2>
+      <p>函数的第一规则是要短小。第二条规则是还要更短小。</p>
+
+        <h3 id="代码块和锁进"   >
+          <a href="#代码块和锁进" class="heading-link"><i class="fas fa-link"></i></a><a href="#代码块和锁进" class="headerlink" title="代码块和锁进"></a>代码块和锁进</h3>
+      <p>if语句，else语句，while语句等，其中的代码应该只有一行。该行大抵是一个函数调用。这样不仅能保持函数短小，而且因为块内调用的函数拥有较具说明性的名称，从而增加了文档上的价值。</p>
+<a id="more"></a>
+
+
+        <h2 id="只做一件事"   >
+          <a href="#只做一件事" class="heading-link"><i class="fas fa-link"></i></a><a href="#只做一件事" class="headerlink" title="只做一件事"></a>只做一件事</h2>
+      <p>函数的规则应该是只做一件事，做好这件事。只做这一件事</p>
+
+        <h2 id="每个函数一个抽象层级"   >
+          <a href="#每个函数一个抽象层级" class="heading-link"><i class="fas fa-link"></i></a><a href="#每个函数一个抽象层级" class="headerlink" title="每个函数一个抽象层级"></a>每个函数一个抽象层级</h2>
+      <p>确保函数只做一件，函数中的语句都要在同一抽象层级上。</p>
+<p><strong>自顶向下读代码：向下规则</strong></p>
+<p>想要让代码拥有自顶向下的阅读顺序。我们想要让每个函数后面都跟着位于下一抽象层级的函数,这样一来,在查看函数列表时,就能循抽象层级向下阅读了。我把这叫做向下规则。</p>
+
+        <h2 id="switch-语句"   >
+          <a href="#switch-语句" class="heading-link"><i class="fas fa-link"></i></a><a href="#switch-语句" class="headerlink" title="switch 语句"></a>switch 语句</h2>
+      <p>写出短小的switch语句很难，写出只做一件事的switch语句也很暗。switch语句天生要做N件事。但通常又无法避免switch语句。<br>利用多态来实现这一点。</p>
+<figure class="highlight java"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> Money <span class="title">calculatePay</span> <span class="params">(Employee e)</span></span></span><br><span class="line"><span class="function">    <span class="keyword">throws</span> InvalidEmployeeType </span>&#123;</span><br><span class="line">        <span class="keyword">switch</span> (e.type) &#123;</span><br><span class="line">            <span class="keyword">case</span> COMMISSIONED:</span><br><span class="line">                <span class="keyword">return</span> calculateCommissionedPay (e);</span><br><span class="line">            <span class="keyword">case</span> HOURLY:</span><br><span class="line">                <span class="keyword">return</span> calculateHourlyPay (e);</span><br><span class="line">            <span class="keyword">case</span> SALARIED:</span><br><span class="line">                <span class="keyword">return</span> calculateSalariedPay (e);</span><br><span class="line">            <span class="keyword">default</span>:</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> InvalidEmployeeType (e.type);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></div></figure>
+<p>该方式存在的问题：</p>
+<ul>
+<li>太长，当出现新的雇员类型时,还会变得更长。</li>
+<li>明显做了不止一件事</li>
+<li>它违反了单一权责原则(Single Responsibility Principle”, SRP)</li>
+<li>它违反了开放闭合原则(Open Closed Principle’, OCP)，因为每当添加新类型时,就必须修改之</li>
+</ul>
+<p>该问题的解决方案是将switch 语句埋到抽象工厂’底下,不让任<br>何人看到。该工厂使用 switch 语句为 Employee 的派生物创建适当的实体,而不同的函数,如calculatePay、isPayday 和deliverPay 等,则藉由 Employee 接口多态地接受派遣。</p>
+<figure class="highlight java"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">Employee</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">boolean</span> <span class="title">isPayday</span> <span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> Money <span class="title">calculatePay</span> <span class="params">()</span></span>;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">abstract</span> <span class="keyword">void</span> <span class="title">deliverPay</span> <span class="params">(Money pay)</span></span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">EmployeeFactory</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> Employee <span class="title">makeEmployee</span> <span class="params">(EmployeeRecord r)</span> <span class="keyword">throws</span> InvalidEmployeeType</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">EmployeeFactoryImpl</span> <span class="keyword">implements</span> <span class="title">EmployeeFactory</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> Employee <span class="title">makeEmployee</span> <span class="params">(EmployeeRecord r)</span> <span class="keyword">throws</span> InvalidEmployeeType </span>&#123;</span><br><span class="line">        <span class="keyword">switch</span> (r.type) &#123;</span><br><span class="line">            <span class="keyword">case</span> COMMISSIONED:</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> CommissionedEmployee (r)</span><br><span class="line">            <span class="keyword">case</span> HOURLY:</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> HourlyEmployee (r);</span><br><span class="line">            <span class="keyword">case</span> SALARIED:</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">new</span> SalariedEmploye (r);</span><br><span class="line">            <span class="keyword">default</span>:</span><br><span class="line">                <span class="keyword">throw</span> <span class="keyword">new</span> InvalidEmployeeType (r.type);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></div></figure>
+
+        <h2 id="使用描述性名称"   >
+          <a href="#使用描述性名称" class="heading-link"><i class="fas fa-link"></i></a><a href="#使用描述性名称" class="headerlink" title="使用描述性名称"></a>使用描述性名称</h2>
+      <p>使用描述性的名称可以很好的描述函数做的数，这就是为什么要函数短小，函数越短小，功能越集中，就越便于取个好名字。</p>
+
+        <h2 id="函数参数"   >
+          <a href="#函数参数" class="heading-link"><i class="fas fa-link"></i></a><a href="#函数参数" class="headerlink" title="函数参数"></a>函数参数</h2>
+      <p>最理想的函数参数是零（零参数函数），其次是一（单参数函数），再次是二（双参数函数），应该尽量避免三（三参数函数）。有足够特殊的理由才能用三个以上参数（多参数函数）。少的参数更容易让人理解，从测试角度来看也更方便。</p>
+
+        <h3 id="一元函数"   >
+          <a href="#一元函数" class="heading-link"><i class="fas fa-link"></i></a><a href="#一元函数" class="headerlink" title="一元函数"></a>一元函数</h3>
+      <ul>
+<li>操作该参数</li>
+<li>事件，有输入参数而无输出参数。（使用改参数修改系统状态）</li>
+</ul>
+
+        <h3 id="标识参数"   >
+          <a href="#标识参数" class="heading-link"><i class="fas fa-link"></i></a><a href="#标识参数" class="headerlink" title="标识参数"></a>标识参数</h3>
+      <p>禁止传参标识参数，传递标识参数时就意味着该函数不止做一件事。</p>
+
+        <h3 id="二元函数"   >
+          <a href="#二元函数" class="heading-link"><i class="fas fa-link"></i></a><a href="#二元函数" class="headerlink" title="二元函数"></a>二元函数</h3>
+      <p>二元参数要比一元参数难以理解，如：</p>
+<figure class="highlight java"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">writeField(name)</span><br></pre></td></tr></table></div></figure>
+<p>比</p>
+<figure class="highlight java"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">writeField(outputStream,name)</span><br></pre></td></tr></table></div></figure>
+<p>更清晰。另外也需要注意二元函数参数的位置。使用二元函数时应尽量将二元函数转换为一元函数，如: outputStream.writeField(name)。</p>
+
+        <h3 id="三元函数"   >
+          <a href="#三元函数" class="heading-link"><i class="fas fa-link"></i></a><a href="#三元函数" class="headerlink" title="三元函数"></a>三元函数</h3>
+      <p>有三个参数的函数要比二元函数难懂得多。排序、琢磨、忽略的问题都会加倍体现。建<br>议你在写三元函数前一定要想清楚。</p>
+
+        <h3 id="参数对象"   >
+          <a href="#参数对象" class="heading-link"><i class="fas fa-link"></i></a><a href="#参数对象" class="headerlink" title="参数对象"></a>参数对象</h3>
+      <p>如果函数看来需要两个、三个或三个以上参数,就说明其中一些参数应该封装为类了。</p>
+<p>例如,下面两个声明的差别:</p>
+<figure class="highlight java"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">Circle <span class="title">makeCircle</span> <span class="params">(<span class="keyword">double</span> x, <span class="keyword">double</span> y, <span class="keyword">double</span> radius)</span></span>;</span><br><span class="line"><span class="function">Circle <span class="title">makeCircle</span> <span class="params">(Point center, <span class="keyword">double</span> radius)</span></span>;</span><br></pre></td></tr></table></div></figure>
+<p>从参数创建对象,从而减少参数数量,看起来像是在作弊,但实则并非如此。当一组参<br>数被共同传递,就像上例中的x和y 那样,往往就是该有自己名称的某个概念的一部分。</p>
+
+        <h3 id="参数列表"   >
+          <a href="#参数列表" class="heading-link"><i class="fas fa-link"></i></a><a href="#参数列表" class="headerlink" title="参数列表"></a>参数列表</h3>
+      <p>同理,有可变参数的函数可能是一元、二元甚至三元。超过这个数量就可能要犯错了。</p>
+<figure class="highlight java"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">monad</span> <span class="params">(Integer... args)</span></span>;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">dyad</span> <span class="params">(String name, Integer... args)</span></span>;.</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">triad</span> <span class="params">(String name, <span class="keyword">int</span> count, Integer... args)</span></span>;</span><br></pre></td></tr></table></div></figure>
+
+        <h2 id="动词与关键字"   >
+          <a href="#动词与关键字" class="heading-link"><i class="fas fa-link"></i></a><a href="#动词与关键字" class="headerlink" title="动词与关键字"></a>动词与关键字</h2>
+      <p>给函数取个好名字,能较好地解释函数的意图,以及参数的顺序和意图。对于一元函数,<br>函数和参数应当形成一种非常良好的动词/名词对形式。例如: write(name)就相当令人认同。</p>
+<p>不管这个“name”是什么,都要被“write”。更好的名称大概是 writeField(name),它告诉我们,“name”是一个“field”。最后那个例子展示了函数名称的关键字(keyword)形式.</p>
+
+        <h2 id="无副作用"   >
+          <a href="#无副作用" class="heading-link"><i class="fas fa-link"></i></a><a href="#无副作用" class="headerlink" title="无副作用"></a>无副作用</h2>
+      <p>副作用是一种谎言。函数承诺只做一件事,但还是会做其他被藏起来的事。有时,它会<br>对自己类中的变量做出未能预期的改动。有时,它会把变量搞成向函数传递的参数或是系统全局变量。无论哪种情况,都是具有破坏性的.</p>
+<p>如：</p>
+<figure class="highlight java"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">UserValidator</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> Cryptographer cryptographer;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">checkPassword</span><span class="params">(String userName, String password)</span> </span></span><br><span class="line"><span class="function">    </span>&#123;</span><br><span class="line">        User user = UserGateway.findByName (userName);</span><br><span class="line">        <span class="keyword">if</span> (user != User.NULL) &#123;</span><br><span class="line">            String codedPhrase = user.getPhraseEncodedBy</span><br><span class="line">            String phrase = cryptographer.decrypt(codedPhrase, password);</span><br><span class="line">            <span class="keyword">if</span> (<span class="string">&quot;Valid Password&quot;</span>.equals (phrase)) &#123;</span><br><span class="line">                Session.initialize();</span><br><span class="line">                <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></div></figure>
+<p>副作用就在于对 Session.initialize()的调用。checkPassword 函数,顾名思义,就<br>是用来检查密码的。该名称并未暗示它会初始化该次会话。所以,当某个误信了函数名的调用者想要检查用户有效性时,就得冒抹除现有会话数据的风险。</p>
+
+        <h2 id="分隔指令与询问"   >
+          <a href="#分隔指令与询问" class="heading-link"><i class="fas fa-link"></i></a><a href="#分隔指令与询问" class="headerlink" title="分隔指令与询问"></a>分隔指令与询问</h2>
+      <p><strong>函数要么做什么事,要么回答什么事,但二者不可得兼</strong>。函数应该修改某对象的状态,或是返回该对象的有关信息。两样都干常会导致混乱。看看下面的例子:</p>
+<figure class="highlight java"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">set</span> <span class="params">(String attribute, String value)</span></span>;</span><br></pre></td></tr></table></div></figure>
+<p>该函数设置某个指定属性,如果成功就返回 true, 如果不存在那个属性则返回 false。这样就导致了以下语句:</p>
+<figure class="highlight java"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (set (<span class="string">&quot;username&quot;</span>, <span class="string">&quot;unclebob&quot;</span>))...</span><br></pre></td></tr></table></div></figure>
+<p>从读者的角度考虑一下吧。这是什么意思呢?它是在问 username 属性值是否之前已设置为 unclebob 吗? 或者它是在问 username 属性值是否成功设置为 unclebob 呢? 从这行调用很难判断其含义,因为 set 是动词还是形容词并不清楚。</p>
+<p>作者本意,set 是个动词,但在 if 语句的上下文中,感觉它像是个形容词。该语句读起来像是说“如果 username 属性值之前已被设置为uncleob”,而不是“设置 username 属性值为unclebob,看看是否可行,然后……”。</p>
+<p>要解决这个问题,可以将 set 函数重命名为<br>setAndCheckIfExists,但这对提高 if语句的可读性帮助不大。真正的解决方案是把指令与询<br>问分隔开来,防止混淆的发生:</p>
+<figure class="highlight java"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (attributeExists (<span class="string">&quot;username&quot;</span>)) &#123;</span><br><span class="line">    setAttribute (<span class="string">&quot;username&quot;</span>, <span class="string">&quot;unclebob&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></div></figure>
+
+        <h2 id="别重复自己"   >
+          <a href="#别重复自己" class="heading-link"><i class="fas fa-link"></i></a><a href="#别重复自己" class="headerlink" title="别重复自己"></a>别重复自己</h2>
+      <p>重复可能是软件中一些邪恶的根源。</p>
+
+        <h2 id="小结"   >
+          <a href="#小结" class="heading-link"><i class="fas fa-link"></i></a><a href="#小结" class="headerlink" title="小结"></a>小结</h2>
+      <p>每个系统都是使用某种领域特定语言搭建，而这种语言是程序员设计来描述那个系统的。函数是语言的动词,类是名词。这并非是退回到那种认为需求文档中的名词和动词就是系统中类和函数的最初设想的可怕的旧观念。其实这是个历史更久的真理。编程艺术是且一直就是语言设计的艺术。</p>
+
+        <h2 id="节选《代码整洁之道》"   >
+          <a href="#节选《代码整洁之道》" class="heading-link"><i class="fas fa-link"></i></a><a href="#节选《代码整洁之道》" class="headerlink" title="节选《代码整洁之道》"></a>节选《代码整洁之道》</h2>
+      </div><footer class="post-footer"><div class="post-ending ending"><div class="ending__text">------ END ------</div></div><div class="post-tags"><span class="post-tags-item"><span class="post-tags-item__icon"><i class="fas fa-tag"></i></span><a class="post-tags-item__link" href="http://example.com/tags/clean-code/">clean code</a></span></div><nav class="post-paginator paginator"><div class="paginator-next"><a class="paginator-next__link" href="/2021/08/15/%E4%BB%A3%E7%A0%81%E6%95%B4%E6%B4%81%E4%B9%8B%E9%81%93%E4%B9%8B%E5%8F%98%E9%87%8F/"><span class="paginator-prev__text">代码整洁之道之变量</span><span class="paginator-next__icon"><i class="fas fa-angle-right"></i></span></a></div></nav></footer></div></div></div><div class="sidebar-wrap" id="sidebar-wrap"><aside class="sidebar" id="sidebar"><div class="sidebar-nav"><span class="sidebar-nav-toc current">Catalog</span><span class="sidebar-nav-ov">Overview</span></div><section class="sidebar-toc"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%9F%AD%E5%B0%8F"><span class="toc-number">1.</span> <span class="toc-text">
+          短小</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E5%9D%97%E5%92%8C%E9%94%81%E8%BF%9B"><span class="toc-number">1.1.</span> <span class="toc-text">
+          代码块和锁进</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%AA%E5%81%9A%E4%B8%80%E4%BB%B6%E4%BA%8B"><span class="toc-number">2.</span> <span class="toc-text">
+          只做一件事</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%AF%8F%E4%B8%AA%E5%87%BD%E6%95%B0%E4%B8%80%E4%B8%AA%E6%8A%BD%E8%B1%A1%E5%B1%82%E7%BA%A7"><span class="toc-number">3.</span> <span class="toc-text">
+          每个函数一个抽象层级</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#switch-%E8%AF%AD%E5%8F%A5"><span class="toc-number">4.</span> <span class="toc-text">
+          switch 语句</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E6%8F%8F%E8%BF%B0%E6%80%A7%E5%90%8D%E7%A7%B0"><span class="toc-number">5.</span> <span class="toc-text">
+          使用描述性名称</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%87%BD%E6%95%B0%E5%8F%82%E6%95%B0"><span class="toc-number">6.</span> <span class="toc-text">
+          函数参数</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%80%E5%85%83%E5%87%BD%E6%95%B0"><span class="toc-number">6.1.</span> <span class="toc-text">
+          一元函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A0%87%E8%AF%86%E5%8F%82%E6%95%B0"><span class="toc-number">6.2.</span> <span class="toc-text">
+          标识参数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%8C%E5%85%83%E5%87%BD%E6%95%B0"><span class="toc-number">6.3.</span> <span class="toc-text">
+          二元函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%89%E5%85%83%E5%87%BD%E6%95%B0"><span class="toc-number">6.4.</span> <span class="toc-text">
+          三元函数</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%82%E6%95%B0%E5%AF%B9%E8%B1%A1"><span class="toc-number">6.5.</span> <span class="toc-text">
+          参数对象</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%82%E6%95%B0%E5%88%97%E8%A1%A8"><span class="toc-number">6.6.</span> <span class="toc-text">
+          参数列表</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8A%A8%E8%AF%8D%E4%B8%8E%E5%85%B3%E9%94%AE%E5%AD%97"><span class="toc-number">7.</span> <span class="toc-text">
+          动词与关键字</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%97%A0%E5%89%AF%E4%BD%9C%E7%94%A8"><span class="toc-number">8.</span> <span class="toc-text">
+          无副作用</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%86%E9%9A%94%E6%8C%87%E4%BB%A4%E4%B8%8E%E8%AF%A2%E9%97%AE"><span class="toc-number">9.</span> <span class="toc-text">
+          分隔指令与询问</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%AB%E9%87%8D%E5%A4%8D%E8%87%AA%E5%B7%B1"><span class="toc-number">10.</span> <span class="toc-text">
+          别重复自己</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B0%8F%E7%BB%93"><span class="toc-number">11.</span> <span class="toc-text">
+          小结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%8A%82%E9%80%89%E3%80%8A%E4%BB%A3%E7%A0%81%E6%95%B4%E6%B4%81%E4%B9%8B%E9%81%93%E3%80%8B"><span class="toc-number">12.</span> <span class="toc-text">
+          节选《代码整洁之道》</span></a></li></ol></section><!-- ov = overview--><section class="sidebar-ov hide"><div class="sidebar-ov-author"><div class="sidebar-ov-author__avatar"><img class="sidebar-ov-author__avatar_img" src="/images/icons/stun-logo.svg" alt="avatar"></div><p class="sidebar-ov-author__text">hello world</p></div><div class="sidebar-ov-state"><a class="sidebar-ov-state-item sidebar-ov-state-item--posts" href="/archives/"><div class="sidebar-ov-state-item__count">31</div><div class="sidebar-ov-state-item__name">Archives</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--categories" href="/categories/"><div class="sidebar-ov-state-item__count">13</div><div class="sidebar-ov-state-item__name">Categories</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--tags" href="/tags/"><div class="sidebar-ov-state-item__count">23</div><div class="sidebar-ov-state-item__name">Tags</div></a></div></section><div class="sidebar-reading"><div class="sidebar-reading-info"><span class="sidebar-reading-info__text">You have read </span><span class="sidebar-reading-info__num">0</span><span class="sidebar-reading-info__perc">%</span></div><div class="sidebar-reading-line"></div></div></aside></div><div class="clearfix"></div></div></main><footer class="footer" id="footer"><div class="footer-inner"><div><span>Copyright © 2021</span><span class="footer__icon"><i class="fas fa-heart"></i></span><span>lucky</span></div><div class="busuanzi"><span class="busuanzi-siteuv"><span class="busuanzi-siteuv__icon"><i class="fas fa-user"></i></span><span class="busuanzi-siteuv__info">Visitors</span><span class="busuanzi-siteuv__value" id="busuanzi_value_site_uv"></span></span><span class="busuanzi-sitepv"><span class="busuanzi-siteuv__icon"><i class="fas fa-eye"></i></span><span class="busuanzi-siteuv__info">Views</span><span class="busuanzi-siteuv__value" id="busuanzi_value_site_pv"></span></span></div><div><a href="https://github.com/luckylsx/" rel="noopener" target="_blank">Github Pages</a></div></div></footer><div class="loading-bar" id="loading-bar"><div class="loading-bar__progress"></div></div><div class="back2top" id="back2top"><span class="back2top__icon"><i class="fas fa-rocket"></i></span></div></div><div class="search-mask"></div><div class="search-popup"><span class="search-close"></span><div class="search-input"><input placeholder="Search for Posts (Support multiple keywords)"><div class="search-btns">Search by:<span class="search-btns-item search-btns-item--google"><i class="fab fa-google"></i>Google</span><span class="search-btns-item search-btns-item--bing"><i></i>Bing</span><span class="search-btns-item search-btns-item--baidu"><i></i>Baidu</span></div></div><div class="search-results"></div></div><script src="https://cdn.jsdelivr.net/npm/jquery@v3.4.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.ui.min.js"></script><script>function initSearch() {
+  var isXML = true;
+  var search_path = 'search.json';
+
+  if (!search_path) {
+    search_path = 'search.xml';
+  } else if (/json$/i.test(search_path)) {
+    isXML = false;
+  }
+
+  var path = '/' + search_path;
+  $.ajax({
+    url: path,
+    dataType: isXML ? 'xml' : 'json',
+    async: true,
+    success: function (res) {
+      var datas = isXML ? $('entry', res).map(function () {
+        // 将 XML 转为 JSON
+        return {
+          title: $('title', this).text(),
+          content: $('content', this).text(),
+          url: $('url', this).text()
+        };
+      }).get() : res;
+      var $input = $('.search-input input');
+      var $result = $('.search-results');
+      // 搜索对象（标题、内容）的权重，影响显示顺序
+      var WEIGHT = { title: 100, content: 1 };
+      var searchPost = function () {
+        var searchText = $input.val().toLowerCase().trim();
+        // 根据空白字符分隔关键字
+        var keywords = searchText.split(/[\s]+/);
+        // 搜索结果
+        var matchPosts = [];
+
+        // 有多个关键字时，将原文字整个保存下来
+        if (keywords.length > 1) {
+          keywords.push(searchText);
+        }
+        // 防止未输入字符时搜索
+        if (searchText.length > 0) {
+          datas.forEach(function (data) {
+            var isMatch  = false;
+            // 没有标题的文章使用预设的 i18n 变量代替
+            var title = (data.title && data.title.trim()) || '[ Untitled ]';
+            var titleLower = title && title.toLowerCase();
+            // 删除 HTML 标签 和 所有空白字符
+            var content = data.content && data.content.replace(/<[^>]+>/g, '');
+            var contentLower = content && content.toLowerCase();
+            // 删除重复的 /
+            var postURL = data.url && decodeURI(data.url).replace(/\/{2,}/g, '/');
+            // 标题中匹配到的关键词
+            var titleHitSlice = [];
+            // 内容中匹配到的关键词
+            var contentHitSlice = [];
+
+            keywords.forEach(function (keyword) {
+              /**
+              * 获取匹配的关键词的索引
+              * @param {String} keyword 要匹配的关键字
+              * @param {String} text 原文字
+              * @param {Boolean} caseSensitive 是否区分大小写
+              * @param {Number} weight 匹配对象的权重。权重大的优先显示
+              * @return {Array}
+              */
+              function getIndexByword (word, text, caseSensitive, weight) {
+                if (!word || !text) {
+                  return [];
+                };
+
+                var startIndex = 0; // 每次匹配的开始索引
+                var index = -1;     // 匹配到的索引值
+                var result = [];    // 匹配结果
+
+                if (!caseSensitive) {
+                  word = word.toLowerCase();
+                  text = text.toLowerCase();
+                }
+
+                while((index = text.indexOf(word, startIndex)) !== -1) {
+                  var hasMatch = false;
+                  // 索引位置相同的关键词，保留长度较长的
+                  titleHitSlice.forEach(function (hit) {
+                    if (hit.index === index && hit.word.length < word.length) {
+                      hit.word = word;
+                      hasMatch = true;
+                    }
+                  });
+                  startIndex = index + word.length;
+                  !hasMatch && result.push({ index: index, word: word, weight: weight });
+                }
+                return result;
+              }
+              titleHitSlice = titleHitSlice.concat(getIndexByword(keyword, titleLower, false, WEIGHT.title));
+              contentHitSlice = contentHitSlice.concat(getIndexByword(keyword, contentLower, false, WEIGHT.content));
+            });
+
+            var hitTitle = titleHitSlice.length;
+            var hitContent = contentHitSlice.length;
+
+            if (hitTitle > 0 || hitContent > 0) {
+              isMatch = true;
+            }
+            if (isMatch) {
+              ;[titleHitSlice, contentHitSlice].forEach(function (hit) {
+                // 按照匹配文字的索引的递增顺序排序
+                hit.sort(function (left, right) {
+                  return left.index - right.index;
+                });
+              });
+              /**
+              * 给文本中匹配到的关键词添加标记，从而进行高亮显示
+              * @param {String} text 原文本
+              * @param {Array} hitSlice 匹配项的索引信息
+              * @param {Number} start 开始索引
+              * @param {Number} end 结束索引
+              * @return {String}
+              */
+              function highlightKeyword (text, hitSlice, start, end) {
+                if (!text || !hitSlice || !hitSlice.length) {
+                  return;
+                }
+
+                var result = '';
+                var startIndex = start;
+                var endIndex = end;
+                hitSlice.forEach(function (hit) {
+                  if (hit.index < startIndex) {
+                    return;
+                  }
+
+                  var hitWordEnd = hit.index + hit.word.length;
+                  result += text.slice(startIndex, hit.index);
+                  result += '<b>' + text.slice(hit.index, hitWordEnd) + '</b>';
+                  startIndex = hitWordEnd;
+                });
+                result += text.slice(startIndex, endIndex);
+                return result;
+              }
+
+              var postData = {};
+              // 文章总的搜索权重
+              var postWeight = titleHitSlice.length * WEIGHT.title + contentHitSlice.length * WEIGHT.content;
+              // 标记匹配关键词后的标题
+              var postTitle = highlightKeyword(title, titleHitSlice, 0, title.length) || title;
+              // 标记匹配关键词后的内容
+              var postContent;
+              // 显示内容的长度
+              var SHOW_WORD_LENGTH = 200;
+              // 命中关键词前的字符显示长度
+              var SHOW_WORD_FRONT_LENGTH = 20;
+              var SHOW_WORD_END_LENGTH = SHOW_WORD_LENGTH - SHOW_WORD_FRONT_LENGTH;
+
+              // 截取匹配的第一个字符，前后共 200 个字符来显示
+              if (contentHitSlice.length > 0) {
+                var firstIndex = contentHitSlice[0].index;
+                var start = firstIndex > SHOW_WORD_FRONT_LENGTH ? firstIndex - SHOW_WORD_FRONT_LENGTH : 0;
+                var end = firstIndex + SHOW_WORD_END_LENGTH;
+                postContent = highlightKeyword(content, contentHitSlice, start, end);
+              } else { // 未匹配到内容，直接截取前 200 个字符来显示
+                postContent = content.slice(0, SHOW_WORD_LENGTH);
+              }
+              postData.title = postTitle;
+              postData.content = postContent;
+              postData.url = postURL;
+              postData.weight = postWeight;
+              matchPosts.push(postData);
+            }
+          });
+        }
+
+        var resultInnerHtml = '';
+        if (matchPosts.length) {
+          // 按权重递增的顺序排序，使权重大的优先显示
+          matchPosts.sort(function (left, right) {
+            return right.weight - left.weight;
+          });
+          resultInnerHtml += '<ul>';
+          matchPosts.forEach(function (post) {
+            resultInnerHtml += '<li><a class="search-results-title" href="' + post.url + '">';
+            resultInnerHtml += post.title;
+            resultInnerHtml += '</a><div class="search-results-content">';
+            resultInnerHtml += post.content;
+            resultInnerHtml += '</div></li>';
+          });
+          resultInnerHtml += '</ul>';
+        } else {
+          resultInnerHtml += '<div class="search-results-none"><i class="far fa-meh"></i></div>';
+        }
+        $result.html(resultInnerHtml);
+      };
+      $input.on('input', searchPost);
+      $input.on('keyup', function (e) {
+        if (e.keyCode === Stun.utils.codeToKeyCode('Enter')) {
+          searchPost();
+        }
+      });
+    }
+  });
+}
+
+function closeSearch () {
+  $('body').css({ overflow: 'auto' });
+  $('.search-popup').css({ display: 'none' });
+  $('.search-mask').css({ display: 'none' });
+}
+
+window.addEventListener('DOMContentLoaded', function () {
+  Stun.utils.pjaxReloadLocalSearch = function () {
+    $('.header-nav-search').on('click', function (e) {
+      e.stopPropagation();
+      $('body').css('overflow', 'hidden');
+      $('.search-popup')
+        .velocity('stop')
+        .velocity('transition.expandIn', {
+          duration: 300,
+          complete: function () {
+            $('.search-popup input').focus();
+          }
+        });
+      $('.search-mask')
+        .velocity('stop')
+        .velocity('transition.fadeIn', {
+          duration: 300
+        });
+
+      initSearch();
+    });
+    $('.search-mask, .search-close').on('click', function () {
+      closeSearch();
+    });
+    $(document).on('keydown', function (e) {
+      // Escape <=> 27
+      if (e.keyCode === Stun.utils.codeToKeyCode('Escape')) {
+        closeSearch();
+      }
+    });
+  };
+
+  Stun.utils.pjaxReloadLocalSearch();
+}, false);
+
+function safeOpenUrl(url) {
+  var newTab = window.open();
+  newTab.opener = null;
+  newTab.location = url;
+}
+
+function extSearch(engine) {
+  var engines = {
+    google: 'https://www.google.com/search?q=',
+    bing: 'https://cn.bing.com/search?q=',
+    baidu: 'https://www.baidu.com/s?ie=UTF-8&wd=',
+  };
+  var host = window.location.host;
+  var query = $('.search-input input').val().toLowerCase().trim();
+  var uri = engines[engine] + query + ' site:' + host;
+
+  if (query) {
+    safeOpenUrl(uri);
+  } else {
+    Stun.utils.popAlert('warning', 'Please enter characters');
+  }
+}
+
+var assistSearchList = window.CONFIG.assistSearch;
+
+if (Array.isArray(assistSearchList)) {
+  assistSearchList.forEach(function (name) {
+    document.querySelector('.search-btns-item--' + name).addEventListener('click', function () {
+      extSearch(name);
+    }, false);
+  });
+}</script><script src="https://cdn.jsdelivr.net/gh/sukkaw/busuanzi@latest/bsz.pure.mini.js" async></script><script src="/js/utils.js?v=2.6.2"></script><script src="/js/stun-boot.js?v=2.6.2"></script><script src="/js/scroll.js?v=2.6.2"></script><script src="/js/header.js?v=2.6.2"></script><script src="/js/sidebar.js?v=2.6.2"></script><script type="application/json" src="/search.json"></script></body></html>
