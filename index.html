@@ -31,7 +31,275 @@ var CONFIG = {
   sourcePath: {"js":"js","css":"css","images":"images"},
 };
 
-window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 5.3.0"></head><body><div class="container" id="container"><header class="header" id="header"><div class="header-inner"><nav class="header-nav header-nav--fixed"><div class="header-nav-inner"><div class="header-nav-menubtn"><i class="fas fa-bars"></i></div><div class="header-nav-menu"><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/"><span class="header-nav-menu-item__icon"><i class="fas fa-home"></i></span><span class="header-nav-menu-item__text">Home</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/archives/"><span class="header-nav-menu-item__icon"><i class="fas fa-folder-open"></i></span><span class="header-nav-menu-item__text">Archives</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/categories/"><span class="header-nav-menu-item__icon"><i class="fas fa-layer-group"></i></span><span class="header-nav-menu-item__text">Categories</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/tags/"><span class="header-nav-menu-item__icon"><i class="fas fa-tags"></i></span><span class="header-nav-menu-item__text">Tags</span></a></div></div><div class="header-nav-search"><span class="header-nav-search__icon"><i class="fas fa-search"></i></span><span class="header-nav-search__text">Search</span></div><div class="header-nav-mode"><div class="mode"><div class="mode-track"><span class="mode-track-moon"></span><span class="mode-track-sun"></span></div><div class="mode-thumb"></div></div></div></div></nav><div class="header-banner"><div class="header-banner-info"><div class="header-banner-info__title">Study hard, Work Hard</div><div class="header-banner-info__subtitle">If you don't want to wasted life in the world, that is about to study for a lifetime.</div></div></div></div></header><main class="main" id="main"><div class="main-inner"><div class="content-wrap" id="content-wrap"><div class="content content-home" id="content"><section class="postlist"><article class="postlist-item post"><header class="post-header"><h1 class="post-title"><a class="post-title__link" href="/2021/09/21/golang%E5%AE%9E%E7%8E%B0%E5%8E%9F%E5%AD%90%E6%93%8D%E4%BD%9C%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/">golang实现原子操作的几种方式</a></h1><div class="post-meta"><span class="post-meta-item post-meta-item--createtime"><span class="post-meta-item__icon"><i class="far fa-calendar-plus"></i></span><span class="post-meta-item__info">Created</span><span class="post-meta-item__value">2021-09-21</span></span><span class="post-meta-item post-meta-item--updatetime"><span class="post-meta-item__icon"><i class="far fa-calendar-check"></i></span><span class="post-meta-item__info">Updated</span><span class="post-meta-item__value">2021-09-21</span></span></div></header><div class="post-body"><div class="post-excerpt"><h2 id="什么是原子操作？"   >
+window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 5.3.0"></head><body><div class="container" id="container"><header class="header" id="header"><div class="header-inner"><nav class="header-nav header-nav--fixed"><div class="header-nav-inner"><div class="header-nav-menubtn"><i class="fas fa-bars"></i></div><div class="header-nav-menu"><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/"><span class="header-nav-menu-item__icon"><i class="fas fa-home"></i></span><span class="header-nav-menu-item__text">Home</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/archives/"><span class="header-nav-menu-item__icon"><i class="fas fa-folder-open"></i></span><span class="header-nav-menu-item__text">Archives</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/categories/"><span class="header-nav-menu-item__icon"><i class="fas fa-layer-group"></i></span><span class="header-nav-menu-item__text">Categories</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/tags/"><span class="header-nav-menu-item__icon"><i class="fas fa-tags"></i></span><span class="header-nav-menu-item__text">Tags</span></a></div></div><div class="header-nav-search"><span class="header-nav-search__icon"><i class="fas fa-search"></i></span><span class="header-nav-search__text">Search</span></div><div class="header-nav-mode"><div class="mode"><div class="mode-track"><span class="mode-track-moon"></span><span class="mode-track-sun"></span></div><div class="mode-thumb"></div></div></div></div></nav><div class="header-banner"><div class="header-banner-info"><div class="header-banner-info__title">Study hard, Work Hard</div><div class="header-banner-info__subtitle">If you don't want to wasted life in the world, that is about to study for a lifetime.</div></div></div></div></header><main class="main" id="main"><div class="main-inner"><div class="content-wrap" id="content-wrap"><div class="content content-home" id="content"><section class="postlist"><article class="postlist-item post"><header class="post-header"><h1 class="post-title"><a class="post-title__link" href="/2022/01/18/%E5%9C%A8%20Go%20%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E6%9E%9A%E4%B8%BE%EF%BC%9F/">在 Go 如何实现枚举？</a></h1><div class="post-meta"><span class="post-meta-item post-meta-item--createtime"><span class="post-meta-item__icon"><i class="far fa-calendar-plus"></i></span><span class="post-meta-item__info">Created</span><span class="post-meta-item__value">2022-01-18</span></span><span class="post-meta-item post-meta-item--updatetime"><span class="post-meta-item__icon"><i class="far fa-calendar-check"></i></span><span class="post-meta-item__info">Updated</span><span class="post-meta-item__value">2022-01-18</span></span></div></header><div class="post-body"><div class="post-excerpt"><p>Go 语言并没有 enum 关键字，在Protobuf中，Go 语言只是 ”有限的枚举“ 支持，我们也会用常量来定义，枚举值也需要有字面意思的映射。</p>
+
+        <h2 id="示例"   >
+          <a href="#示例" class="heading-link"><i class="fas fa-link"></i></a><a href="#示例" class="headerlink" title="示例"></a>示例</h2>
+      <p>通过定义常量来定义枚举类型，如：</p>
+<figure class="highlight golang"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> OperateType <span class="keyword">int</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> (</span><br><span class="line">	INSERT OperateType = <span class="literal">iota</span></span><br><span class="line">	UPDATE</span><br><span class="line">	DELETE</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	fmt.Println(INSERT, UPDATE, DELETE)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></div></figure></div><div class="post-readmore"><a class="post-readmore__link" href="/2022/01/18/%E5%9C%A8%20Go%20%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E6%9E%9A%E4%B8%BE%EF%BC%9F/"><span class="post-readmore__text">Read More</span><span class="post-readmore__icon"><i class="fas fa-long-arrow-alt-right"></i></span></a></div></div></article><article class="postlist-item post"><header class="post-header"><h1 class="post-title"><a class="post-title__link" href="/2021/12/11/%E4%B8%89%E5%89%91%E5%AE%A2-%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/">三剑客-正则表达式</a></h1><div class="post-meta"><span class="post-meta-item post-meta-item--createtime"><span class="post-meta-item__icon"><i class="far fa-calendar-plus"></i></span><span class="post-meta-item__info">Created</span><span class="post-meta-item__value">2021-12-11</span></span><span class="post-meta-item post-meta-item--updatetime"><span class="post-meta-item__icon"><i class="far fa-calendar-check"></i></span><span class="post-meta-item__info">Updated</span><span class="post-meta-item__value">2021-12-11</span></span></div></header><div class="post-body"><div class="post-excerpt">
+        <h2 id="正则表达式的作用？"   >
+          <a href="#正则表达式的作用？" class="heading-link"><i class="fas fa-link"></i></a><a href="#正则表达式的作用？" class="headerlink" title="正则表达式的作用？"></a>正则表达式的作用？</h2>
+      <ul>
+<li>匹配有规律的东西，手机号，身份证号码，匹配日志。</li>
+<li>regular expression(RE)</li>
+<li>使用一些符号表达重复出现，大小写，开头/结尾含义</li>
+</ul>
+
+        <h2 id="使用场景"   >
+          <a href="#使用场景" class="heading-link"><i class="fas fa-link"></i></a><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h2>
+      <div class="table-container"><table>
+<thead>
+<tr>
+<th>-</th>
+<th>-</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>正则表达式</td>
+<td>linux 三剑客使用，开发语言（python,golang…）</td>
+</tr>
+<tr>
+<td>应用场景</td>
+<td>过滤有规律的内容，尤其是日志</td>
+</tr>
+</tbody></table></div>
+
+        <h2 id="注释事项"   >
+          <a href="#注释事项" class="heading-link"><i class="fas fa-link"></i></a><a href="#注释事项" class="headerlink" title="注释事项"></a>注释事项</h2>
+      <ul>
+<li>所有的符号都是英文符号</li>
+<li>学习正则，通过grep命令学习， grep加上单引号</li>
+<li>给grep 和 rgrep 加上颜色 alias grep = <code>grep --color=auto</code> alias egrep = <code>egrep --color=auto</code></li>
+<li>注意系统的字符集：en_US.UTF-8(大部分情况没有问题)，如果出现问题，将字符集改为C, export LANG=C.</li>
+<li>快速掌握正则： 配合 grep -o 参数学些。</li>
+</ul>
+
+        <h2 id="正则符号"   >
+          <a href="#正则符号" class="heading-link"><i class="fas fa-link"></i></a><a href="#正则符号" class="headerlink" title="正则符号"></a>正则符号</h2>
+      <div class="table-container"><table>
+<thead>
+<tr>
+<th>分类</th>
+<th>描述符</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>基础正则</td>
+<td>^ $ ^$ . .* [a-z] [^abc]</td>
+</tr>
+<tr>
+<td>扩展正则</td>
+<td>+</td>
+</tr>
+</tbody></table></div>
+
+        <h2 id="正则-VS-通配符"   >
+          <a href="#正则-VS-通配符" class="heading-link"><i class="fas fa-link"></i></a><a href="#正则-VS-通配符" class="headerlink" title="正则 VS 通配符"></a>正则 VS 通配符</h2>
+      <div class="table-container"><table>
+<thead>
+<tr>
+<th>分类</th>
+<th>通配符（用途）</th>
+<th>支持的命令</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>正则</td>
+<td>三剑客，高级语言，进行过滤(匹配字符)</td>
+<td>三剑客<font color="red">grep,awk,sed</font>,find,rname(ubuntu),expr</td>
+</tr>
+<tr>
+<td>通配符(pathname extension 或 glob)</td>
+<td>匹配文件（文件名） *.txt *.log</td>
+<td>linux 命令下大部分都支持</td>
+</tr>
+</tbody></table></div>
+
+        <h2 id="基础正则"   >
+          <a href="#基础正则" class="heading-link"><i class="fas fa-link"></i></a><a href="#基础正则" class="headerlink" title="基础正则"></a>基础正则</h2>
+      <div class="table-container"><table>
+<thead>
+<tr>
+<th>基础正则</th>
+<th>含义</th>
+<th>搭配</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>^</td>
+<td>以…开头</td>
+<td>-</td>
+</tr>
+<tr>
+<td>$</td>
+<td>以…结尾</td>
+<td>-</td>
+</tr>
+<tr>
+<td>^$</td>
+<td>空行 ｜ ^$</td>
+<td></td>
+</tr>
+<tr>
+<td>.</td>
+<td>任意一个字符 ｜ -</td>
+<td></td>
+</tr>
+<tr>
+<td>*</td>
+<td>前一个字符连续出现0次或多次 ｜ -</td>
+<td></td>
+</tr>
+<tr>
+<td>\</td>
+<td>转义字符 \n,\t ｜ 搭配 *</td>
+<td></td>
+</tr>
+<tr>
+<td>[]</td>
+<td>一个整体，[abc]匹配任意一个a,b,c｜ -</td>
+<td></td>
+</tr>
+<tr>
+<td>[^]</td>
+<td>取反排除， [^abc] 非a,b,c ｜ 搭配 +</td>
+<td></td>
+</tr>
+</tbody></table></div>
+<figure class="highlight txt"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">My fellow citizens:</span><br><span class="line"></span><br><span class="line">I stand here today humbled by the task before us,</span><br><span class="line"></span><br><span class="line">grateful for the trust you have bestowed</span><br><span class="line"></span><br><span class="line">mindful of the sacrifices borne by our ancestors.</span><br><span class="line"></span><br><span class="line">I thank President Bush for his service to our nation, as well as the generosity and cooperation he has shown throughout this transition.</span><br><span class="line"></span><br><span class="line">Forty-four Americans have now taken the presidential oath.</span><br><span class="line"></span><br><span class="line">The words have been spoken during rising tides of prosperity and the still waters of peace.</span><br><span class="line"></span><br><span class="line">Yet, every so often the oath is taken amidst gathering clouds and raging storms. At these moments, America has carried on not simply because of the skill or vision of those in high office, but because We the People have remained faithful to the ideals of our forbearers, and true to our founding documents.</span><br><span class="line"></span><br><span class="line">So it has been. So it must be with this generation of Americans.</span><br><span class="line">180000091212</span><br></pre></td></tr></table></div></figure>
+
+        <h3 id="1-以…开头的行"   >
+          <a href="#1-以…开头的行" class="heading-link"><i class="fas fa-link"></i></a><a href="#1-以…开头的行" class="headerlink" title="1. ^ 以…开头的行"></a>1. ^ 以…开头的行</h3>
+      <ul>
+<li>^grate 以grate 开头的行</li>
+</ul>
+<figure class="highlight shell"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">➜  data grep &#x27;^grate&#x27; obama.txt</span><br><span class="line">grateful for the trust you have bestowed</span><br></pre></td></tr></table></div></figure>
+
+        <h3 id="2-以…结尾的行"   >
+          <a href="#2-以…结尾的行" class="heading-link"><i class="fas fa-link"></i></a><a href="#2-以…结尾的行" class="headerlink" title="2. $ 以…结尾的行"></a>2. $ 以…结尾的行</h3>
+      <ul>
+<li><p>bestowed$ 以bestowed结尾的行</p>
+<figure class="highlight plain"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">data grep &#39;bestowed$&#39; obama.txt</span><br><span class="line">grateful for the trust you have bestowed</span><br></pre></td></tr></table></div></figure></li>
+<li><p>当未匹配到内容时，可使用 cat -A 查看隐藏内容 ，mac下使用 cat -e</p>
+<figure class="highlight txt"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">➜  data cat -e obama.txt</span><br><span class="line">My fellow citizens:$</span><br><span class="line">$</span><br><span class="line">I stand here today humbled by the task before us, $</span><br><span class="line">$</span><br><span class="line">grateful for the trust you have bestowed$</span><br><span class="line">$</span><br><span class="line">mindful of the sacrifices borne by our ancestors. $</span><br><span class="line">$</span><br><span class="line">I thank President Bush for his service to our nation, as well as the generosity and cooperation he has shown throughout this transition.$</span><br><span class="line">$</span><br><span class="line">Forty-four Americans have now taken the presidential oath. $</span><br><span class="line">$</span><br><span class="line">The words have been spoken during rising tides of prosperity and the still waters of peace.$</span><br><span class="line">$</span><br><span class="line"> Yet, every so often the oath is taken amidst gathering clouds and raging storms. At these moments, America has carried on not simply because of the skill or vision of those in high office, but because We the People have remained faithful to the ideals of our forbearers, and true to our founding documents.$</span><br><span class="line">$</span><br><span class="line">So it has been. So it must be with this generation of Americans.$</span><br></pre></td></tr></table></div></figure>
+
+
+        <h3 id="3-“-”-任意一个字符"   >
+          <a href="#3-“-”-任意一个字符" class="heading-link"><i class="fas fa-link"></i></a><a href="#3-“-”-任意一个字符" class="headerlink" title="3. “.” 任意一个字符"></a>3. “.” 任意一个字符</h3>
+      </li>
+<li><p>注意 . 不匹配空行</p>
+</li>
+</ul>
+<figure class="highlight plain"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">➜  data grep . obama.txt</span><br><span class="line">My fellow citizens:</span><br><span class="line">I stand here today humbled by the task before us,</span><br><span class="line">grateful for the trust you have bestowed</span><br><span class="line">mindful of the sacrifices borne by our ancestors.</span><br><span class="line">I thank President Bush for his service to our nation, as well as the generosity and cooperation he has shown throughout this transition.</span><br><span class="line">Forty-four Americans have now taken the presidential oath.</span><br><span class="line">The words have been spoken during rising tides of prosperity and the still waters of peace.</span><br><span class="line"> Yet, every so often the oath is taken amidst gathering clouds and raging storms. At these moments, America has carried on not simply because of the skill or vision of those in high office, but because We the People have remained faithful to the ideals of our forbearers, and true to our founding documents.</span><br><span class="line">So it has been. So it must be with this generation of Americans.</span><br></pre></td></tr></table></div></figure>
+
+        <h3 id="4-匹配出文件中以-结尾的行"   >
+          <a href="#4-匹配出文件中以-结尾的行" class="heading-link"><i class="fas fa-link"></i></a><a href="#4-匹配出文件中以-结尾的行" class="headerlink" title="4. 匹配出文件中以.结尾的行"></a>4. 匹配出文件中以.结尾的行</h3>
+      <ul>
+<li><p>坑： grep ‘.$’ obama.txt 匹配任意结尾的行（非空行）</p>
+</li>
+<li><p>grep ‘.$’ obama.txt 【需使用转义字符】</p>
+<figure class="highlight plain"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">➜  data grep &#39;\.$&#39; obama.txt</span><br><span class="line">I thank President Bush for his service to our nation, as well as the generosity and cooperation he has shown throughout this transition.</span><br><span class="line">The words have been spoken during rising tides of prosperity and the still waters of peace.</span><br><span class="line"> Yet, every so often the oath is taken amidst gathering clouds and raging storms. At these moments, America has carried on not simply because of the skill or vision of those in high office, but because We the People have remained faithful to the ideals of our forbearers, and true to our founding documents.</span><br><span class="line">So it has been. So it must be with this generation of Americans.</span><br></pre></td></tr></table></div></figure>
+
+        <h3 id="6-转义字符"   >
+          <a href="#6-转义字符" class="heading-link"><i class="fas fa-link"></i></a><a href="#6-转义字符" class="headerlink" title="6. 转义字符"></a>6. 转义字符</h3>
+      </li>
+<li><p>\n 换行</p>
+</li>
+<li><p>\t tab</p>
+</li>
+</ul>
+
+        <h3 id="7-匹配0次或多次"   >
+          <a href="#7-匹配0次或多次" class="heading-link"><i class="fas fa-link"></i></a><a href="#7-匹配0次或多次" class="headerlink" title="7. * 匹配0次或多次"></a>7. * 匹配0次或多次</h3>
+      <figure class="highlight plain"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">➜  data grep &#39;180*&#39; obama.txt</span><br><span class="line">180000091212</span><br></pre></td></tr></table></div></figure>
+
+        <h3 id="8-任意内容，所有内容"   >
+          <a href="#8-任意内容，所有内容" class="heading-link"><i class="fas fa-link"></i></a><a href="#8-任意内容，所有内容" class="headerlink" title="8. .* 任意内容，所有内容"></a>8. .* 任意内容，所有内容</h3>
+      <figure class="highlight plain"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">➜  data grep &#39;.*&#39; obama.txt</span><br><span class="line">My fellow citizens:</span><br><span class="line"></span><br><span class="line">I stand here today humbled by the task before us,</span><br><span class="line"></span><br><span class="line">grateful for the trust you have bestowed</span><br><span class="line">mindful of the sacrifices borne by our ancestors.</span><br><span class="line"></span><br><span class="line">I thank President Bush for his service to our nation, as well as the generosity and cooperation he has shown throughout this transition.</span><br><span class="line"></span><br><span class="line">Forty-four Americans have now taken the presidential oath.</span><br><span class="line"></span><br><span class="line">The words have been spoken during rising tides of prosperity and the still waters of peace.</span><br><span class="line"></span><br><span class="line"> Yet, every so often the oath is taken amidst gathering clouds and raging storms. At these moments, America has carried on not simply because of the skill or vision of those in high office, but because We the People have remained faithful to the ideals of our forbearers, and true to our founding documents.</span><br><span class="line"></span><br><span class="line">So it has been. So it must be with this generation of Americans.</span><br><span class="line"></span><br><span class="line">180000091212</span><br></pre></td></tr></table></div></figure>
+
+        <h3 id="9-匹配-以I开头t结尾内容"   >
+          <a href="#9-匹配-以I开头t结尾内容" class="heading-link"><i class="fas fa-link"></i></a><a href="#9-匹配-以I开头t结尾内容" class="headerlink" title="9. 匹配 以I开头t结尾内容"></a>9. 匹配 以I开头t结尾内容</h3>
+      <figure class="highlight plain"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">➜  data grep &#39;I.*t&#39; obama.txt</span><br><span class="line">I stand here today humbled by the task before us,</span><br><span class="line">I thank President Bush for his service to our nation, as well as the generosity and cooperation he has shown throughout this transition.</span><br></pre></td></tr></table></div></figure>
+
+        <h3 id="10-连续出现时，默认贪婪匹配"   >
+          <a href="#10-连续出现时，默认贪婪匹配" class="heading-link"><i class="fas fa-link"></i></a><a href="#10-连续出现时，默认贪婪匹配" class="headerlink" title="10. 连续出现时，默认贪婪匹配"></a>10. 连续出现时，默认贪婪匹配</h3>
+      <ul>
+<li>-E, –extended-regexp</li>
+<li>? 非贪婪匹配</li>
+</ul>
+<figure class="highlight plain"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">➜  data grep -E &#39;I.*?t&#39; obama.txt</span><br><span class="line">I stand here today humbled by the task before us,</span><br><span class="line">I thank President Bush for his service to our nation, as well as the generosity and cooperation he has shown throughout this transition.</span><br></pre></td></tr></table></div></figure>
+
+        <h2 id="11-正则多匹配情况：e"   >
+          <a href="#11-正则多匹配情况：e" class="heading-link"><i class="fas fa-link"></i></a><a href="#11-正则多匹配情况：e" class="headerlink" title="11. 正则多匹配情况：e*"></a>11. 正则多匹配情况：e*</h2>
+      <ul>
+<li>e* e 出现 0次或多次，也可匹配0次，即未出现的情况</li>
+</ul>
+<figure class="highlight plain"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">➜  data grep &#39;e*&#39; obama.txt</span><br><span class="line">My fellow citizens:</span><br><span class="line"></span><br><span class="line">I stand here today humbled by the task before us,</span><br><span class="line"></span><br><span class="line">grateful for the trust you have bestowed</span><br><span class="line">mindful of the sacrifices borne by our ancestors.</span><br><span class="line"></span><br><span class="line">I thank President Bush for his service to our nation, as well as the generosity and cooperation he has shown throughout this transition.</span><br><span class="line"></span><br><span class="line">Forty-four Americans have now taken the presidential oath.</span><br><span class="line"></span><br><span class="line">The words have been spoken during rising tides of prosperity and the still waters of peace.</span><br><span class="line"></span><br><span class="line"> Yet, every so often the oath is taken amidst gathering clouds and raging storms. At these moments, America has carried on not simply because of the skill or vision of those in high office, but because We the People have remained faithful to the ideals of our forbearers, and true to our founding documents.</span><br><span class="line"></span><br><span class="line">So it has been. So it must be with this generation of Americans.</span><br><span class="line"></span><br><span class="line">180000091212</span><br></pre></td></tr></table></div></figure>
+
+        <h3 id="12-abc-匹配任意一个字符a或b或c"   >
+          <a href="#12-abc-匹配任意一个字符a或b或c" class="heading-link"><i class="fas fa-link"></i></a><a href="#12-abc-匹配任意一个字符a或b或c" class="headerlink" title="12. [] [abc]匹配任意一个字符a或b或c"></a>12. [] [abc]匹配任意一个字符a或b或c</h3>
+      <ul>
+<li>[a-z] A~Z</li>
+<li>[A-Z] A~Z</li>
+<li>[0-9] 0~9</li>
+<li>[a-Z] a ~ Z</li>
+<li>[a-z|0-9] 匹配a-z,|,0-9</li>
+<li>-i 不去分大小写<figure class="highlight plain"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">➜  data grep &#39;[abc]&#39; obama.txt</span><br><span class="line">My fellow citizens:</span><br><span class="line">I stand here today humbled by the task before us,</span><br><span class="line">grateful for the trust you have bestowed</span><br><span class="line">mindful of the sacrifices borne by our ancestors.</span><br><span class="line">I thank President Bush for his service to our nation, as well as the generosity and cooperation he has shown throughout this transition.</span><br><span class="line">Forty-four Americans have now taken the presidential oath.</span><br><span class="line">The words have been spoken during rising tides of prosperity and the still waters of peace.</span><br><span class="line"> Yet, every so often the oath is taken amidst gathering clouds and raging storms. At these moments, America has carried on not simply because of the skill or vision of those in high office, but because We the People have remained faithful to the ideals of our forbearers, and true to our founding documents.</span><br><span class="line">So it has been. So it must be with this generation of Americans.</span><br></pre></td></tr></table></div></figure>
+
+        <h3 id="13-abc-排除a-b-c以外的内容"   >
+          <a href="#13-abc-排除a-b-c以外的内容" class="heading-link"><i class="fas fa-link"></i></a><a href="#13-abc-排除a-b-c以外的内容" class="headerlink" title="13. [^] [^abc] 排除a,b,c以外的内容"></a>13. [^] [^abc] 排除a,b,c以外的内容</h3>
+      </li>
+</ul>
+<figure class="highlight plain"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grep [^abc] obama.txt</span><br></pre></td></tr></table></div></figure>
+
+        <h2 id="扩展正则"   >
+          <a href="#扩展正则" class="heading-link"><i class="fas fa-link"></i></a><a href="#扩展正则" class="headerlink" title="扩展正则"></a>扩展正则</h2>
+      <p>+，｜,(), {}, ?</p>
+<ul>
+<li>grep -E </li>
+<li>egrep </li>
+</ul>
+
+        <h3 id="1-匹配1次或1次以上"   >
+          <a href="#1-匹配1次或1次以上" class="heading-link"><i class="fas fa-link"></i></a><a href="#1-匹配1次或1次以上" class="headerlink" title="1. +匹配1次或1次以上"></a>1. +匹配1次或1次以上</h3>
+      <figure class="highlight plain"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">➜  data grep -E &#39;0+&#39; obama.txt</span><br><span class="line">180000091212</span><br><span class="line">➜  data egrep &#39;0+&#39; obama.txt</span><br><span class="line">180000091212</span><br></pre></td></tr></table></div></figure>
+
+        <h3 id="2-只显示匹配的内容"   >
+          <a href="#2-只显示匹配的内容" class="heading-link"><i class="fas fa-link"></i></a><a href="#2-只显示匹配的内容" class="headerlink" title="2. 只显示匹配的内容"></a>2. 只显示匹配的内容</h3>
+      <ul>
+<li>-o 选项</li>
+</ul>
+<figure class="highlight plain"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">➜  data egrep &#39;Americans&#39; obama.txt</span><br><span class="line">Forty-four Americans have now taken the presidential oath.</span><br><span class="line">So it has been. So it must be with this generation of Americans.</span><br><span class="line">➜  data egrep -o &#39;Americans&#39; obama.txt</span><br><span class="line">Americans</span><br><span class="line">Americans</span><br></pre></td></tr></table></div></figure>
+
+        <h3 id="3-｜-匹配或内容"   >
+          <a href="#3-｜-匹配或内容" class="heading-link"><i class="fas fa-link"></i></a><a href="#3-｜-匹配或内容" class="headerlink" title="3. ｜ 匹配或内容"></a>3. ｜ 匹配或内容</h3>
+      <ul>
+<li>hello|world 匹配hello 或 world</li>
+</ul>
+<figure class="highlight plain"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">➜  data egrep &#39;stand|grateful&#39; obama.txt</span><br><span class="line">I stand here today humbled by the task before us,</span><br><span class="line">grateful for the trust you have bestowed</span><br></pre></td></tr></table></div></figure>
+
+        <h3 id="4-与｜"   >
+          <a href="#4-与｜" class="heading-link"><i class="fas fa-link"></i></a><a href="#4-与｜" class="headerlink" title="4. []与｜"></a>4. []与｜</h3>
+      <div class="table-container"><table>
+<thead>
+<tr>
+<th>符号</th>
+<th>含义</th>
+<th>应用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>[]</td>
+<td>一次匹配一个字符[world] ｜匹配单个字符 [] 和 []+</td>
+<td></td>
+</tr>
+<tr>
+<td>|</td>
+<td>匹配一个或多个 a</td>
+<td>b hello</td>
+</tr>
+</tbody></table></div>
+</div></div></article><article class="postlist-item post"><header class="post-header"><h1 class="post-title"><a class="post-title__link" href="/2021/09/21/golang%E5%AE%9E%E7%8E%B0%E5%8E%9F%E5%AD%90%E6%93%8D%E4%BD%9C%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/">golang实现原子操作的几种方式</a></h1><div class="post-meta"><span class="post-meta-item post-meta-item--createtime"><span class="post-meta-item__icon"><i class="far fa-calendar-plus"></i></span><span class="post-meta-item__info">Created</span><span class="post-meta-item__value">2021-09-21</span></span><span class="post-meta-item post-meta-item--updatetime"><span class="post-meta-item__icon"><i class="far fa-calendar-check"></i></span><span class="post-meta-item__info">Updated</span><span class="post-meta-item__value">2021-09-21</span></span></div></header><div class="post-body"><div class="post-excerpt"><h2 id="什么是原子操作？"   >
           <a href="#什么是原子操作？" class="heading-link"><i class="fas fa-link"></i></a><a href="#什么是原子操作？" class="headerlink" title="什么是原子操作？"></a>什么是原子操作？</h2>
       <p>原子操作就是并发编程中“最小的且不可并行化”的操作。如果有多个并发体对同一个共享资源进行的操作是原子的话，那么同一时刻最多只能有一个并发体对该资源进行操作。</p></div><div class="post-readmore"><a class="post-readmore__link" href="/2021/09/21/golang%E5%AE%9E%E7%8E%B0%E5%8E%9F%E5%AD%90%E6%93%8D%E4%BD%9C%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/"><span class="post-readmore__text">Read More</span><span class="post-readmore__icon"><i class="fas fa-long-arrow-alt-right"></i></span></a></div></div></article><article class="postlist-item post"><header class="post-header"><h1 class="post-title"><a class="post-title__link" href="/2021/09/11/golang%E5%86%85%E7%BD%AErpc%E7%9A%84%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8/">golang内置rpc的简单使用</a></h1><div class="post-meta"><span class="post-meta-item post-meta-item--createtime"><span class="post-meta-item__icon"><i class="far fa-calendar-plus"></i></span><span class="post-meta-item__info">Created</span><span class="post-meta-item__value">2021-09-11</span></span><span class="post-meta-item post-meta-item--updatetime"><span class="post-meta-item__icon"><i class="far fa-calendar-check"></i></span><span class="post-meta-item__info">Updated</span><span class="post-meta-item__value">2021-09-11</span></span></div></header><div class="post-body"><div class="post-excerpt"><p>Go 语言的RPC包的路径为net/rpc，也就是放在了net包下面。因此可以猜测该RPC包是建立在net包基础之上的。我们尝试基于RPC实现一个简单的打印例子。</p></div><div class="post-readmore"><a class="post-readmore__link" href="/2021/09/11/golang%E5%86%85%E7%BD%AErpc%E7%9A%84%E7%AE%80%E5%8D%95%E4%BD%BF%E7%94%A8/"><span class="post-readmore__text">Read More</span><span class="post-readmore__icon"><i class="fas fa-long-arrow-alt-right"></i></span></a></div></div></article><article class="postlist-item post"><header class="post-header"><h1 class="post-title"><a class="post-title__link" href="/2021/08/22/%E4%BB%A3%E7%A0%81%E6%95%B4%E6%B4%81%E4%B9%8B%E9%81%93%E4%B9%8B%E5%87%BD%E6%95%B0/">代码整洁之道之函数</a></h1><div class="post-meta"><span class="post-meta-item post-meta-item--createtime"><span class="post-meta-item__icon"><i class="far fa-calendar-plus"></i></span><span class="post-meta-item__info">Created</span><span class="post-meta-item__value">2021-08-22</span></span><span class="post-meta-item post-meta-item--updatetime"><span class="post-meta-item__icon"><i class="far fa-calendar-check"></i></span><span class="post-meta-item__info">Updated</span><span class="post-meta-item__value">2021-08-22</span></span></div></header><div class="post-body"><div class="post-excerpt"><p>代码整洁之道之函数编码规范。</p>
 
@@ -52,17 +320,7 @@ window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 5.3.0"></he
 <p>素数是除了1和其本身公约数之外，没有其他公约数，也就是不能整除其他整数。</p></div><div class="post-readmore"><a class="post-readmore__link" href="/2021/08/03/golang%E7%94%9F%E6%88%90%E7%B4%A0%E6%95%B0/"><span class="post-readmore__text">Read More</span><span class="post-readmore__icon"><i class="fas fa-long-arrow-alt-right"></i></span></a></div></div></article><article class="postlist-item post"><header class="post-header"><h1 class="post-title"><a class="post-title__link" href="/2021/08/02/golang%E7%AE%80%E5%8D%95%E5%AE%9E%E7%8E%B0%E7%94%9F%E4%BA%A7%E8%80%85%E6%B6%88%E8%B4%B9%E8%80%85%E6%A8%A1%E5%BC%8F/">golang简单实现生产者消费者模式</a></h1><div class="post-meta"><span class="post-meta-item post-meta-item--createtime"><span class="post-meta-item__icon"><i class="far fa-calendar-plus"></i></span><span class="post-meta-item__info">Created</span><span class="post-meta-item__value">2021-08-02</span></span><span class="post-meta-item post-meta-item--updatetime"><span class="post-meta-item__icon"><i class="far fa-calendar-check"></i></span><span class="post-meta-item__info">Updated</span><span class="post-meta-item__value">2021-08-02</span></span></div></header><div class="post-body"><div class="post-excerpt"><p>生产者/消费者模型主要通过平衡生产线程和消费线程的工作能力来提高程序的整体处理数据的速度。简单来说，就是生产者生产一些数据，放到成果队列中，同时消费者从成果队列中来取数据。这样生产和消费就变成了异步过程了。当成果队列中没有数据时，消费者就进入饥饿的等待状态中；而当成果队列中数据已满时，生产者则面临因产品挤压导致CPU被剥夺的问题。</p></div><div class="post-readmore"><a class="post-readmore__link" href="/2021/08/02/golang%E7%AE%80%E5%8D%95%E5%AE%9E%E7%8E%B0%E7%94%9F%E4%BA%A7%E8%80%85%E6%B6%88%E8%B4%B9%E8%80%85%E6%A8%A1%E5%BC%8F/"><span class="post-readmore__text">Read More</span><span class="post-readmore__icon"><i class="fas fa-long-arrow-alt-right"></i></span></a></div></div></article><article class="postlist-item post"><header class="post-header"><h1 class="post-title"><a class="post-title__link" href="/2021/08/01/map%E7%9A%84%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0/">map的底层实现</a></h1><div class="post-meta"><span class="post-meta-item post-meta-item--createtime"><span class="post-meta-item__icon"><i class="far fa-calendar-plus"></i></span><span class="post-meta-item__info">Created</span><span class="post-meta-item__value">2021-08-01</span></span><span class="post-meta-item post-meta-item--updatetime"><span class="post-meta-item__icon"><i class="far fa-calendar-check"></i></span><span class="post-meta-item__info">Updated</span><span class="post-meta-item__value">2021-08-01</span></span></div></header><div class="post-body"><div class="post-excerpt"><h2 id="map-示例："   >
           <a href="#map-示例：" class="heading-link"><i class="fas fa-link"></i></a><a href="#map-示例：" class="headerlink" title="map 示例："></a>map 示例：</h2>
       <p>先来看一个demo, 打印maps的指针地址：</p>
-<figure class="highlight golang"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;fmt&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> maps = <span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">string</span>&#123;</span><br><span class="line">	<span class="string">&quot;name&quot;</span>: <span class="string">&quot;golang&quot;</span>,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">init</span><span class="params">()</span></span> &#123;</span><br><span class="line">	fmt.Printf(<span class="string">&quot;maps init p(%p)\n&quot;</span>, &amp;maps)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span>  &#123;</span><br><span class="line">	fmt.Printf(<span class="string">&quot;maps main p(%p)\n&quot;</span>, &amp;maps)</span><br><span class="line">	printMaps(maps)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">printMaps</span><span class="params">(maps <span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">string</span>)</span></span>  &#123;</span><br><span class="line">	fmt.Printf(<span class="string">&quot;maps printMaps p(%p)\n&quot;</span>, &amp;maps)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></div></figure></div><div class="post-readmore"><a class="post-readmore__link" href="/2021/08/01/map%E7%9A%84%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0/"><span class="post-readmore__text">Read More</span><span class="post-readmore__icon"><i class="fas fa-long-arrow-alt-right"></i></span></a></div></div></article><article class="postlist-item post"><header class="post-header"><h1 class="post-title"><a class="post-title__link" href="/2021/07/25/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8Fgolang%E5%AE%9E%E7%8E%B0/">设计模式-单例模式golang实现</a></h1><div class="post-meta"><span class="post-meta-item post-meta-item--createtime"><span class="post-meta-item__icon"><i class="far fa-calendar-plus"></i></span><span class="post-meta-item__info">Created</span><span class="post-meta-item__value">2021-07-25</span></span><span class="post-meta-item post-meta-item--updatetime"><span class="post-meta-item__icon"><i class="far fa-calendar-check"></i></span><span class="post-meta-item__info">Updated</span><span class="post-meta-item__value">2021-07-25</span></span></div></header><div class="post-body"><div class="post-excerpt"><h2 id="单例模式"   >
-          <a href="#单例模式" class="heading-link"><i class="fas fa-link"></i></a><a href="#单例模式" class="headerlink" title="单例模式"></a>单例模式</h2>
-      <p>单例模式属于创建型模式，它提供了一种创建对象的最佳方式。</p>
-<p>这种模式涉及到一个单一的类，该类负责创建自己的对象，同时确保只有单个对象被创建。这个类提供了一种访问其唯一的对象的方式，可以直接访问，不需要实例化该类的对象。</p></div><div class="post-readmore"><a class="post-readmore__link" href="/2021/07/25/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F-%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8Fgolang%E5%AE%9E%E7%8E%B0/"><span class="post-readmore__text">Read More</span><span class="post-readmore__icon"><i class="fas fa-long-arrow-alt-right"></i></span></a></div></div></article><article class="postlist-item post"><header class="post-header"><h1 class="post-title"><a class="post-title__link" href="/2021/07/19/TCP%20Fast%20Open/">TCP Fast Open</a></h1><div class="post-meta"><span class="post-meta-item post-meta-item--createtime"><span class="post-meta-item__icon"><i class="far fa-calendar-plus"></i></span><span class="post-meta-item__info">Created</span><span class="post-meta-item__value">2021-07-19</span></span><span class="post-meta-item post-meta-item--updatetime"><span class="post-meta-item__icon"><i class="far fa-calendar-check"></i></span><span class="post-meta-item__info">Updated</span><span class="post-meta-item__value">2021-07-19</span></span></div></header><div class="post-body"><div class="post-excerpt"><h2 id="传统的tcp三次握手"   >
-          <a href="#传统的tcp三次握手" class="heading-link"><i class="fas fa-link"></i></a><a href="#传统的tcp三次握手" class="headerlink" title="传统的tcp三次握手"></a>传统的tcp三次握手</h2>
-      <p>传统的 TCP 握手是一个三步过程，执行如下：</p>
-<ol>
-<li>发送方向接收方发送SYN数据包以发起连接</li>
-<li>接收方向发送方发送一个 SYN-ACK 数据包，让其知道它已准备好开始传输数据</li>
-<li>发送方向接收方发送一个ACK包</li>
-</ol></div><div class="post-readmore"><a class="post-readmore__link" href="/2021/07/19/TCP%20Fast%20Open/"><span class="post-readmore__text">Read More</span><span class="post-readmore__icon"><i class="fas fa-long-arrow-alt-right"></i></span></a></div></div></article></section><nav class="paginator"><div class="paginator-inner"><span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/2/"><i class="fas fa-angle-right"></i></a></div></nav></div></div><div class="sidebar-wrap" id="sidebar-wrap"><aside class="sidebar" id="sidebar"><section class="sidebar-toc hide"></section><!-- ov = overview--><section class="sidebar-ov"><div class="sidebar-ov-author"><div class="sidebar-ov-author__avatar"><img class="sidebar-ov-author__avatar_img" src="/images/icons/stun-logo.svg" alt="avatar"></div><p class="sidebar-ov-author__text">hello world</p></div><div class="sidebar-ov-state"><a class="sidebar-ov-state-item sidebar-ov-state-item--posts" href="/archives/"><div class="sidebar-ov-state-item__count">33</div><div class="sidebar-ov-state-item__name">Archives</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--categories" href="/categories/"><div class="sidebar-ov-state-item__count">13</div><div class="sidebar-ov-state-item__name">Categories</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--tags" href="/tags/"><div class="sidebar-ov-state-item__count">23</div><div class="sidebar-ov-state-item__name">Tags</div></a></div></section></aside></div><div class="clearfix"></div></div></main><footer class="footer" id="footer"><div class="footer-inner"><div><span>Copyright © 2021</span><span class="footer__icon"><i class="fas fa-heart"></i></span><span>lucky</span></div><div><a href="https://github.com/luckylsx/" rel="noopener" target="_blank">Github Pages</a></div></div></footer><div class="loading-bar" id="loading-bar"><div class="loading-bar__progress"></div></div><div class="back2top" id="back2top"><span class="back2top__icon"><i class="fas fa-rocket"></i></span></div></div><div class="search-mask"></div><div class="search-popup"><span class="search-close"></span><div class="search-input"><input placeholder="Search for Posts (Support multiple keywords)"><div class="search-btns">Search by:<span class="search-btns-item search-btns-item--google"><i class="fab fa-google"></i>Google</span><span class="search-btns-item search-btns-item--bing"><i></i>Bing</span><span class="search-btns-item search-btns-item--baidu"><i></i>Baidu</span></div></div><div class="search-results"></div></div><script src="https://cdn.jsdelivr.net/npm/jquery@v3.4.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.ui.min.js"></script><script>function initSearch() {
+<figure class="highlight golang"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;fmt&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> maps = <span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">string</span>&#123;</span><br><span class="line">	<span class="string">&quot;name&quot;</span>: <span class="string">&quot;golang&quot;</span>,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">init</span><span class="params">()</span></span> &#123;</span><br><span class="line">	fmt.Printf(<span class="string">&quot;maps init p(%p)\n&quot;</span>, &amp;maps)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span>  &#123;</span><br><span class="line">	fmt.Printf(<span class="string">&quot;maps main p(%p)\n&quot;</span>, &amp;maps)</span><br><span class="line">	printMaps(maps)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">printMaps</span><span class="params">(maps <span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">string</span>)</span></span>  &#123;</span><br><span class="line">	fmt.Printf(<span class="string">&quot;maps printMaps p(%p)\n&quot;</span>, &amp;maps)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></div></figure></div><div class="post-readmore"><a class="post-readmore__link" href="/2021/08/01/map%E7%9A%84%E5%BA%95%E5%B1%82%E5%AE%9E%E7%8E%B0/"><span class="post-readmore__text">Read More</span><span class="post-readmore__icon"><i class="fas fa-long-arrow-alt-right"></i></span></a></div></div></article></section><nav class="paginator"><div class="paginator-inner"><span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/4/">4</a><a class="extend next" rel="next" href="/page/2/"><i class="fas fa-angle-right"></i></a></div></nav></div></div><div class="sidebar-wrap" id="sidebar-wrap"><aside class="sidebar" id="sidebar"><section class="sidebar-toc hide"></section><!-- ov = overview--><section class="sidebar-ov"><div class="sidebar-ov-author"><div class="sidebar-ov-author__avatar"><img class="sidebar-ov-author__avatar_img" src="/images/icons/stun-logo.svg" alt="avatar"></div><p class="sidebar-ov-author__text">hello world</p></div><div class="sidebar-ov-state"><a class="sidebar-ov-state-item sidebar-ov-state-item--posts" href="/archives/"><div class="sidebar-ov-state-item__count">35</div><div class="sidebar-ov-state-item__name">Archives</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--categories" href="/categories/"><div class="sidebar-ov-state-item__count">13</div><div class="sidebar-ov-state-item__name">Categories</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--tags" href="/tags/"><div class="sidebar-ov-state-item__count">25</div><div class="sidebar-ov-state-item__name">Tags</div></a></div></section></aside></div><div class="clearfix"></div></div></main><footer class="footer" id="footer"><div class="footer-inner"><div><span>Copyright © 2022</span><span class="footer__icon"><i class="fas fa-heart"></i></span><span>lucky</span></div><div><a href="https://github.com/luckylsx/" rel="noopener" target="_blank">Github Pages</a></div></div></footer><div class="loading-bar" id="loading-bar"><div class="loading-bar__progress"></div></div><div class="back2top" id="back2top"><span class="back2top__icon"><i class="fas fa-rocket"></i></span></div></div><div class="search-mask"></div><div class="search-popup"><span class="search-close"></span><div class="search-input"><input placeholder="Search for Posts (Support multiple keywords)"><div class="search-btns">Search by:<span class="search-btns-item search-btns-item--google"><i class="fab fa-google"></i>Google</span><span class="search-btns-item search-btns-item--bing"><i></i>Bing</span><span class="search-btns-item search-btns-item--baidu"><i></i>Baidu</span></div></div><div class="search-results"></div></div><script src="https://cdn.jsdelivr.net/npm/jquery@v3.4.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.ui.min.js"></script><script>function initSearch() {
   var isXML = true;
   var search_path = 'search.json';
 

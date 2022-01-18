@@ -1,0 +1,596 @@
+<!DOCTYPE html><html lang="en.yml"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="format-detection" content="telephone=no"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black"><link rel="icon" href="/images/icons/favicon-16x16.png?v=2.6.2" type="image/png" sizes="16x16"><link rel="icon" href="/images/icons/favicon-32x32.png?v=2.6.2" type="image/png" sizes="32x32"><meta name="description" content="正则表达式的作用？        匹配有规律的东西，手机号，身份证号码，匹配日志。 regular expression(RE) 使用一些符号表达重复出现，大小写，开头&#x2F;结尾含义                      使用场景          - -    正则表达式 linux 三剑客使用，开发语言（python,golang…）   应用场景 过滤">
+<meta property="og:type" content="article">
+<meta property="og:title" content="三剑客-正则表达式">
+<meta property="og:url" content="http://example.com/2021/12/11/%E4%B8%89%E5%89%91%E5%AE%A2-%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/index.html">
+<meta property="og:site_name" content="Study hard, Work Hard">
+<meta property="og:description" content="正则表达式的作用？        匹配有规律的东西，手机号，身份证号码，匹配日志。 regular expression(RE) 使用一些符号表达重复出现，大小写，开头&#x2F;结尾含义                      使用场景          - -    正则表达式 linux 三剑客使用，开发语言（python,golang…）   应用场景 过滤">
+<meta property="og:locale">
+<meta property="article:published_time" content="2021-12-10T16:00:00.000Z">
+<meta property="article:modified_time" content="2021-12-11T06:10:37.673Z">
+<meta property="article:author" content="lucky">
+<meta property="article:tag" content="grep">
+<meta property="article:tag" content="正则">
+<meta name="twitter:card" content="summary"><title>三剑客-正则表达式 | Study hard, Work Hard</title><link ref="canonical" href="http://example.com/2021/12/11/%E4%B8%89%E5%89%91%E5%AE%A2-%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.12.1/css/all.min.css" type="text/css"><link rel="stylesheet" href="/css/index.css?v=2.6.2"><script>var Stun = window.Stun || {};
+var CONFIG = {
+  root: '/',
+  algolia: undefined,
+  assistSearch: ["google","bing","baidu"],
+  fontIcon: {"prompt":{"success":"fas fa-check-circle","info":"fas fa-arrow-circle-right","warning":"fas fa-exclamation-circle","error":"fas fa-times-circle"},"copyBtn":"fas fa-copy"},
+  sidebar: {"offsetTop":"20px","tocMaxDepth":6},
+  header: {"enable":true,"showOnPost":true,"scrollDownIcon":false},
+  postWidget: {"endText":true},
+  nightMode: {"enable":true},
+  back2top: {"enable":true},
+  codeblock: {"style":"default","highlight":"light","wordWrap":false},
+  reward: false,
+  fancybox: false,
+  zoomImage: {"gapAside":"20px"},
+  galleryWaterfall: undefined,
+  lazyload: false,
+  pjax: undefined,
+  externalLink: {"icon":{"enable":true,"name":"fas fa-external-link-alt"}},
+  shortcuts: undefined,
+  prompt: {"copyButton":"Copy","copySuccess":"Copy Success","copyError":"Copy Error"},
+  sourcePath: {"js":"js","css":"css","images":"images"},
+};
+
+window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 5.3.0"></head><body><div class="container" id="container"><header class="header" id="header"><div class="header-inner"><nav class="header-nav header-nav--fixed"><div class="header-nav-inner"><div class="header-nav-menubtn"><i class="fas fa-bars"></i></div><div class="header-nav-menu"><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/"><span class="header-nav-menu-item__icon"><i class="fas fa-home"></i></span><span class="header-nav-menu-item__text">Home</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/archives/"><span class="header-nav-menu-item__icon"><i class="fas fa-folder-open"></i></span><span class="header-nav-menu-item__text">Archives</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/categories/"><span class="header-nav-menu-item__icon"><i class="fas fa-layer-group"></i></span><span class="header-nav-menu-item__text">Categories</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/tags/"><span class="header-nav-menu-item__icon"><i class="fas fa-tags"></i></span><span class="header-nav-menu-item__text">Tags</span></a></div></div><div class="header-nav-search"><span class="header-nav-search__icon"><i class="fas fa-search"></i></span><span class="header-nav-search__text">Search</span></div><div class="header-nav-mode"><div class="mode"><div class="mode-track"><span class="mode-track-moon"></span><span class="mode-track-sun"></span></div><div class="mode-thumb"></div></div></div></div></nav><div class="header-banner"><div class="header-banner-info"><div class="header-banner-info__title">Study hard, Work Hard</div><div class="header-banner-info__subtitle">If you don't want to wasted life in the world, that is about to study for a lifetime.</div></div></div></div></header><main class="main" id="main"><div class="main-inner"><div class="content-wrap" id="content-wrap"><div class="content" id="content"><!-- Just used to judge whether it is an article page--><div id="is-post"></div><div class="post"><header class="post-header"><h1 class="post-title">三剑客-正则表达式</h1><div class="post-meta"><span class="post-meta-item post-meta-item--createtime"><span class="post-meta-item__icon"><i class="far fa-calendar-plus"></i></span><span class="post-meta-item__info">Created</span><span class="post-meta-item__value">2021-12-11</span></span><span class="post-meta-item post-meta-item--updatetime"><span class="post-meta-item__icon"><i class="far fa-calendar-check"></i></span><span class="post-meta-item__info">Updated</span><span class="post-meta-item__value">2021-12-11</span></span></div></header><div class="post-body">
+        <h2 id="正则表达式的作用？"   >
+          <a href="#正则表达式的作用？" class="heading-link"><i class="fas fa-link"></i></a><a href="#正则表达式的作用？" class="headerlink" title="正则表达式的作用？"></a>正则表达式的作用？</h2>
+      <ul>
+<li>匹配有规律的东西，手机号，身份证号码，匹配日志。</li>
+<li>regular expression(RE)</li>
+<li>使用一些符号表达重复出现，大小写，开头/结尾含义</li>
+</ul>
+
+        <h2 id="使用场景"   >
+          <a href="#使用场景" class="heading-link"><i class="fas fa-link"></i></a><a href="#使用场景" class="headerlink" title="使用场景"></a>使用场景</h2>
+      <div class="table-container"><table>
+<thead>
+<tr>
+<th>-</th>
+<th>-</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>正则表达式</td>
+<td>linux 三剑客使用，开发语言（python,golang…）</td>
+</tr>
+<tr>
+<td>应用场景</td>
+<td>过滤有规律的内容，尤其是日志</td>
+</tr>
+</tbody></table></div>
+
+        <h2 id="注释事项"   >
+          <a href="#注释事项" class="heading-link"><i class="fas fa-link"></i></a><a href="#注释事项" class="headerlink" title="注释事项"></a>注释事项</h2>
+      <ul>
+<li>所有的符号都是英文符号</li>
+<li>学习正则，通过grep命令学习， grep加上单引号</li>
+<li>给grep 和 rgrep 加上颜色 alias grep = <code>grep --color=auto</code> alias egrep = <code>egrep --color=auto</code></li>
+<li>注意系统的字符集：en_US.UTF-8(大部分情况没有问题)，如果出现问题，将字符集改为C, export LANG=C.</li>
+<li>快速掌握正则： 配合 grep -o 参数学些。</li>
+</ul>
+
+        <h2 id="正则符号"   >
+          <a href="#正则符号" class="heading-link"><i class="fas fa-link"></i></a><a href="#正则符号" class="headerlink" title="正则符号"></a>正则符号</h2>
+      <div class="table-container"><table>
+<thead>
+<tr>
+<th>分类</th>
+<th>描述符</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>基础正则</td>
+<td>^ $ ^$ . .* [a-z] [^abc]</td>
+</tr>
+<tr>
+<td>扩展正则</td>
+<td>+</td>
+</tr>
+</tbody></table></div>
+
+        <h2 id="正则-VS-通配符"   >
+          <a href="#正则-VS-通配符" class="heading-link"><i class="fas fa-link"></i></a><a href="#正则-VS-通配符" class="headerlink" title="正则 VS 通配符"></a>正则 VS 通配符</h2>
+      <div class="table-container"><table>
+<thead>
+<tr>
+<th>分类</th>
+<th>通配符（用途）</th>
+<th>支持的命令</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>正则</td>
+<td>三剑客，高级语言，进行过滤(匹配字符)</td>
+<td>三剑客<font color="red">grep,awk,sed</font>,find,rname(ubuntu),expr</td>
+</tr>
+<tr>
+<td>通配符(pathname extension 或 glob)</td>
+<td>匹配文件（文件名） *.txt *.log</td>
+<td>linux 命令下大部分都支持</td>
+</tr>
+</tbody></table></div>
+
+        <h2 id="基础正则"   >
+          <a href="#基础正则" class="heading-link"><i class="fas fa-link"></i></a><a href="#基础正则" class="headerlink" title="基础正则"></a>基础正则</h2>
+      <div class="table-container"><table>
+<thead>
+<tr>
+<th>基础正则</th>
+<th>含义</th>
+<th>搭配</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>^</td>
+<td>以…开头</td>
+<td>-</td>
+</tr>
+<tr>
+<td>$</td>
+<td>以…结尾</td>
+<td>-</td>
+</tr>
+<tr>
+<td>^$</td>
+<td>空行 ｜ ^$</td>
+<td></td>
+</tr>
+<tr>
+<td>.</td>
+<td>任意一个字符 ｜ -</td>
+<td></td>
+</tr>
+<tr>
+<td>*</td>
+<td>前一个字符连续出现0次或多次 ｜ -</td>
+<td></td>
+</tr>
+<tr>
+<td>\</td>
+<td>转义字符 \n,\t ｜ 搭配 *</td>
+<td></td>
+</tr>
+<tr>
+<td>[]</td>
+<td>一个整体，[abc]匹配任意一个a,b,c｜ -</td>
+<td></td>
+</tr>
+<tr>
+<td>[^]</td>
+<td>取反排除， [^abc] 非a,b,c ｜ 搭配 +</td>
+<td></td>
+</tr>
+</tbody></table></div>
+<figure class="highlight txt"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">My fellow citizens:</span><br><span class="line"></span><br><span class="line">I stand here today humbled by the task before us,</span><br><span class="line"></span><br><span class="line">grateful for the trust you have bestowed</span><br><span class="line"></span><br><span class="line">mindful of the sacrifices borne by our ancestors.</span><br><span class="line"></span><br><span class="line">I thank President Bush for his service to our nation, as well as the generosity and cooperation he has shown throughout this transition.</span><br><span class="line"></span><br><span class="line">Forty-four Americans have now taken the presidential oath.</span><br><span class="line"></span><br><span class="line">The words have been spoken during rising tides of prosperity and the still waters of peace.</span><br><span class="line"></span><br><span class="line">Yet, every so often the oath is taken amidst gathering clouds and raging storms. At these moments, America has carried on not simply because of the skill or vision of those in high office, but because We the People have remained faithful to the ideals of our forbearers, and true to our founding documents.</span><br><span class="line"></span><br><span class="line">So it has been. So it must be with this generation of Americans.</span><br><span class="line">180000091212</span><br></pre></td></tr></table></div></figure>
+
+        <h3 id="1-以…开头的行"   >
+          <a href="#1-以…开头的行" class="heading-link"><i class="fas fa-link"></i></a><a href="#1-以…开头的行" class="headerlink" title="1. ^ 以…开头的行"></a>1. ^ 以…开头的行</h3>
+      <ul>
+<li>^grate 以grate 开头的行</li>
+</ul>
+<figure class="highlight shell"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">➜  data grep &#x27;^grate&#x27; obama.txt</span><br><span class="line">grateful for the trust you have bestowed</span><br></pre></td></tr></table></div></figure>
+
+        <h3 id="2-以…结尾的行"   >
+          <a href="#2-以…结尾的行" class="heading-link"><i class="fas fa-link"></i></a><a href="#2-以…结尾的行" class="headerlink" title="2. $ 以…结尾的行"></a>2. $ 以…结尾的行</h3>
+      <ul>
+<li><p>bestowed$ 以bestowed结尾的行</p>
+<figure class="highlight plain"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">data grep &#39;bestowed$&#39; obama.txt</span><br><span class="line">grateful for the trust you have bestowed</span><br></pre></td></tr></table></div></figure></li>
+<li><p>当未匹配到内容时，可使用 cat -A 查看隐藏内容 ，mac下使用 cat -e</p>
+<figure class="highlight txt"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">➜  data cat -e obama.txt</span><br><span class="line">My fellow citizens:$</span><br><span class="line">$</span><br><span class="line">I stand here today humbled by the task before us, $</span><br><span class="line">$</span><br><span class="line">grateful for the trust you have bestowed$</span><br><span class="line">$</span><br><span class="line">mindful of the sacrifices borne by our ancestors. $</span><br><span class="line">$</span><br><span class="line">I thank President Bush for his service to our nation, as well as the generosity and cooperation he has shown throughout this transition.$</span><br><span class="line">$</span><br><span class="line">Forty-four Americans have now taken the presidential oath. $</span><br><span class="line">$</span><br><span class="line">The words have been spoken during rising tides of prosperity and the still waters of peace.$</span><br><span class="line">$</span><br><span class="line"> Yet, every so often the oath is taken amidst gathering clouds and raging storms. At these moments, America has carried on not simply because of the skill or vision of those in high office, but because We the People have remained faithful to the ideals of our forbearers, and true to our founding documents.$</span><br><span class="line">$</span><br><span class="line">So it has been. So it must be with this generation of Americans.$</span><br></pre></td></tr></table></div></figure>
+
+
+        <h3 id="3-“-”-任意一个字符"   >
+          <a href="#3-“-”-任意一个字符" class="heading-link"><i class="fas fa-link"></i></a><a href="#3-“-”-任意一个字符" class="headerlink" title="3. “.” 任意一个字符"></a>3. “.” 任意一个字符</h3>
+      </li>
+<li><p>注意 . 不匹配空行</p>
+</li>
+</ul>
+<figure class="highlight plain"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">➜  data grep . obama.txt</span><br><span class="line">My fellow citizens:</span><br><span class="line">I stand here today humbled by the task before us,</span><br><span class="line">grateful for the trust you have bestowed</span><br><span class="line">mindful of the sacrifices borne by our ancestors.</span><br><span class="line">I thank President Bush for his service to our nation, as well as the generosity and cooperation he has shown throughout this transition.</span><br><span class="line">Forty-four Americans have now taken the presidential oath.</span><br><span class="line">The words have been spoken during rising tides of prosperity and the still waters of peace.</span><br><span class="line"> Yet, every so often the oath is taken amidst gathering clouds and raging storms. At these moments, America has carried on not simply because of the skill or vision of those in high office, but because We the People have remained faithful to the ideals of our forbearers, and true to our founding documents.</span><br><span class="line">So it has been. So it must be with this generation of Americans.</span><br></pre></td></tr></table></div></figure>
+
+        <h3 id="4-匹配出文件中以-结尾的行"   >
+          <a href="#4-匹配出文件中以-结尾的行" class="heading-link"><i class="fas fa-link"></i></a><a href="#4-匹配出文件中以-结尾的行" class="headerlink" title="4. 匹配出文件中以.结尾的行"></a>4. 匹配出文件中以.结尾的行</h3>
+      <ul>
+<li><p>坑： grep ‘.$’ obama.txt 匹配任意结尾的行（非空行）</p>
+</li>
+<li><p>grep ‘.$’ obama.txt 【需使用转义字符】</p>
+<figure class="highlight plain"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">➜  data grep &#39;\.$&#39; obama.txt</span><br><span class="line">I thank President Bush for his service to our nation, as well as the generosity and cooperation he has shown throughout this transition.</span><br><span class="line">The words have been spoken during rising tides of prosperity and the still waters of peace.</span><br><span class="line"> Yet, every so often the oath is taken amidst gathering clouds and raging storms. At these moments, America has carried on not simply because of the skill or vision of those in high office, but because We the People have remained faithful to the ideals of our forbearers, and true to our founding documents.</span><br><span class="line">So it has been. So it must be with this generation of Americans.</span><br></pre></td></tr></table></div></figure>
+
+        <h3 id="6-转义字符"   >
+          <a href="#6-转义字符" class="heading-link"><i class="fas fa-link"></i></a><a href="#6-转义字符" class="headerlink" title="6. 转义字符"></a>6. 转义字符</h3>
+      </li>
+<li><p>\n 换行</p>
+</li>
+<li><p>\t tab</p>
+</li>
+</ul>
+
+        <h3 id="7-匹配0次或多次"   >
+          <a href="#7-匹配0次或多次" class="heading-link"><i class="fas fa-link"></i></a><a href="#7-匹配0次或多次" class="headerlink" title="7. * 匹配0次或多次"></a>7. * 匹配0次或多次</h3>
+      <figure class="highlight plain"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">➜  data grep &#39;180*&#39; obama.txt</span><br><span class="line">180000091212</span><br></pre></td></tr></table></div></figure>
+
+        <h3 id="8-任意内容，所有内容"   >
+          <a href="#8-任意内容，所有内容" class="heading-link"><i class="fas fa-link"></i></a><a href="#8-任意内容，所有内容" class="headerlink" title="8. .* 任意内容，所有内容"></a>8. .* 任意内容，所有内容</h3>
+      <figure class="highlight plain"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">➜  data grep &#39;.*&#39; obama.txt</span><br><span class="line">My fellow citizens:</span><br><span class="line"></span><br><span class="line">I stand here today humbled by the task before us,</span><br><span class="line"></span><br><span class="line">grateful for the trust you have bestowed</span><br><span class="line">mindful of the sacrifices borne by our ancestors.</span><br><span class="line"></span><br><span class="line">I thank President Bush for his service to our nation, as well as the generosity and cooperation he has shown throughout this transition.</span><br><span class="line"></span><br><span class="line">Forty-four Americans have now taken the presidential oath.</span><br><span class="line"></span><br><span class="line">The words have been spoken during rising tides of prosperity and the still waters of peace.</span><br><span class="line"></span><br><span class="line"> Yet, every so often the oath is taken amidst gathering clouds and raging storms. At these moments, America has carried on not simply because of the skill or vision of those in high office, but because We the People have remained faithful to the ideals of our forbearers, and true to our founding documents.</span><br><span class="line"></span><br><span class="line">So it has been. So it must be with this generation of Americans.</span><br><span class="line"></span><br><span class="line">180000091212</span><br></pre></td></tr></table></div></figure>
+
+        <h3 id="9-匹配-以I开头t结尾内容"   >
+          <a href="#9-匹配-以I开头t结尾内容" class="heading-link"><i class="fas fa-link"></i></a><a href="#9-匹配-以I开头t结尾内容" class="headerlink" title="9. 匹配 以I开头t结尾内容"></a>9. 匹配 以I开头t结尾内容</h3>
+      <figure class="highlight plain"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">➜  data grep &#39;I.*t&#39; obama.txt</span><br><span class="line">I stand here today humbled by the task before us,</span><br><span class="line">I thank President Bush for his service to our nation, as well as the generosity and cooperation he has shown throughout this transition.</span><br></pre></td></tr></table></div></figure>
+
+        <h3 id="10-连续出现时，默认贪婪匹配"   >
+          <a href="#10-连续出现时，默认贪婪匹配" class="heading-link"><i class="fas fa-link"></i></a><a href="#10-连续出现时，默认贪婪匹配" class="headerlink" title="10. 连续出现时，默认贪婪匹配"></a>10. 连续出现时，默认贪婪匹配</h3>
+      <ul>
+<li>-E, –extended-regexp</li>
+<li>? 非贪婪匹配</li>
+</ul>
+<figure class="highlight plain"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">➜  data grep -E &#39;I.*?t&#39; obama.txt</span><br><span class="line">I stand here today humbled by the task before us,</span><br><span class="line">I thank President Bush for his service to our nation, as well as the generosity and cooperation he has shown throughout this transition.</span><br></pre></td></tr></table></div></figure>
+
+        <h2 id="11-正则多匹配情况：e"   >
+          <a href="#11-正则多匹配情况：e" class="heading-link"><i class="fas fa-link"></i></a><a href="#11-正则多匹配情况：e" class="headerlink" title="11. 正则多匹配情况：e*"></a>11. 正则多匹配情况：e*</h2>
+      <ul>
+<li>e* e 出现 0次或多次，也可匹配0次，即未出现的情况</li>
+</ul>
+<figure class="highlight plain"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">➜  data grep &#39;e*&#39; obama.txt</span><br><span class="line">My fellow citizens:</span><br><span class="line"></span><br><span class="line">I stand here today humbled by the task before us,</span><br><span class="line"></span><br><span class="line">grateful for the trust you have bestowed</span><br><span class="line">mindful of the sacrifices borne by our ancestors.</span><br><span class="line"></span><br><span class="line">I thank President Bush for his service to our nation, as well as the generosity and cooperation he has shown throughout this transition.</span><br><span class="line"></span><br><span class="line">Forty-four Americans have now taken the presidential oath.</span><br><span class="line"></span><br><span class="line">The words have been spoken during rising tides of prosperity and the still waters of peace.</span><br><span class="line"></span><br><span class="line"> Yet, every so often the oath is taken amidst gathering clouds and raging storms. At these moments, America has carried on not simply because of the skill or vision of those in high office, but because We the People have remained faithful to the ideals of our forbearers, and true to our founding documents.</span><br><span class="line"></span><br><span class="line">So it has been. So it must be with this generation of Americans.</span><br><span class="line"></span><br><span class="line">180000091212</span><br></pre></td></tr></table></div></figure>
+
+        <h3 id="12-abc-匹配任意一个字符a或b或c"   >
+          <a href="#12-abc-匹配任意一个字符a或b或c" class="heading-link"><i class="fas fa-link"></i></a><a href="#12-abc-匹配任意一个字符a或b或c" class="headerlink" title="12. [] [abc]匹配任意一个字符a或b或c"></a>12. [] [abc]匹配任意一个字符a或b或c</h3>
+      <ul>
+<li>[a-z] A~Z</li>
+<li>[A-Z] A~Z</li>
+<li>[0-9] 0~9</li>
+<li>[a-Z] a ~ Z</li>
+<li>[a-z|0-9] 匹配a-z,|,0-9</li>
+<li>-i 不去分大小写<figure class="highlight plain"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">➜  data grep &#39;[abc]&#39; obama.txt</span><br><span class="line">My fellow citizens:</span><br><span class="line">I stand here today humbled by the task before us,</span><br><span class="line">grateful for the trust you have bestowed</span><br><span class="line">mindful of the sacrifices borne by our ancestors.</span><br><span class="line">I thank President Bush for his service to our nation, as well as the generosity and cooperation he has shown throughout this transition.</span><br><span class="line">Forty-four Americans have now taken the presidential oath.</span><br><span class="line">The words have been spoken during rising tides of prosperity and the still waters of peace.</span><br><span class="line"> Yet, every so often the oath is taken amidst gathering clouds and raging storms. At these moments, America has carried on not simply because of the skill or vision of those in high office, but because We the People have remained faithful to the ideals of our forbearers, and true to our founding documents.</span><br><span class="line">So it has been. So it must be with this generation of Americans.</span><br></pre></td></tr></table></div></figure>
+
+        <h3 id="13-abc-排除a-b-c以外的内容"   >
+          <a href="#13-abc-排除a-b-c以外的内容" class="heading-link"><i class="fas fa-link"></i></a><a href="#13-abc-排除a-b-c以外的内容" class="headerlink" title="13. [^] [^abc] 排除a,b,c以外的内容"></a>13. [^] [^abc] 排除a,b,c以外的内容</h3>
+      </li>
+</ul>
+<figure class="highlight plain"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">grep [^abc] obama.txt</span><br></pre></td></tr></table></div></figure>
+
+        <h2 id="扩展正则"   >
+          <a href="#扩展正则" class="heading-link"><i class="fas fa-link"></i></a><a href="#扩展正则" class="headerlink" title="扩展正则"></a>扩展正则</h2>
+      <p>+，｜,(), {}, ?</p>
+<ul>
+<li>grep -E </li>
+<li>egrep </li>
+</ul>
+
+        <h3 id="1-匹配1次或1次以上"   >
+          <a href="#1-匹配1次或1次以上" class="heading-link"><i class="fas fa-link"></i></a><a href="#1-匹配1次或1次以上" class="headerlink" title="1. +匹配1次或1次以上"></a>1. +匹配1次或1次以上</h3>
+      <figure class="highlight plain"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">➜  data grep -E &#39;0+&#39; obama.txt</span><br><span class="line">180000091212</span><br><span class="line">➜  data egrep &#39;0+&#39; obama.txt</span><br><span class="line">180000091212</span><br></pre></td></tr></table></div></figure>
+
+        <h3 id="2-只显示匹配的内容"   >
+          <a href="#2-只显示匹配的内容" class="heading-link"><i class="fas fa-link"></i></a><a href="#2-只显示匹配的内容" class="headerlink" title="2. 只显示匹配的内容"></a>2. 只显示匹配的内容</h3>
+      <ul>
+<li>-o 选项</li>
+</ul>
+<figure class="highlight plain"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">➜  data egrep &#39;Americans&#39; obama.txt</span><br><span class="line">Forty-four Americans have now taken the presidential oath.</span><br><span class="line">So it has been. So it must be with this generation of Americans.</span><br><span class="line">➜  data egrep -o &#39;Americans&#39; obama.txt</span><br><span class="line">Americans</span><br><span class="line">Americans</span><br></pre></td></tr></table></div></figure>
+
+        <h3 id="3-｜-匹配或内容"   >
+          <a href="#3-｜-匹配或内容" class="heading-link"><i class="fas fa-link"></i></a><a href="#3-｜-匹配或内容" class="headerlink" title="3. ｜ 匹配或内容"></a>3. ｜ 匹配或内容</h3>
+      <ul>
+<li>hello|world 匹配hello 或 world</li>
+</ul>
+<figure class="highlight plain"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">➜  data egrep &#39;stand|grateful&#39; obama.txt</span><br><span class="line">I stand here today humbled by the task before us,</span><br><span class="line">grateful for the trust you have bestowed</span><br></pre></td></tr></table></div></figure>
+
+        <h3 id="4-与｜"   >
+          <a href="#4-与｜" class="heading-link"><i class="fas fa-link"></i></a><a href="#4-与｜" class="headerlink" title="4. []与｜"></a>4. []与｜</h3>
+      <div class="table-container"><table>
+<thead>
+<tr>
+<th>符号</th>
+<th>含义</th>
+<th>应用场景</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>[]</td>
+<td>一次匹配一个字符[world] ｜匹配单个字符 [] 和 []+</td>
+<td></td>
+</tr>
+<tr>
+<td>|</td>
+<td>匹配一个或多个 a</td>
+<td>b hello</td>
+</tr>
+</tbody></table></div>
+</div><footer class="post-footer"><div class="post-ending ending"><div class="ending__text">------ END ------</div></div><div class="post-tags"><span class="post-tags-item"><span class="post-tags-item__icon"><i class="fas fa-tag"></i></span><a class="post-tags-item__link" href="http://example.com/tags/grep/">grep</a></span><span class="post-tags-item"><span class="post-tags-item__icon"><i class="fas fa-tag"></i></span><a class="post-tags-item__link" href="http://example.com/tags/%E6%AD%A3%E5%88%99/">正则</a></span></div><nav class="post-paginator paginator"><div class="paginator-prev"><a class="paginator-prev__link" href="/2022/01/18/%E5%9C%A8%20Go%20%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E6%9E%9A%E4%B8%BE%EF%BC%9F/"><span class="paginator-prev__icon"><i class="fas fa-angle-left"></i></span><span class="paginator-prev__text">在 Go 如何实现枚举？</span></a></div><div class="paginator-next"><a class="paginator-next__link" href="/2021/09/21/golang%E5%AE%9E%E7%8E%B0%E5%8E%9F%E5%AD%90%E6%93%8D%E4%BD%9C%E7%9A%84%E5%87%A0%E7%A7%8D%E6%96%B9%E5%BC%8F/"><span class="paginator-prev__text">golang实现原子操作的几种方式</span><span class="paginator-next__icon"><i class="fas fa-angle-right"></i></span></a></div></nav></footer></div></div></div><div class="sidebar-wrap" id="sidebar-wrap"><aside class="sidebar" id="sidebar"><div class="sidebar-nav"><span class="sidebar-nav-toc current">Catalog</span><span class="sidebar-nav-ov">Overview</span></div><section class="sidebar-toc"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F%E7%9A%84%E4%BD%9C%E7%94%A8%EF%BC%9F"><span class="toc-number">1.</span> <span class="toc-text">
+          正则表达式的作用？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="toc-number">2.</span> <span class="toc-text">
+          使用场景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%B3%A8%E9%87%8A%E4%BA%8B%E9%A1%B9"><span class="toc-number">3.</span> <span class="toc-text">
+          注释事项</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%AD%A3%E5%88%99%E7%AC%A6%E5%8F%B7"><span class="toc-number">4.</span> <span class="toc-text">
+          正则符号</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%AD%A3%E5%88%99-VS-%E9%80%9A%E9%85%8D%E7%AC%A6"><span class="toc-number">5.</span> <span class="toc-text">
+          正则 VS 通配符</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9F%BA%E7%A1%80%E6%AD%A3%E5%88%99"><span class="toc-number">6.</span> <span class="toc-text">
+          基础正则</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E4%BB%A5%E2%80%A6%E5%BC%80%E5%A4%B4%E7%9A%84%E8%A1%8C"><span class="toc-number">6.1.</span> <span class="toc-text">
+          1. ^ 以…开头的行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E4%BB%A5%E2%80%A6%E7%BB%93%E5%B0%BE%E7%9A%84%E8%A1%8C"><span class="toc-number">6.2.</span> <span class="toc-text">
+          2. $ 以…结尾的行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E2%80%9C-%E2%80%9D-%E4%BB%BB%E6%84%8F%E4%B8%80%E4%B8%AA%E5%AD%97%E7%AC%A6"><span class="toc-number">6.3.</span> <span class="toc-text">
+          3. “.” 任意一个字符</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E5%8C%B9%E9%85%8D%E5%87%BA%E6%96%87%E4%BB%B6%E4%B8%AD%E4%BB%A5-%E7%BB%93%E5%B0%BE%E7%9A%84%E8%A1%8C"><span class="toc-number">6.4.</span> <span class="toc-text">
+          4. 匹配出文件中以.结尾的行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E8%BD%AC%E4%B9%89%E5%AD%97%E7%AC%A6"><span class="toc-number">6.5.</span> <span class="toc-text">
+          6. 转义字符</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-%E5%8C%B9%E9%85%8D0%E6%AC%A1%E6%88%96%E5%A4%9A%E6%AC%A1"><span class="toc-number">6.6.</span> <span class="toc-text">
+          7. * 匹配0次或多次</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#8-%E4%BB%BB%E6%84%8F%E5%86%85%E5%AE%B9%EF%BC%8C%E6%89%80%E6%9C%89%E5%86%85%E5%AE%B9"><span class="toc-number">6.7.</span> <span class="toc-text">
+          8. .* 任意内容，所有内容</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#9-%E5%8C%B9%E9%85%8D-%E4%BB%A5I%E5%BC%80%E5%A4%B4t%E7%BB%93%E5%B0%BE%E5%86%85%E5%AE%B9"><span class="toc-number">6.8.</span> <span class="toc-text">
+          9. 匹配 以I开头t结尾内容</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#10-%E8%BF%9E%E7%BB%AD%E5%87%BA%E7%8E%B0%E6%97%B6%EF%BC%8C%E9%BB%98%E8%AE%A4%E8%B4%AA%E5%A9%AA%E5%8C%B9%E9%85%8D"><span class="toc-number">6.9.</span> <span class="toc-text">
+          10. 连续出现时，默认贪婪匹配</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#11-%E6%AD%A3%E5%88%99%E5%A4%9A%E5%8C%B9%E9%85%8D%E6%83%85%E5%86%B5%EF%BC%9Ae"><span class="toc-number">7.</span> <span class="toc-text">
+          11. 正则多匹配情况：e*</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#12-abc-%E5%8C%B9%E9%85%8D%E4%BB%BB%E6%84%8F%E4%B8%80%E4%B8%AA%E5%AD%97%E7%AC%A6a%E6%88%96b%E6%88%96c"><span class="toc-number">7.1.</span> <span class="toc-text">
+          12. [] [abc]匹配任意一个字符a或b或c</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#13-abc-%E6%8E%92%E9%99%A4a-b-c%E4%BB%A5%E5%A4%96%E7%9A%84%E5%86%85%E5%AE%B9"><span class="toc-number">7.2.</span> <span class="toc-text">
+          13. [^] [^abc] 排除a,b,c以外的内容</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%89%A9%E5%B1%95%E6%AD%A3%E5%88%99"><span class="toc-number">8.</span> <span class="toc-text">
+          扩展正则</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%8C%B9%E9%85%8D1%E6%AC%A1%E6%88%961%E6%AC%A1%E4%BB%A5%E4%B8%8A"><span class="toc-number">8.1.</span> <span class="toc-text">
+          1. +匹配1次或1次以上</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%8F%AA%E6%98%BE%E7%A4%BA%E5%8C%B9%E9%85%8D%E7%9A%84%E5%86%85%E5%AE%B9"><span class="toc-number">8.2.</span> <span class="toc-text">
+          2. 只显示匹配的内容</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%EF%BD%9C-%E5%8C%B9%E9%85%8D%E6%88%96%E5%86%85%E5%AE%B9"><span class="toc-number">8.3.</span> <span class="toc-text">
+          3. ｜ 匹配或内容</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E4%B8%8E%EF%BD%9C"><span class="toc-number">8.4.</span> <span class="toc-text">
+          4. []与｜</span></a></li></ol></li></ol></section><!-- ov = overview--><section class="sidebar-ov hide"><div class="sidebar-ov-author"><div class="sidebar-ov-author__avatar"><img class="sidebar-ov-author__avatar_img" src="/images/icons/stun-logo.svg" alt="avatar"></div><p class="sidebar-ov-author__text">hello world</p></div><div class="sidebar-ov-state"><a class="sidebar-ov-state-item sidebar-ov-state-item--posts" href="/archives/"><div class="sidebar-ov-state-item__count">35</div><div class="sidebar-ov-state-item__name">Archives</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--categories" href="/categories/"><div class="sidebar-ov-state-item__count">13</div><div class="sidebar-ov-state-item__name">Categories</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--tags" href="/tags/"><div class="sidebar-ov-state-item__count">25</div><div class="sidebar-ov-state-item__name">Tags</div></a></div></section><div class="sidebar-reading"><div class="sidebar-reading-info"><span class="sidebar-reading-info__text">You have read </span><span class="sidebar-reading-info__num">0</span><span class="sidebar-reading-info__perc">%</span></div><div class="sidebar-reading-line"></div></div></aside></div><div class="clearfix"></div></div></main><footer class="footer" id="footer"><div class="footer-inner"><div><span>Copyright © 2022</span><span class="footer__icon"><i class="fas fa-heart"></i></span><span>lucky</span></div><div><a href="https://github.com/luckylsx/" rel="noopener" target="_blank">Github Pages</a></div></div></footer><div class="loading-bar" id="loading-bar"><div class="loading-bar__progress"></div></div><div class="back2top" id="back2top"><span class="back2top__icon"><i class="fas fa-rocket"></i></span></div></div><div class="search-mask"></div><div class="search-popup"><span class="search-close"></span><div class="search-input"><input placeholder="Search for Posts (Support multiple keywords)"><div class="search-btns">Search by:<span class="search-btns-item search-btns-item--google"><i class="fab fa-google"></i>Google</span><span class="search-btns-item search-btns-item--bing"><i></i>Bing</span><span class="search-btns-item search-btns-item--baidu"><i></i>Baidu</span></div></div><div class="search-results"></div></div><script src="https://cdn.jsdelivr.net/npm/jquery@v3.4.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.ui.min.js"></script><script>function initSearch() {
+  var isXML = true;
+  var search_path = 'search.json';
+
+  if (!search_path) {
+    search_path = 'search.xml';
+  } else if (/json$/i.test(search_path)) {
+    isXML = false;
+  }
+
+  var path = '/' + search_path;
+  $.ajax({
+    url: path,
+    dataType: isXML ? 'xml' : 'json',
+    async: true,
+    success: function (res) {
+      var datas = isXML ? $('entry', res).map(function () {
+        // 将 XML 转为 JSON
+        return {
+          title: $('title', this).text(),
+          content: $('content', this).text(),
+          url: $('url', this).text()
+        };
+      }).get() : res;
+      var $input = $('.search-input input');
+      var $result = $('.search-results');
+      // 搜索对象（标题、内容）的权重，影响显示顺序
+      var WEIGHT = { title: 100, content: 1 };
+      var searchPost = function () {
+        var searchText = $input.val().toLowerCase().trim();
+        // 根据空白字符分隔关键字
+        var keywords = searchText.split(/[\s]+/);
+        // 搜索结果
+        var matchPosts = [];
+
+        // 有多个关键字时，将原文字整个保存下来
+        if (keywords.length > 1) {
+          keywords.push(searchText);
+        }
+        // 防止未输入字符时搜索
+        if (searchText.length > 0) {
+          datas.forEach(function (data) {
+            var isMatch  = false;
+            // 没有标题的文章使用预设的 i18n 变量代替
+            var title = (data.title && data.title.trim()) || '[ Untitled ]';
+            var titleLower = title && title.toLowerCase();
+            // 删除 HTML 标签 和 所有空白字符
+            var content = data.content && data.content.replace(/<[^>]+>/g, '');
+            var contentLower = content && content.toLowerCase();
+            // 删除重复的 /
+            var postURL = data.url && decodeURI(data.url).replace(/\/{2,}/g, '/');
+            // 标题中匹配到的关键词
+            var titleHitSlice = [];
+            // 内容中匹配到的关键词
+            var contentHitSlice = [];
+
+            keywords.forEach(function (keyword) {
+              /**
+              * 获取匹配的关键词的索引
+              * @param {String} keyword 要匹配的关键字
+              * @param {String} text 原文字
+              * @param {Boolean} caseSensitive 是否区分大小写
+              * @param {Number} weight 匹配对象的权重。权重大的优先显示
+              * @return {Array}
+              */
+              function getIndexByword (word, text, caseSensitive, weight) {
+                if (!word || !text) {
+                  return [];
+                };
+
+                var startIndex = 0; // 每次匹配的开始索引
+                var index = -1;     // 匹配到的索引值
+                var result = [];    // 匹配结果
+
+                if (!caseSensitive) {
+                  word = word.toLowerCase();
+                  text = text.toLowerCase();
+                }
+
+                while((index = text.indexOf(word, startIndex)) !== -1) {
+                  var hasMatch = false;
+                  // 索引位置相同的关键词，保留长度较长的
+                  titleHitSlice.forEach(function (hit) {
+                    if (hit.index === index && hit.word.length < word.length) {
+                      hit.word = word;
+                      hasMatch = true;
+                    }
+                  });
+                  startIndex = index + word.length;
+                  !hasMatch && result.push({ index: index, word: word, weight: weight });
+                }
+                return result;
+              }
+              titleHitSlice = titleHitSlice.concat(getIndexByword(keyword, titleLower, false, WEIGHT.title));
+              contentHitSlice = contentHitSlice.concat(getIndexByword(keyword, contentLower, false, WEIGHT.content));
+            });
+
+            var hitTitle = titleHitSlice.length;
+            var hitContent = contentHitSlice.length;
+
+            if (hitTitle > 0 || hitContent > 0) {
+              isMatch = true;
+            }
+            if (isMatch) {
+              ;[titleHitSlice, contentHitSlice].forEach(function (hit) {
+                // 按照匹配文字的索引的递增顺序排序
+                hit.sort(function (left, right) {
+                  return left.index - right.index;
+                });
+              });
+              /**
+              * 给文本中匹配到的关键词添加标记，从而进行高亮显示
+              * @param {String} text 原文本
+              * @param {Array} hitSlice 匹配项的索引信息
+              * @param {Number} start 开始索引
+              * @param {Number} end 结束索引
+              * @return {String}
+              */
+              function highlightKeyword (text, hitSlice, start, end) {
+                if (!text || !hitSlice || !hitSlice.length) {
+                  return;
+                }
+
+                var result = '';
+                var startIndex = start;
+                var endIndex = end;
+                hitSlice.forEach(function (hit) {
+                  if (hit.index < startIndex) {
+                    return;
+                  }
+
+                  var hitWordEnd = hit.index + hit.word.length;
+                  result += text.slice(startIndex, hit.index);
+                  result += '<b>' + text.slice(hit.index, hitWordEnd) + '</b>';
+                  startIndex = hitWordEnd;
+                });
+                result += text.slice(startIndex, endIndex);
+                return result;
+              }
+
+              var postData = {};
+              // 文章总的搜索权重
+              var postWeight = titleHitSlice.length * WEIGHT.title + contentHitSlice.length * WEIGHT.content;
+              // 标记匹配关键词后的标题
+              var postTitle = highlightKeyword(title, titleHitSlice, 0, title.length) || title;
+              // 标记匹配关键词后的内容
+              var postContent;
+              // 显示内容的长度
+              var SHOW_WORD_LENGTH = 200;
+              // 命中关键词前的字符显示长度
+              var SHOW_WORD_FRONT_LENGTH = 20;
+              var SHOW_WORD_END_LENGTH = SHOW_WORD_LENGTH - SHOW_WORD_FRONT_LENGTH;
+
+              // 截取匹配的第一个字符，前后共 200 个字符来显示
+              if (contentHitSlice.length > 0) {
+                var firstIndex = contentHitSlice[0].index;
+                var start = firstIndex > SHOW_WORD_FRONT_LENGTH ? firstIndex - SHOW_WORD_FRONT_LENGTH : 0;
+                var end = firstIndex + SHOW_WORD_END_LENGTH;
+                postContent = highlightKeyword(content, contentHitSlice, start, end);
+              } else { // 未匹配到内容，直接截取前 200 个字符来显示
+                postContent = content.slice(0, SHOW_WORD_LENGTH);
+              }
+              postData.title = postTitle;
+              postData.content = postContent;
+              postData.url = postURL;
+              postData.weight = postWeight;
+              matchPosts.push(postData);
+            }
+          });
+        }
+
+        var resultInnerHtml = '';
+        if (matchPosts.length) {
+          // 按权重递增的顺序排序，使权重大的优先显示
+          matchPosts.sort(function (left, right) {
+            return right.weight - left.weight;
+          });
+          resultInnerHtml += '<ul>';
+          matchPosts.forEach(function (post) {
+            resultInnerHtml += '<li><a class="search-results-title" href="' + post.url + '">';
+            resultInnerHtml += post.title;
+            resultInnerHtml += '</a><div class="search-results-content">';
+            resultInnerHtml += post.content;
+            resultInnerHtml += '</div></li>';
+          });
+          resultInnerHtml += '</ul>';
+        } else {
+          resultInnerHtml += '<div class="search-results-none"><i class="far fa-meh"></i></div>';
+        }
+        $result.html(resultInnerHtml);
+      };
+      $input.on('input', searchPost);
+      $input.on('keyup', function (e) {
+        if (e.keyCode === Stun.utils.codeToKeyCode('Enter')) {
+          searchPost();
+        }
+      });
+    }
+  });
+}
+
+function closeSearch () {
+  $('body').css({ overflow: 'auto' });
+  $('.search-popup').css({ display: 'none' });
+  $('.search-mask').css({ display: 'none' });
+}
+
+window.addEventListener('DOMContentLoaded', function () {
+  Stun.utils.pjaxReloadLocalSearch = function () {
+    $('.header-nav-search').on('click', function (e) {
+      e.stopPropagation();
+      $('body').css('overflow', 'hidden');
+      $('.search-popup')
+        .velocity('stop')
+        .velocity('transition.expandIn', {
+          duration: 300,
+          complete: function () {
+            $('.search-popup input').focus();
+          }
+        });
+      $('.search-mask')
+        .velocity('stop')
+        .velocity('transition.fadeIn', {
+          duration: 300
+        });
+
+      initSearch();
+    });
+    $('.search-mask, .search-close').on('click', function () {
+      closeSearch();
+    });
+    $(document).on('keydown', function (e) {
+      // Escape <=> 27
+      if (e.keyCode === Stun.utils.codeToKeyCode('Escape')) {
+        closeSearch();
+      }
+    });
+  };
+
+  Stun.utils.pjaxReloadLocalSearch();
+}, false);
+
+function safeOpenUrl(url) {
+  var newTab = window.open();
+  newTab.opener = null;
+  newTab.location = url;
+}
+
+function extSearch(engine) {
+  var engines = {
+    google: 'https://www.google.com/search?q=',
+    bing: 'https://cn.bing.com/search?q=',
+    baidu: 'https://www.baidu.com/s?ie=UTF-8&wd=',
+  };
+  var host = window.location.host;
+  var query = $('.search-input input').val().toLowerCase().trim();
+  var uri = engines[engine] + query + ' site:' + host;
+
+  if (query) {
+    safeOpenUrl(uri);
+  } else {
+    Stun.utils.popAlert('warning', 'Please enter characters');
+  }
+}
+
+var assistSearchList = window.CONFIG.assistSearch;
+
+if (Array.isArray(assistSearchList)) {
+  assistSearchList.forEach(function (name) {
+    document.querySelector('.search-btns-item--' + name).addEventListener('click', function () {
+      extSearch(name);
+    }, false);
+  });
+}</script><script src="/js/utils.js?v=2.6.2"></script><script src="/js/stun-boot.js?v=2.6.2"></script><script src="/js/scroll.js?v=2.6.2"></script><script src="/js/header.js?v=2.6.2"></script><script src="/js/sidebar.js?v=2.6.2"></script><script type="application/json" src="/search.json"></script></body></html>
