@@ -1,0 +1,425 @@
+<!DOCTYPE html><html lang="en.yml"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="format-detection" content="telephone=no"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black"><link rel="icon" href="/images/icons/favicon-16x16.png?v=2.6.2" type="image/png" sizes="16x16"><link rel="icon" href="/images/icons/favicon-32x32.png?v=2.6.2" type="image/png" sizes="32x32"><meta name="description" content="堆排序       堆排序是利用堆这种数据结构而设计的一种排序算法，堆排序是一种选择排序，它的最坏，最好，平均时间复杂度均为O(nlogn)，它也是不稳定排序。 堆是逻辑上讲是一个完全二叉树：每个结点的值都大于或等于其左右孩子结点的值，称为大根堆；每个结点的值都小于或等于其左右孩子结点的值，称为小根堆。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="堆(heap)排序">
+<meta property="og:url" content="http://example.com/2022/01/18/%E5%A0%86(heap)%E6%8E%92%E5%BA%8F/index.html">
+<meta property="og:site_name" content="Study hard, Work Hard">
+<meta property="og:description" content="堆排序       堆排序是利用堆这种数据结构而设计的一种排序算法，堆排序是一种选择排序，它的最坏，最好，平均时间复杂度均为O(nlogn)，它也是不稳定排序。 堆是逻辑上讲是一个完全二叉树：每个结点的值都大于或等于其左右孩子结点的值，称为大根堆；每个结点的值都小于或等于其左右孩子结点的值，称为小根堆。">
+<meta property="og:locale">
+<meta property="og:image" content="http://example.com/images/algorithm/heap/big-roof-heap.png">
+<meta property="og:image" content="http://example.com/images/algorithm/heap/small-roof-heap.png">
+<meta property="og:image" content="http://example.com/images/algorithm/heap/heap-map.png">
+<meta property="og:image" content="http://example.com/images/algorithm/heap/sort_list.png">
+<meta property="og:image" content="http://example.com/images/algorithm/heap/heap-first-three.png">
+<meta property="og:image" content="http://example.com/images/algorithm/heap/heap-two-item.png">
+<meta property="og:image" content="http://example.com/images/algorithm/heap/heap-map.png">
+<meta property="og:image" content="http://example.com/images/algorithm/heap/heap-four-item.png">
+<meta property="og:image" content="http://example.com/images/algorithm/heap/heap-five-item.png">
+<meta property="og:image" content="http://example.com/images/algorithm/heap/heap-last-one.png">
+<meta property="og:image" content="http://example.com/images/algorithm/heap/heapfy-one.png">
+<meta property="article:published_time" content="2022-01-17T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-01-22T04:51:36.150Z">
+<meta property="article:author" content="lucky">
+<meta property="article:tag" content="golang">
+<meta property="article:tag" content="algorithm">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://example.com/images/algorithm/heap/big-roof-heap.png"><title>堆(heap)排序 | Study hard, Work Hard</title><link ref="canonical" href="http://example.com/2022/01/18/%E5%A0%86(heap)%E6%8E%92%E5%BA%8F/"><link rel="dns-prefetch" href="https://cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.12.1/css/all.min.css" type="text/css"><link rel="stylesheet" href="/css/index.css?v=2.6.2"><script>var Stun = window.Stun || {};
+var CONFIG = {
+  root: '/',
+  algolia: undefined,
+  assistSearch: ["google","bing","baidu"],
+  fontIcon: {"prompt":{"success":"fas fa-check-circle","info":"fas fa-arrow-circle-right","warning":"fas fa-exclamation-circle","error":"fas fa-times-circle"},"copyBtn":"fas fa-copy"},
+  sidebar: {"offsetTop":"20px","tocMaxDepth":6},
+  header: {"enable":true,"showOnPost":true,"scrollDownIcon":false},
+  postWidget: {"endText":true},
+  nightMode: {"enable":true},
+  back2top: {"enable":true},
+  codeblock: {"style":"default","highlight":"light","wordWrap":false},
+  reward: false,
+  fancybox: false,
+  zoomImage: {"gapAside":"20px"},
+  galleryWaterfall: undefined,
+  lazyload: false,
+  pjax: undefined,
+  externalLink: {"icon":{"enable":true,"name":"fas fa-external-link-alt"}},
+  shortcuts: undefined,
+  prompt: {"copyButton":"Copy","copySuccess":"Copy Success","copyError":"Copy Error"},
+  sourcePath: {"js":"js","css":"css","images":"images"},
+};
+
+window.CONFIG = CONFIG;</script><meta name="generator" content="Hexo 5.3.0"></head><body><div class="container" id="container"><header class="header" id="header"><div class="header-inner"><nav class="header-nav header-nav--fixed"><div class="header-nav-inner"><div class="header-nav-menubtn"><i class="fas fa-bars"></i></div><div class="header-nav-menu"><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/"><span class="header-nav-menu-item__icon"><i class="fas fa-home"></i></span><span class="header-nav-menu-item__text">Home</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/archives/"><span class="header-nav-menu-item__icon"><i class="fas fa-folder-open"></i></span><span class="header-nav-menu-item__text">Archives</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/categories/"><span class="header-nav-menu-item__icon"><i class="fas fa-layer-group"></i></span><span class="header-nav-menu-item__text">Categories</span></a></div><div class="header-nav-menu-item"><a class="header-nav-menu-item__link" href="/tags/"><span class="header-nav-menu-item__icon"><i class="fas fa-tags"></i></span><span class="header-nav-menu-item__text">Tags</span></a></div></div><div class="header-nav-search"><span class="header-nav-search__icon"><i class="fas fa-search"></i></span><span class="header-nav-search__text">Search</span></div><div class="header-nav-mode"><div class="mode"><div class="mode-track"><span class="mode-track-moon"></span><span class="mode-track-sun"></span></div><div class="mode-thumb"></div></div></div></div></nav><div class="header-banner"><div class="header-banner-info"><div class="header-banner-info__title">Study hard, Work Hard</div><div class="header-banner-info__subtitle">If you don't want to wasted life in the world, that is about to study for a lifetime.</div></div></div></div></header><main class="main" id="main"><div class="main-inner"><div class="content-wrap" id="content-wrap"><div class="content" id="content"><!-- Just used to judge whether it is an article page--><div id="is-post"></div><div class="post"><header class="post-header"><h1 class="post-title">堆(heap)排序</h1><div class="post-meta"><span class="post-meta-item post-meta-item--createtime"><span class="post-meta-item__icon"><i class="far fa-calendar-plus"></i></span><span class="post-meta-item__info">Created</span><span class="post-meta-item__value">2022-01-18</span></span><span class="post-meta-item post-meta-item--updatetime"><span class="post-meta-item__icon"><i class="far fa-calendar-check"></i></span><span class="post-meta-item__info">Updated</span><span class="post-meta-item__value">2022-01-22</span></span></div></header><div class="post-body">
+        <h2 id="堆排序"   >
+          <a href="#堆排序" class="heading-link"><i class="fas fa-link"></i></a><a href="#堆排序" class="headerlink" title="堆排序"></a>堆排序</h2>
+      <p>堆排序是利用堆这种数据结构而设计的一种排序算法，堆排序是一种选择排序，它的最坏，最好，平均时间复杂度均为O(nlogn)，它也是不稳定排序。</p>
+<p>堆是逻辑上讲是一个完全二叉树：每个结点的值都大于或等于其左右孩子结点的值，称为大根堆；每个结点的值都小于或等于其左右孩子结点的值，称为小根堆。</p>
+<a id="more"></a>
+
+<p><strong>大根堆结构</strong><br><img src="/images/algorithm/heap/big-roof-heap.png" art="http-header" width="500px"></p>
+<p><strong>大根堆结构</strong><br><img src="/images/algorithm/heap/small-roof-heap.png" art="http-header" width="500px"></p>
+<p>我们对堆中的结点按层进行编号，映射到数组中就是下面这个样子:<br><img src="/images/algorithm/heap/heap-map.png" art="http-header" width="500px"></p>
+<p>节点索引:</p>
+<ul>
+<li>父节点: (i-1) / 2</li>
+<li>左孩子节点: i * 2 + 1</li>
+<li>右孩子节点: i * 2 + 2</li>
+</ul>
+<p>堆中父子节点关系：</p>
+<ul>
+<li>大根堆：arr[i] &gt;= arr[2i+1] &amp;&amp; arr[i] &gt;= arr[2i+2]</li>
+<li>小根堆：arr[i] &lt;= arr[2i+1] &amp;&amp; arr[i] &lt;= arr[2i+2]</li>
+</ul>
+<p>组成堆的节点数大小成为堆大小，heapSize。</p>
+
+        <h2 id="堆排序基本思想及步骤"   >
+          <a href="#堆排序基本思想及步骤" class="heading-link"><i class="fas fa-link"></i></a><a href="#堆排序基本思想及步骤" class="headerlink" title="堆排序基本思想及步骤"></a>堆排序基本思想及步骤</h2>
+      <p>堆排序的基本思想是：将待排序序列构造成一个大根堆，此时，整个序列的最大值就是堆顶的根节点。将其与末尾元素进行交换，此时末尾就为最大值。然后将剩余n-1个元素重新构造成一个堆，这样会得到n个元素的次小值。如此反复执行，便能得到一个有序序列了。</p>
+<p>假设下面数字，如何进行堆化？</p>
+<img src="/images/algorithm/heap/sort_list.png" art="http-header" width="300px">
+
+<ul>
+<li>首先第一个数字3，即已经堆化。此时heapSize=1;<img src="/images/algorithm/heap/heap-first-three.png" art="http-header" width="300px"></li>
+<li>第二个数字为1，与父节点比较，小于父节点3，即为左节点。此时heapSize=2;如<img src="/images/algorithm/heap/heap-two-item.png" art="http-header" width="80px"></li>
+<li>第三个数字6,与父节点比较， 6 &gt; 3，则与父节点交换，堆化，此时heapSize=3;<img src="/images/algorithm/heap/heap-map.png" art="http-header" width="80px"></li>
+<li>第四个数字2,与父节点1比较， 2 &gt; 1，则与父节点交换，此时，2 来到原来1的位置，2继续与父节点6比较，不大于6，暂停，堆化，此时heapSize=4;<img src="/images/algorithm/heap/heap-four-item.png" art="http-header" width="80px"></li>
+<li>第5个数字4,与父节点2比较， 4 &gt; 2，则与父节点交换，此时，4 来到原来2的位置，4继续与父节点6比较，不大于6，暂停，堆化，此时heapSize=5;<img src="/images/algorithm/heap/heap-five-item.png" art="http-header" width="80px">
+
+</li>
+</ul>
+<p>进来一个数字，需要进行一次堆化操作的过程叫做heapInsert过程，即：循环与父节点比较，当大雨父节点时交换，否则停止。</p>
+<p>堆化之后，最大值即在跟节点位置，此时最大值已确定。</p>
+<p>如何找出其他最大值呢？</p>
+<p>跟节点最大值与最后一个节点交换，即最后一个数字已确定为最大值，无需再次进行处理。所以 heapSize - 1, 只需将剩余的元素节点重新堆化（heapify过程）。堆化之后最大值与最后一个元素交换，重复操作。</p>
+<img src="/images/algorithm/heap/heap-last-one.png" art="http-header" width="200px">
+
+
+        <h2 id="重要过程"   >
+          <a href="#重要过程" class="heading-link"><i class="fas fa-link"></i></a><a href="#重要过程" class="headerlink" title="重要过程"></a>重要过程</h2>
+      
+        <h3 id="进来一个数字，如何进行heapInsert"   >
+          <a href="#进来一个数字，如何进行heapInsert" class="heading-link"><i class="fas fa-link"></i></a><a href="#进来一个数字，如何进行heapInsert" class="headerlink" title="进来一个数字，如何进行heapInsert?"></a>进来一个数字，如何进行heapInsert?</h3>
+      <p>循环进行当前节点元素值与父节点元素比较，大于父节点，则交换位置，直到不满足条件时停止。</p>
+<p>代码实现：</p>
+<figure class="highlight golang"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">heapInsert</span><span class="params">(arr []<span class="keyword">int</span>, index <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">	<span class="comment">// index 节点与父节点比较，大于父节点</span></span><br><span class="line">	<span class="keyword">for</span> arr[index] &gt; arr[(index<span class="number">-1</span>)/<span class="number">2</span>] &#123;</span><br><span class="line">		<span class="comment">// 与父节点进行交换位置</span></span><br><span class="line">		swap(arr, index, (index<span class="number">-1</span>)/<span class="number">2</span>)</span><br><span class="line">		<span class="comment">// 此时index 来到原来父节点的位置</span></span><br><span class="line">		index = (index - <span class="number">1</span>) / <span class="number">2</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></div></figure>
+
+        <h3 id="跟节点与最后一个节点交换之后，如何叫剩余节点堆化？"   >
+          <a href="#跟节点与最后一个节点交换之后，如何叫剩余节点堆化？" class="heading-link"><i class="fas fa-link"></i></a><a href="#跟节点与最后一个节点交换之后，如何叫剩余节点堆化？" class="headerlink" title="跟节点与最后一个节点交换之后，如何叫剩余节点堆化？"></a>跟节点与最后一个节点交换之后，如何叫剩余节点堆化？</h3>
+      <img src="/images/algorithm/heap/heapfy-one.png" art="" width="200px">
+
+<ul>
+<li>从跟,如2位置开始，此节点是否有左孩子节点</li>
+<li>存在左孩子节点4，比较左孩子索引号是否小于heapSize，小于堆化元素则进行下一步。</li>
+<li>判断父节点2是否有右孩子节点，有孩子节点满足heapSize。</li>
+<li>找出2位置的左右孩子节点的最大值，与父节点4，进行比较，大于4，则交换，否则，不交换。</li>
+<li>循环处理，直到剩余节点全部堆化。</li>
+</ul>
+<p>代码实现：</p>
+<figure class="highlight golang"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">heapify</span><span class="params">(arr []<span class="keyword">int</span>, index, heapSize <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">	<span class="comment">// 先找出左孩子节点，判断是否满足堆化的大小，满足处理，不满足则不需要处理</span></span><br><span class="line">	left := <span class="number">2</span>*index + <span class="number">1</span></span><br><span class="line">	<span class="keyword">for</span> left &lt; heapSize &#123;</span><br><span class="line">		<span class="comment">// 假设大值的节点就是左孩子节点</span></span><br><span class="line">		largest := left</span><br><span class="line">		<span class="comment">//  右孩子节点也满足堆化大小，并且大于左孩子节点，此时最大值为右孩子节点</span></span><br><span class="line">		<span class="keyword">if</span> left+<span class="number">1</span> &lt; heapSize &amp;&amp; arr[left+<span class="number">1</span>] &gt; arr[left] &#123;</span><br><span class="line">			largest = left + <span class="number">1</span></span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">// 比较 index 位置值与左右孩子最大值 节点值比较</span></span><br><span class="line">		<span class="keyword">if</span> arr[index] &gt; arr[largest] &#123;</span><br><span class="line">			largest = index</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="comment">// 如果两个相等，说明已经堆化，则退出</span></span><br><span class="line">		<span class="keyword">if</span> index == largest &#123;</span><br><span class="line">			<span class="keyword">break</span></span><br><span class="line">		&#125;</span><br><span class="line">		swap(arr, largest, index)</span><br><span class="line">		<span class="comment">// 此时节点，原来左右孩子节点较大节点处，循环进行下一次比较</span></span><br><span class="line">		index = largest</span><br><span class="line">		left = <span class="number">2</span>*index + <span class="number">1</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></div></figure>
+
+        <h3 id="如何进行heapSort排序？"   >
+          <a href="#如何进行heapSort排序？" class="heading-link"><i class="fas fa-link"></i></a><a href="#如何进行heapSort排序？" class="headerlink" title="如何进行heapSort排序？"></a>如何进行heapSort排序？</h3>
+      <p>代码实现：</p>
+<figure class="highlight golang"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">heapSort</span><span class="params">(arr []<span class="keyword">int</span>)</span> []<span class="title">int</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> <span class="built_in">len</span>(arr) &lt; <span class="number">2</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> arr</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// 一个数字一个数字的拿 组成一个大根堆</span></span><br><span class="line">	<span class="comment">// for i := 0; i &lt; len(arr); i++ &#123;</span></span><br><span class="line">	<span class="comment">// 	heapInsert(arr, i)</span></span><br><span class="line">	<span class="comment">// &#125;</span></span><br><span class="line">	<span class="comment">// 或者一次拿到全部数，循环heapfy, 按照heapSize 组成大根堆</span></span><br><span class="line">	<span class="comment">// 第一次， 全部arr元素 heapSize</span></span><br><span class="line">	<span class="comment">// 第二次， 全部arr元素-1, heapSize-1</span></span><br><span class="line">	<span class="comment">// ....</span></span><br><span class="line">	<span class="comment">// 直到heapSize = 0, 无需进行heafy化</span></span><br><span class="line">	<span class="keyword">for</span> i := <span class="built_in">len</span>(arr) - <span class="number">1</span>; i &gt;= <span class="number">0</span>; i-- &#123;</span><br><span class="line">		heapfyn(arr, i, <span class="built_in">len</span>(arr)) <span class="comment">// 优于上数据heapInsert过程</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// heapSize - 1， 此时heapSize为最后一个元素</span></span><br><span class="line">	<span class="comment">// 与跟节点位置交换，并将剩余元素继续heapfy化</span></span><br><span class="line">	<span class="comment">// 直到heapSize 为0， 全部heapfy化</span></span><br><span class="line">	heapSize := <span class="built_in">len</span>(arr) - <span class="number">1</span></span><br><span class="line">	swap(arr, <span class="number">0</span>, heapSize)</span><br><span class="line">	<span class="keyword">for</span> heapSize &gt; <span class="number">0</span> &#123;</span><br><span class="line">		heapfyn(arr, <span class="number">0</span>, heapSize)</span><br><span class="line">		heapSize -= <span class="number">1</span></span><br><span class="line">		swap(arr, <span class="number">0</span>, heapSize)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> arr</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></div></figure>
+
+        <h3 id="示例"   >
+          <a href="#示例" class="heading-link"><i class="fas fa-link"></i></a><a href="#示例" class="headerlink" title="示例"></a>示例</h3>
+      <figure class="highlight golang"><div class="table-container"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	arr := []<span class="keyword">int</span>&#123;<span class="number">5</span>, <span class="number">9</span>, <span class="number">10</span>, <span class="number">18</span>, <span class="number">2</span>, <span class="number">9</span>, <span class="number">11</span>, <span class="number">6</span>, <span class="number">7</span>&#125;</span><br><span class="line">	newArr := heapSort(arr)</span><br><span class="line">	fmt.Println(newArr)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// [2 5 6 7 9 9 10 11 18]</span></span><br></pre></td></tr></table></div></figure>
+
+        <h2 id="复杂度"   >
+          <a href="#复杂度" class="heading-link"><i class="fas fa-link"></i></a><a href="#复杂度" class="headerlink" title="复杂度"></a>复杂度</h2>
+      <p>时间复杂度： O(NlogN)</p>
+<p>空间复杂度，未额外申请空间：O(1)</p>
+
+        <h2 id="拓展"   >
+          <a href="#拓展" class="heading-link"><i class="fas fa-link"></i></a><a href="#拓展" class="headerlink" title="拓展"></a>拓展</h2>
+      <ul>
+<li><p>优先级队列结构，就是堆结构。</p>
+</li>
+<li><p>参考</p>
+</li>
+<li><p>左神算法 <span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV13g41157hK?p=4" >https://www.bilibili.com/video/BV13g41157hK?p=4</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span></p>
+</li>
+<li><p><span class="exturl"><a class="exturl__link"   target="_blank" rel="noopener" href="https://www.cnblogs.com/chengxiao/p/6129630.html" >https://www.cnblogs.com/chengxiao/p/6129630.html</a><span class="exturl__icon"><i class="fas fa-external-link-alt"></i></span></span></p>
+</li>
+</ul>
+</div><footer class="post-footer"><div class="post-ending ending"><div class="ending__text">------ END ------</div></div><div class="post-tags"><span class="post-tags-item"><span class="post-tags-item__icon"><i class="fas fa-tag"></i></span><a class="post-tags-item__link" href="http://example.com/tags/golang/">golang</a></span><span class="post-tags-item"><span class="post-tags-item__icon"><i class="fas fa-tag"></i></span><a class="post-tags-item__link" href="http://example.com/tags/algorithm/">algorithm</a></span></div><nav class="post-paginator paginator"><div class="paginator-prev"><a class="paginator-prev__link" href="/2022/01/18/%E5%9C%A8%20Go%20%E5%A6%82%E4%BD%95%E5%AE%9E%E7%8E%B0%E6%9E%9A%E4%B8%BE%EF%BC%9F/"><span class="paginator-prev__icon"><i class="fas fa-angle-left"></i></span><span class="paginator-prev__text">在 Go 如何实现枚举？</span></a></div><div class="paginator-next"><a class="paginator-next__link" href="/2021/12/11/%E4%B8%89%E5%89%91%E5%AE%A2-%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F/"><span class="paginator-prev__text">三剑客-正则表达式</span><span class="paginator-next__icon"><i class="fas fa-angle-right"></i></span></a></div></nav></footer></div></div></div><div class="sidebar-wrap" id="sidebar-wrap"><aside class="sidebar" id="sidebar"><div class="sidebar-nav"><span class="sidebar-nav-toc current">Catalog</span><span class="sidebar-nav-ov">Overview</span></div><section class="sidebar-toc"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A0%86%E6%8E%92%E5%BA%8F"><span class="toc-number">1.</span> <span class="toc-text">
+          堆排序</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A0%86%E6%8E%92%E5%BA%8F%E5%9F%BA%E6%9C%AC%E6%80%9D%E6%83%B3%E5%8F%8A%E6%AD%A5%E9%AA%A4"><span class="toc-number">2.</span> <span class="toc-text">
+          堆排序基本思想及步骤</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%87%8D%E8%A6%81%E8%BF%87%E7%A8%8B"><span class="toc-number">3.</span> <span class="toc-text">
+          重要过程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BF%9B%E6%9D%A5%E4%B8%80%E4%B8%AA%E6%95%B0%E5%AD%97%EF%BC%8C%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8CheapInsert"><span class="toc-number">3.1.</span> <span class="toc-text">
+          进来一个数字，如何进行heapInsert?</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%B7%9F%E8%8A%82%E7%82%B9%E4%B8%8E%E6%9C%80%E5%90%8E%E4%B8%80%E4%B8%AA%E8%8A%82%E7%82%B9%E4%BA%A4%E6%8D%A2%E4%B9%8B%E5%90%8E%EF%BC%8C%E5%A6%82%E4%BD%95%E5%8F%AB%E5%89%A9%E4%BD%99%E8%8A%82%E7%82%B9%E5%A0%86%E5%8C%96%EF%BC%9F"><span class="toc-number">3.2.</span> <span class="toc-text">
+          跟节点与最后一个节点交换之后，如何叫剩余节点堆化？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E8%BF%9B%E8%A1%8CheapSort%E6%8E%92%E5%BA%8F%EF%BC%9F"><span class="toc-number">3.3.</span> <span class="toc-text">
+          如何进行heapSort排序？</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A4%BA%E4%BE%8B"><span class="toc-number">3.4.</span> <span class="toc-text">
+          示例</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%8D%E6%9D%82%E5%BA%A6"><span class="toc-number">4.</span> <span class="toc-text">
+          复杂度</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8B%93%E5%B1%95"><span class="toc-number">5.</span> <span class="toc-text">
+          拓展</span></a></li></ol></section><!-- ov = overview--><section class="sidebar-ov hide"><div class="sidebar-ov-author"><div class="sidebar-ov-author__avatar"><img class="sidebar-ov-author__avatar_img" src="/images/icons/stun-logo.svg" alt="avatar"></div><p class="sidebar-ov-author__text">hello world</p></div><div class="sidebar-ov-state"><a class="sidebar-ov-state-item sidebar-ov-state-item--posts" href="/archives/"><div class="sidebar-ov-state-item__count">36</div><div class="sidebar-ov-state-item__name">Archives</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--categories" href="/categories/"><div class="sidebar-ov-state-item__count">13</div><div class="sidebar-ov-state-item__name">Categories</div></a><a class="sidebar-ov-state-item sidebar-ov-state-item--tags" href="/tags/"><div class="sidebar-ov-state-item__count">25</div><div class="sidebar-ov-state-item__name">Tags</div></a></div></section><div class="sidebar-reading"><div class="sidebar-reading-info"><span class="sidebar-reading-info__text">You have read </span><span class="sidebar-reading-info__num">0</span><span class="sidebar-reading-info__perc">%</span></div><div class="sidebar-reading-line"></div></div></aside></div><div class="clearfix"></div></div></main><footer class="footer" id="footer"><div class="footer-inner"><div><span>Copyright © 2022</span><span class="footer__icon"><i class="fas fa-heart"></i></span><span>lucky</span></div><div><a href="https://github.com/luckylsx/" rel="noopener" target="_blank">Github Pages</a></div></div></footer><div class="loading-bar" id="loading-bar"><div class="loading-bar__progress"></div></div><div class="back2top" id="back2top"><span class="back2top__icon"><i class="fas fa-rocket"></i></span></div></div><div class="search-mask"></div><div class="search-popup"><span class="search-close"></span><div class="search-input"><input placeholder="Search for Posts (Support multiple keywords)"><div class="search-btns">Search by:<span class="search-btns-item search-btns-item--google"><i class="fab fa-google"></i>Google</span><span class="search-btns-item search-btns-item--bing"><i></i>Bing</span><span class="search-btns-item search-btns-item--baidu"><i></i>Baidu</span></div></div><div class="search-results"></div></div><script src="https://cdn.jsdelivr.net/npm/jquery@v3.4.1/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@1.5.2/velocity.ui.min.js"></script><script>function initSearch() {
+  var isXML = true;
+  var search_path = 'search.json';
+
+  if (!search_path) {
+    search_path = 'search.xml';
+  } else if (/json$/i.test(search_path)) {
+    isXML = false;
+  }
+
+  var path = '/' + search_path;
+  $.ajax({
+    url: path,
+    dataType: isXML ? 'xml' : 'json',
+    async: true,
+    success: function (res) {
+      var datas = isXML ? $('entry', res).map(function () {
+        // 将 XML 转为 JSON
+        return {
+          title: $('title', this).text(),
+          content: $('content', this).text(),
+          url: $('url', this).text()
+        };
+      }).get() : res;
+      var $input = $('.search-input input');
+      var $result = $('.search-results');
+      // 搜索对象（标题、内容）的权重，影响显示顺序
+      var WEIGHT = { title: 100, content: 1 };
+      var searchPost = function () {
+        var searchText = $input.val().toLowerCase().trim();
+        // 根据空白字符分隔关键字
+        var keywords = searchText.split(/[\s]+/);
+        // 搜索结果
+        var matchPosts = [];
+
+        // 有多个关键字时，将原文字整个保存下来
+        if (keywords.length > 1) {
+          keywords.push(searchText);
+        }
+        // 防止未输入字符时搜索
+        if (searchText.length > 0) {
+          datas.forEach(function (data) {
+            var isMatch  = false;
+            // 没有标题的文章使用预设的 i18n 变量代替
+            var title = (data.title && data.title.trim()) || '[ Untitled ]';
+            var titleLower = title && title.toLowerCase();
+            // 删除 HTML 标签 和 所有空白字符
+            var content = data.content && data.content.replace(/<[^>]+>/g, '');
+            var contentLower = content && content.toLowerCase();
+            // 删除重复的 /
+            var postURL = data.url && decodeURI(data.url).replace(/\/{2,}/g, '/');
+            // 标题中匹配到的关键词
+            var titleHitSlice = [];
+            // 内容中匹配到的关键词
+            var contentHitSlice = [];
+
+            keywords.forEach(function (keyword) {
+              /**
+              * 获取匹配的关键词的索引
+              * @param {String} keyword 要匹配的关键字
+              * @param {String} text 原文字
+              * @param {Boolean} caseSensitive 是否区分大小写
+              * @param {Number} weight 匹配对象的权重。权重大的优先显示
+              * @return {Array}
+              */
+              function getIndexByword (word, text, caseSensitive, weight) {
+                if (!word || !text) {
+                  return [];
+                };
+
+                var startIndex = 0; // 每次匹配的开始索引
+                var index = -1;     // 匹配到的索引值
+                var result = [];    // 匹配结果
+
+                if (!caseSensitive) {
+                  word = word.toLowerCase();
+                  text = text.toLowerCase();
+                }
+
+                while((index = text.indexOf(word, startIndex)) !== -1) {
+                  var hasMatch = false;
+                  // 索引位置相同的关键词，保留长度较长的
+                  titleHitSlice.forEach(function (hit) {
+                    if (hit.index === index && hit.word.length < word.length) {
+                      hit.word = word;
+                      hasMatch = true;
+                    }
+                  });
+                  startIndex = index + word.length;
+                  !hasMatch && result.push({ index: index, word: word, weight: weight });
+                }
+                return result;
+              }
+              titleHitSlice = titleHitSlice.concat(getIndexByword(keyword, titleLower, false, WEIGHT.title));
+              contentHitSlice = contentHitSlice.concat(getIndexByword(keyword, contentLower, false, WEIGHT.content));
+            });
+
+            var hitTitle = titleHitSlice.length;
+            var hitContent = contentHitSlice.length;
+
+            if (hitTitle > 0 || hitContent > 0) {
+              isMatch = true;
+            }
+            if (isMatch) {
+              ;[titleHitSlice, contentHitSlice].forEach(function (hit) {
+                // 按照匹配文字的索引的递增顺序排序
+                hit.sort(function (left, right) {
+                  return left.index - right.index;
+                });
+              });
+              /**
+              * 给文本中匹配到的关键词添加标记，从而进行高亮显示
+              * @param {String} text 原文本
+              * @param {Array} hitSlice 匹配项的索引信息
+              * @param {Number} start 开始索引
+              * @param {Number} end 结束索引
+              * @return {String}
+              */
+              function highlightKeyword (text, hitSlice, start, end) {
+                if (!text || !hitSlice || !hitSlice.length) {
+                  return;
+                }
+
+                var result = '';
+                var startIndex = start;
+                var endIndex = end;
+                hitSlice.forEach(function (hit) {
+                  if (hit.index < startIndex) {
+                    return;
+                  }
+
+                  var hitWordEnd = hit.index + hit.word.length;
+                  result += text.slice(startIndex, hit.index);
+                  result += '<b>' + text.slice(hit.index, hitWordEnd) + '</b>';
+                  startIndex = hitWordEnd;
+                });
+                result += text.slice(startIndex, endIndex);
+                return result;
+              }
+
+              var postData = {};
+              // 文章总的搜索权重
+              var postWeight = titleHitSlice.length * WEIGHT.title + contentHitSlice.length * WEIGHT.content;
+              // 标记匹配关键词后的标题
+              var postTitle = highlightKeyword(title, titleHitSlice, 0, title.length) || title;
+              // 标记匹配关键词后的内容
+              var postContent;
+              // 显示内容的长度
+              var SHOW_WORD_LENGTH = 200;
+              // 命中关键词前的字符显示长度
+              var SHOW_WORD_FRONT_LENGTH = 20;
+              var SHOW_WORD_END_LENGTH = SHOW_WORD_LENGTH - SHOW_WORD_FRONT_LENGTH;
+
+              // 截取匹配的第一个字符，前后共 200 个字符来显示
+              if (contentHitSlice.length > 0) {
+                var firstIndex = contentHitSlice[0].index;
+                var start = firstIndex > SHOW_WORD_FRONT_LENGTH ? firstIndex - SHOW_WORD_FRONT_LENGTH : 0;
+                var end = firstIndex + SHOW_WORD_END_LENGTH;
+                postContent = highlightKeyword(content, contentHitSlice, start, end);
+              } else { // 未匹配到内容，直接截取前 200 个字符来显示
+                postContent = content.slice(0, SHOW_WORD_LENGTH);
+              }
+              postData.title = postTitle;
+              postData.content = postContent;
+              postData.url = postURL;
+              postData.weight = postWeight;
+              matchPosts.push(postData);
+            }
+          });
+        }
+
+        var resultInnerHtml = '';
+        if (matchPosts.length) {
+          // 按权重递增的顺序排序，使权重大的优先显示
+          matchPosts.sort(function (left, right) {
+            return right.weight - left.weight;
+          });
+          resultInnerHtml += '<ul>';
+          matchPosts.forEach(function (post) {
+            resultInnerHtml += '<li><a class="search-results-title" href="' + post.url + '">';
+            resultInnerHtml += post.title;
+            resultInnerHtml += '</a><div class="search-results-content">';
+            resultInnerHtml += post.content;
+            resultInnerHtml += '</div></li>';
+          });
+          resultInnerHtml += '</ul>';
+        } else {
+          resultInnerHtml += '<div class="search-results-none"><i class="far fa-meh"></i></div>';
+        }
+        $result.html(resultInnerHtml);
+      };
+      $input.on('input', searchPost);
+      $input.on('keyup', function (e) {
+        if (e.keyCode === Stun.utils.codeToKeyCode('Enter')) {
+          searchPost();
+        }
+      });
+    }
+  });
+}
+
+function closeSearch () {
+  $('body').css({ overflow: 'auto' });
+  $('.search-popup').css({ display: 'none' });
+  $('.search-mask').css({ display: 'none' });
+}
+
+window.addEventListener('DOMContentLoaded', function () {
+  Stun.utils.pjaxReloadLocalSearch = function () {
+    $('.header-nav-search').on('click', function (e) {
+      e.stopPropagation();
+      $('body').css('overflow', 'hidden');
+      $('.search-popup')
+        .velocity('stop')
+        .velocity('transition.expandIn', {
+          duration: 300,
+          complete: function () {
+            $('.search-popup input').focus();
+          }
+        });
+      $('.search-mask')
+        .velocity('stop')
+        .velocity('transition.fadeIn', {
+          duration: 300
+        });
+
+      initSearch();
+    });
+    $('.search-mask, .search-close').on('click', function () {
+      closeSearch();
+    });
+    $(document).on('keydown', function (e) {
+      // Escape <=> 27
+      if (e.keyCode === Stun.utils.codeToKeyCode('Escape')) {
+        closeSearch();
+      }
+    });
+  };
+
+  Stun.utils.pjaxReloadLocalSearch();
+}, false);
+
+function safeOpenUrl(url) {
+  var newTab = window.open();
+  newTab.opener = null;
+  newTab.location = url;
+}
+
+function extSearch(engine) {
+  var engines = {
+    google: 'https://www.google.com/search?q=',
+    bing: 'https://cn.bing.com/search?q=',
+    baidu: 'https://www.baidu.com/s?ie=UTF-8&wd=',
+  };
+  var host = window.location.host;
+  var query = $('.search-input input').val().toLowerCase().trim();
+  var uri = engines[engine] + query + ' site:' + host;
+
+  if (query) {
+    safeOpenUrl(uri);
+  } else {
+    Stun.utils.popAlert('warning', 'Please enter characters');
+  }
+}
+
+var assistSearchList = window.CONFIG.assistSearch;
+
+if (Array.isArray(assistSearchList)) {
+  assistSearchList.forEach(function (name) {
+    document.querySelector('.search-btns-item--' + name).addEventListener('click', function () {
+      extSearch(name);
+    }, false);
+  });
+}</script><script src="/js/utils.js?v=2.6.2"></script><script src="/js/stun-boot.js?v=2.6.2"></script><script src="/js/scroll.js?v=2.6.2"></script><script src="/js/header.js?v=2.6.2"></script><script src="/js/sidebar.js?v=2.6.2"></script><script type="application/json" src="/search.json"></script></body></html>
